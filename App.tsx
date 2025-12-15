@@ -80,7 +80,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 font-bold text-2xl">
             {/* Logo Replacement: Coded Icon instead of missing image */}
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white">
-              <img src="./logo.png" size={20} strokeWidth={3} />
+              <img src="./favicon.png" size={20} strokeWidth={3} />
             </div>
             <span className="tracking-tight">VitalConnection</span>
           </div>
@@ -505,7 +505,7 @@ const App: React.FC = () => {
             <div className="flex items-center gap-2 font-bold text-xl text-white">
               {/* Footer Logo Replacement */}
               <div className="w-7 h-7 rounded-md flex items-center justify-center text-white">
-                <img src="./logo.png" alt="Logo" />
+                <img src="./favicon.png" alt="Logo" />
               </div>
               <span>VitalConnection</span>
             </div>
