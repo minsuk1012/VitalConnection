@@ -1,57 +1,61 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const data = [
-  { year: '2024', visitors: 120, label: '120만' },
-  { year: '2025', visitors: 180, label: '180만' },
+  { month: '24.11', visitors: 1361076 },
+  { month: '12', visitors: 1270863 },
+  { month: '25.01', visitors: 1117243 },
+  { month: '02', visitors: 1138408 },
+  { month: '03', visitors: 1614596 },
+  { month: '04', visitors: 1707113 },
+  { month: '05', visitors: 1629387 },
+  { month: '06', visitors: 1619220 },
+  { month: '07', visitors: 1733199 },
+  { month: '08', visitors: 1820332 },
+  { month: '09', visitors: 1702813 },
+  { month: '10', visitors: 1739020 },
 ];
 
 const VisitorChart: React.FC = () => {
+  // Find max value to highlight
+  const maxVisitors = Math.max(...data.map(d => d.visitors));
+
   return (
-    <div className="w-full h-[400px] bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100 flex flex-col">
-      <div className="mb-6">
-           <h4 className="text-xl font-bold text-gray-900">연도별 방한 외래객 추이</h4>
-           <p className="text-sm text-gray-500 mt-1">외래객 규모 지속 성장 전망 (단위: 만 명)</p>
-      </div>
-      
+    <div className="w-full h-[300px] flex flex-col">
       <div className="flex-grow">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 30, right: 30, left: 0, bottom: 5 }}
+          margin={{ top: 10, right: 0, left: -20, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
           <XAxis 
-            dataKey="year" 
+            dataKey="month" 
             axisLine={false} 
             tickLine={false} 
-            tick={{fill: '#4B5563', fontSize: 16, fontWeight: 700}} 
+            tick={{fill: '#6B7280', fontSize: 11, fontWeight: 500}} 
             dy={10}
+            interval={0}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{fill: '#9CA3AF', fontSize: 12}} 
-            domain={[0, 200]}
-            ticks={[0, 45, 90, 135, 180]}
+            tick={{fill: '#9CA3AF', fontSize: 11}} 
+            tickFormatter={(value) => `${(value / 10000).toFixed(0)}만`}
           />
           <Tooltip 
-             cursor={{fill: 'transparent'}}
+             cursor={{fill: 'rgba(0,0,0,0.05)'}}
              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-             formatter={(value: number) => [`${value}만 명`, '방한 외래객']}
+             formatter={(value: number) => [new Intl.NumberFormat('ko-KR').format(value) + '명', '방한 외래객']}
+             labelStyle={{ color: '#374151', fontWeight: 'bold' }}
           />
-          <Bar dataKey="visitors" radius={[12, 12, 0, 0]} barSize={80}>
+          <Bar dataKey="visitors" radius={[6, 6, 0, 0]}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={index === 1 ? '#2563EB' : '#93C5FD'} />
+              <Cell 
+                key={`cell-${index}`} 
+                fill={entry.visitors === maxVisitors ? '#2563EB' : '#93C5FD'} 
+              />
             ))}
-             <LabelList 
-                dataKey="label" 
-                position="top" 
-                fill="#1F2937" 
-                fontSize={16} 
-                fontWeight="bold" 
-                offset={10}
-            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

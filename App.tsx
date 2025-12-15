@@ -20,6 +20,7 @@ import VisitorChart from './components/VisitorChart';
 import NationalityChart from './components/NationalityChart';
 import ProcessInfographic from './components/ProcessInfographic';
 import FAQSection from './components/FAQSection';
+import PhoneMockupSection from './components/PhoneMockupSection';
 
 const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -280,66 +281,8 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Market Insight Section */}
-      <section id="market-insight" className="py-24 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-blue-600 font-bold tracking-wide uppercase text-sm">Market Insight</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2 text-gray-900 leading-tight">
-              중화권·영어권 방한 외래객 증가, <br className="hidden md:block"/>
-              <span className="text-blue-600">한국 피부과 수요</span>도 함께 성장
-            </h2>
-            <p className="text-gray-500 mt-4 max-w-2xl mx-auto text-lg">
-              방한 외래객 규모가 빠르게 증가하며 중화권·영어권을 중심으로 <br className="hidden md:block"/>
-              한국 피부과 시술 방문 문의 역시 함께 상승하고 있습니다.
-            </p>
-          </div>
-
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-             {/* Text/Stats Side */}
-             <div className="lg:w-1/2 space-y-8">
-                <div className="bg-gray-50 rounded-3xl p-8 border border-gray-100">
-                   <div className="flex items-center gap-4 mb-2">
-                       <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                          <TrendingUp size={24} />
-                       </div>
-                       <h3 className="text-xl font-bold text-gray-900">2024-2025 증가 추이</h3>
-                   </div>
-                   <p className="text-gray-600 mb-6">
-                     코로나19 엔데믹 이후 의료 관광 목적의 입국자가 급증하고 있으며, 
-                     특히 피부 미용 및 성형 분야의 성장세가 두드러집니다.
-                   </p>
-                   
-                   <div className="grid grid-cols-2 gap-4">
-                       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
-                          <p className="text-sm text-gray-500 mb-1">2024년 (예상)</p>
-                          <p className="text-3xl font-black text-gray-400">120<span className="text-lg font-medium text-gray-400">만 명</span></p>
-                       </div>
-                       <div className="bg-white p-6 rounded-2xl shadow-md border-2 border-blue-100 text-center relative overflow-hidden">
-                          <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">
-                            +50%
-                          </div>
-                          <p className="text-sm text-gray-500 mb-1">2025년 (전망)</p>
-                          <p className="text-3xl font-black text-blue-600">180<span className="text-lg font-medium text-gray-500">만 명</span></p>
-                       </div>
-                   </div>
-                </div>
-                
-                <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-2xl text-blue-800 text-sm leading-relaxed">
-                   <div className="mt-1 flex-shrink-0">
-                     <CheckCircle size={20} />
-                   </div>
-                   <p>지금이 기회입니다. 급증하는 글로벌 수요를 선점하기 위해 VitalConnection의 맞춤형 마케팅 솔루션을 만나보세요.</p>
-                </div>
-             </div>
-
-             {/* Chart Side */}
-             <div className="lg:w-1/2 w-full">
-               <VisitorChart />
-             </div>
-          </div>
-        </div>
-      </section>
+      {/* Phone Mockup Section */}
+      <PhoneMockupSection />
 
       {/* NEW SECTION: Nationality Breakdown */}
       <section className="py-24 bg-gray-50 border-t border-gray-200">
