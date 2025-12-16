@@ -360,7 +360,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-blue-200">Email Us</p>
-                    <p className="font-bold">partnership@vitalconnection.com</p>
+                    <p className="font-bold">vitalconnect@naver.com</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm">
@@ -368,8 +368,8 @@ const App: React.FC = () => {
                     <MessageCircle size={24} />
                   </div>
                   <div>
-                    <p className="text-sm text-blue-200">KakaoTalk</p>
-                    <p className="font-bold">@VitalConnection</p>
+                    <p className="text-sm text-blue-200">파트너십 문의</p>
+                    <p className="font-bold">010-5769-2138</p>
                   </div>
                 </div>
               </div>
