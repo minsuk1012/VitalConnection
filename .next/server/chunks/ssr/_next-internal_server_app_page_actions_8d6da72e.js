@@ -1,7 +1,0 @@
-module.exports=[57526,a=>{"use strict";var b=a.i(37936),c=a.i(45618),d=a.i(13095);let e=process.env.SLACK_WEBHOOK_URL,f=(0,c.createClient)("https://ogjxnpfnpyqayvxioado.supabase.co","sb_publishable_PVYSXAZ5wwlxENGkZCe4FA_L-3GFPmv");async function g(a){console.log("Submitting inquiry:",a);let{error:b}=await f.from("consultations").insert([{hospital_name:a.hospital,contact_name:a.name,phone:a.phone,email:a.email}]);if(b)throw console.error("Supabase Error:",b),Error("Failed to save inquiry");if(e)try{let b={text:`🚀 *새로운 입점 문의가 도착했습니다!*`,blocks:[{type:"header",text:{type:"plain_text",text:"🚀 새로운 입점 문의",emoji:!0}},{type:"section",fields:[{type:"mrkdwn",text:`*병원명:*
-${a.hospital}`},{type:"mrkdwn",text:`*담당자:*
-${a.name}`},{type:"mrkdwn",text:`*연락처:*
-${a.phone}`},{type:"mrkdwn",text:`*이메일:*
-${a.email}`}]}]},c=await fetch(e,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});c.ok||console.error("Slack Webhook Error:",await c.text())}catch(a){console.error("Failed to send Slack notification:",a)}return{success:!0}}(0,d.ensureServerEntryExports)([g]),(0,b.registerServerReference)(g,"4073808e95d4fa88450fef63a65812826ca49375fb",null),a.s([],71570),a.i(71570),a.s(["4073808e95d4fa88450fef63a65812826ca49375fb",()=>g],57526)}];
-
-//# sourceMappingURL=_next-internal_server_app_page_actions_8d6da72e.js.map

@@ -1,3 +1,0 @@
-module.exports=[33290,a=>{"use strict";var b=a.i(7997);function c({children:a}){return(0,b.jsxs)("html",{lang:"ko",children:[(0,b.jsx)("head",{children:(0,b.jsx)("link",{href:"https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap",rel:"stylesheet"})}),(0,b.jsx)("body",{className:"antialiased",children:a})]})}a.s(["default",()=>c,"metadata",0,{title:"VitalConnection | 글로벌 의료 마케팅 솔루션",description:"병원 전문 글로벌 마케팅 에이전시",icons:{icon:"/favicon.png"}}])}];
-
-//# sourceMappingURL=app_layout_tsx_271801d7._.js.map
