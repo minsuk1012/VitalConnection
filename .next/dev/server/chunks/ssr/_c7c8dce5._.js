@@ -12,9 +12,6 @@ const supabaseUrl = ("TURBOPACK compile-time value", "https://ogjxnpfnpyqayvxioa
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseUrl || !supabaseServiceRoleKey) {
     console.warn("Missing Supabase Service Role Key or URL");
-} else {
-    console.log("Supabase Admin Client initialized with URL:", supabaseUrl);
-    console.log("Service Role Key present (length):", supabaseServiceRoleKey.length);
 }
 const supabaseAdmin = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createClient"])(supabaseUrl || '', supabaseServiceRoleKey || '', {
     auth: {
@@ -81,10 +78,9 @@ async function getConsultations() {
         ascending: false
     });
     if (error) {
-        console.error("FULL SUPABASE ERROR:", JSON.stringify(error, null, 2));
+        console.error("Error fetching consultations:", error);
         return [];
     }
-    console.log("Fetced data count:", data?.length);
     return data;
 }
 ;

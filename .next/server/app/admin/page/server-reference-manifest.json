@@ -1,0 +1,50 @@
+{
+  "node": {
+    "00796f624eed8afbcf1ae4ee1b6a140e1518da00f2": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 4100,
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc"
+      },
+      "exportedName": "logoutAdmin",
+      "filename": "app/admin/actions.ts"
+    },
+    "00d7f55cdb152ff37ea9044711f496244b18c1c16f": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 4100,
+          "async": false,
+          "exportedName": "getConsultations",
+          "filename": "app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc"
+      },
+      "exportedName": "getConsultations",
+      "filename": "app/admin/actions.ts"
+    },
+    "409331d3db5dd3acabc827a788930ac4e025067446": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 4100,
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc"
+      },
+      "exportedName": "loginAdmin",
+      "filename": "app/admin/actions.ts"
+    }
+  },
+  "edge": {}
+}

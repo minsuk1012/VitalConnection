@@ -47,11 +47,9 @@ export async function getConsultations() {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error("FULL SUPABASE ERROR:", JSON.stringify(error, null, 2))
+    console.error("Error fetching consultations:", error)
     return []
   }
-
-  console.log("Fetced data count:", data?.length)
 
   return data
 }
