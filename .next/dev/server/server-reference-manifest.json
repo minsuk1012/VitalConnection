@@ -1,0 +1,51 @@
+{
+  "node": {
+    "0071866df52b369be2de539cc2a03c741db2592fee": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/admin/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "logoutAdmin",
+          "filename": "app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc"
+      },
+      "filename": "app/admin/actions.ts",
+      "exportedName": "logoutAdmin"
+    },
+    "007fbd9345e8ae4a60ba9b27e40794b2372e6388bd": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/admin/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getConsultations",
+          "filename": "app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc"
+      },
+      "filename": "app/admin/actions.ts",
+      "exportedName": "getConsultations"
+    },
+    "40717d52b23b370354de6538f0344514d4d28bf3f0": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/admin/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "loginAdmin",
+          "filename": "app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc"
+      },
+      "filename": "app/admin/actions.ts",
+      "exportedName": "loginAdmin"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "v4knkMZrHpzNFMs25QHj21FkhLuCYJLkztMQkNieD+g="
+}
