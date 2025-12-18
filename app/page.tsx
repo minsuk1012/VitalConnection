@@ -289,12 +289,12 @@ const App: React.FC = () => {
                 GLOBAL TARGETING
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-                어디서 온 환자를 <br/>
-                <span className="text-emerald-600">집중 공략</span>해야 할까요?
+                병원의 성장을 만드는 <br/>
+                <span className="text-emerald-600">3대 핵심 타깃</span>
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed">
-                중국과 일본은 여전히 가장 큰 비중을 차지하는 핵심 시장입니다.
-                하지만 최근 <span className="font-bold text-gray-900">대만과 미국의 성장세</span> 또한 무시할 수 없습니다.
+                효율적인 해외환자 유치를 위해<br />
+                국가별 특성과 소비 패턴을 반영한 <span className="font-bold text-gray-900">전략적 집중</span>이 필요합니다.
               </p>
               
               <ul className="space-y-4 mt-4">
@@ -303,8 +303,8 @@ const App: React.FC = () => {
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <strong className="block text-gray-900">중화권 (중국/대만/홍콩)</strong>
-                    <span className="text-sm text-gray-500">쁘띠 시술 및 안티에이징 수요 집중, SNS 마케팅 필수</span>
+                    <strong className="block text-gray-900">중국 본토(Mainland China)</strong>
+                    <span className="text-sm text-gray-500">프리미엄 시술 수요와 높은 전환율</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -312,8 +312,8 @@ const App: React.FC = () => {
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <strong className="block text-gray-900">일본</strong>
-                    <span className="text-sm text-gray-500">피부 관리 및 성형외과 재방문율 1위, 꼼꼼한 후기 관리 중요</span>
+                    <strong className="block text-gray-900">대만 · 홍콩 (Taiwan / Hong Kong)</strong>
+                    <span className="text-sm text-gray-500">성형·피부 미용 분야 높은 재유입률</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -321,8 +321,8 @@ const App: React.FC = () => {
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <strong className="block text-gray-900">미국/영어권</strong>
-                    <span className="text-sm text-gray-500">고단가 수술 및 웰니스 관광 수요 증가, 검색엔진 최적화(SEO) 유리</span>
+                    <strong className="block text-gray-900">미국 · 영어권 (US / EN Markets)</strong>
+                    <span className="text-sm text-gray-500">지속적으로 새로운 수요가 확대되고 있는 글로벌의 핵심</span>
                   </div>
                 </li>
               </ul>

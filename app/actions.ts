@@ -71,7 +71,23 @@ export async function submitInquiry(formData: {
                 text: `*이메일:*\n${formData.email}`
               }
             ]
-          }
+          },
+          {
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "관리자 페이지 바로가기",
+						"emoji": true
+					},
+					"value": "click_me_123",
+					"url": `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin`,
+					"action_id": "actionId-0"
+				}
+			]
+		}
         ]
       }
 
