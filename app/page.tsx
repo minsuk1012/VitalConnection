@@ -18,6 +18,7 @@ import NationalityChart from '../components/NationalityChart';
 import ProcessInfographic from '../components/ProcessInfographic';
 import FAQSection from '../components/FAQSection';
 import PhoneMockupSection from '../components/PhoneMockupSection';
+import FloatingPartnerButton from '../components/FloatingPartnerButton';
 import { submitInquiry } from './actions';
 
 const App: React.FC = () => {
@@ -95,7 +96,7 @@ const App: React.FC = () => {
             <button onClick={() => handleScroll('about')} className="hover:text-blue-600 transition">서비스 소개</button>
             <button onClick={() => handleScroll('process')} className="hover:text-blue-600 transition">진행 과정</button>
             <button onClick={() => handleScroll('market-insight')} className="hover:text-blue-600 transition">시장 분석</button>
-            <a href="https://partner.k-beautypass.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition">뷰티패스</a>
+
             <button 
               onClick={() => handleScroll('contact')}
               className="bg-blue-600 text-white px-6 py-2.5 rounded-full hover:bg-blue-700 transition shadow-lg hover:shadow-blue-500/30"
@@ -123,7 +124,7 @@ const App: React.FC = () => {
               <button onClick={() => handleScroll('about')}>서비스 소개</button>
               <button onClick={() => handleScroll('process')}>진행 과정</button>
               <button onClick={() => handleScroll('market-insight')}>시장 분석</button>
-              <a href="https://partner.k-beautypass.com/" target="_blank" rel="noopener noreferrer">뷰티패스</a>
+
               <button onClick={() => handleScroll('contact')} className="text-blue-600 font-bold">무료 상담 신청</button>
             </div>
           </motion.div>
@@ -458,6 +459,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </footer>
+      <FloatingPartnerButton />
     </div>
   );
 };
