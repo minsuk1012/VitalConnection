@@ -14,7 +14,7 @@ const NationalityChart: React.FC = () => {
     <div className="w-full h-[500px] bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100 flex flex-col">
       <div className="mb-6 text-center md:text-left">
            <h4 className="text-xl font-bold text-gray-900">국적별 방한 외래객 TOP 5</h4>
-           <p className="text-sm text-gray-500 mt-1">주요 타겟 국가별 방문 규모 (2024 기준)</p>
+           <p className="text-sm text-gray-500 mt-1">주요 타겟 국가별 방문 규모 (2024~2025 기준)</p>
       </div>
       
       <div className="flex-grow">
