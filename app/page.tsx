@@ -441,12 +441,17 @@ const App: React.FC = () => {
       <footer className="bg-gray-900 text-gray-400 py-12 border-t border-gray-800">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 font-bold text-xl text-white">
-              {/* Footer Logo Replacement */}
-              <div className="w-7 h-7 rounded-md flex items-center justify-center text-white">
-                <img src="/favicon.png" alt="Logo" />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 font-bold text-xl text-white">
+                {/* Footer Logo Replacement */}
+                <div className="w-7 h-7 rounded-md flex items-center justify-center text-white">
+                  <img src="/favicon.png" alt="Logo" />
+                </div>
+                <span>VitalConnection</span>
               </div>
-              <span>VitalConnection</span>
+              <div className="text-xs text-gray-500">
+                상호명: 주식회사 바이탈커넥션 | 사업자번호: 699-86-03698
+              </div>
             </div>
             <div className="flex gap-8 text-sm">
               <a href="#" className="hover:text-white transition">이용약관</a>
