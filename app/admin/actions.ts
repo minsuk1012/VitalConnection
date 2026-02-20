@@ -2,7 +2,6 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 const ADMIN_ID = 'vitalconnect'
 const ADMIN_PW = 'vitalconnect123!'
@@ -33,23 +32,12 @@ export async function logoutAdmin() {
 }
 
 export async function getConsultations() {
-  // Ensure we are in an admin session (double check)
   const cookieStore = await cookies()
   const hasSession = cookieStore.has(COOKIE_NAME)
-  
+
   if (!hasSession) {
     throw new Error("Unauthorized")
   }
 
-  const { data, error } = await supabaseAdmin
-    .from('consultations')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error("Error fetching consultations:", error)
-    return []
-  }
-
-  return data
+  return []
 }
