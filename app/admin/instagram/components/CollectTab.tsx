@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 
 type CollectType = 'hashtag' | 'profile' | 'location' | 'keyword'
@@ -88,13 +88,17 @@ export default function CollectTab() {
       {/* 수집 방식 */}
       <div className="space-y-2">
         <Label>수집 방식</Label>
-        <Tabs value={mode} onValueChange={v => setMode(v as CollectType)}>
-          <TabsList>
-            {MODES.map(m => (
-              <TabsTrigger key={m.id} value={m.id}>{m.label}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <ToggleGroup
+          value={[mode]}
+          onValueChange={(v: string[]) => { if (v.length > 0) setMode(v[v.length - 1] as CollectType) }}
+          className="justify-start"
+        >
+          {MODES.map(m => (
+            <ToggleGroupItem key={m.id} value={m.id} size="sm">
+              {m.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
       </div>
 
       {/* 검색어 입력 */}
