@@ -1,8 +1,52 @@
 import { ApifyClient } from 'apify-client'
+import { getActiveApifyKeys, updateApifyKeyBalance } from './db'
 
-function getClient() {
-  const token = process.env.APIFY_TOKEN
-  if (!token) throw new Error('APIFY_TOKEN 환경변수가 설정되지 않았습니다.')
+async function fetchBalance(token: string): Promise<{ currentUsage: number; monthlyLimit: number } | null> {
+  try {
+    const res = await fetch('https://api.apify.com/v2/users/me/limits', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return {
+      currentUsage: data.data?.current?.monthlyUsageUsd ?? 0,
+      monthlyLimit: data.data?.limits?.maxMonthlyUsageUsd ?? 5,
+    }
+  } catch {
+    return null
+  }
+}
+
+async function getBestKey(): Promise<string> {
+  // Try DB keys first
+  const keys = getActiveApifyKeys()
+
+  if (keys.length > 0) {
+    const TEN_MINUTES = 10 * 60 * 1000
+    for (const key of keys) {
+      const lastChecked = key.lastChecked ? new Date(key.lastChecked).getTime() : 0
+      if (Date.now() - lastChecked > TEN_MINUTES) {
+        const balance = await fetchBalance(key.token)
+        if (balance) {
+          updateApifyKeyBalance(key.id, balance.currentUsage, balance.monthlyLimit)
+          key.remaining = Math.max(0, balance.monthlyLimit - balance.currentUsage)
+        }
+      }
+    }
+
+    const available = keys.filter(k => (k.remaining ?? 0) > 0.5).sort((a, b) => (b.remaining ?? 0) - (a.remaining ?? 0))
+    if (available.length > 0) return available[0].token
+  }
+
+  // Fallback to env var
+  const envToken = process.env.APIFY_TOKEN
+  if (envToken) return envToken
+
+  throw new Error('사용 가능한 Apify API 키가 없습니다. Admin에서 키를 추가하세요.')
+}
+
+async function getClient() {
+  const token = await getBestKey()
   return new ApifyClient({ token })
 }
 
@@ -32,7 +76,7 @@ function buildInput(type: CollectType, query: string, limit: number): Record<str
 }
 
 export async function collectFromInstagram(type: CollectType, query: string, limit: number) {
-  const client = getClient()
+  const client = await getClient()
   const actorId = ACTOR_MAP[type]
   const input = buildInput(type, query, limit)
 
@@ -42,7 +86,7 @@ export async function collectFromInstagram(type: CollectType, query: string, lim
 }
 
 export async function analyzeProfile(username: string) {
-  const client = getClient()
+  const client = await getClient()
 
   // 1. Profile info
   const profileRun = await client.actor('apify/instagram-profile-scraper').call({
@@ -57,7 +101,7 @@ export async function analyzeProfile(username: string) {
 }
 
 export async function collectReels(username: string, limit: number = 20) {
-  const client = getClient()
+  const client = await getClient()
   const run = await client.actor('apify/instagram-reel-scraper').call({
     username: [username.replace(/^@/, '')],
     resultsLimit: limit,
@@ -67,7 +111,7 @@ export async function collectReels(username: string, limit: number = 20) {
 }
 
 export async function collectComments(reelUrls: string[], limitPerReel: number = 100) {
-  const client = getClient()
+  const client = await getClient()
   const run = await client.actor('apify/instagram-comment-scraper').call({
     directUrls: reelUrls,
     resultsLimit: limitPerReel,
