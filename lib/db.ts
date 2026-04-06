@@ -34,7 +34,9 @@ function getDb() {
         url TEXT, caption TEXT, owner_username TEXT, owner_fullname TEXT,
         likes INTEGER DEFAULT 0, comments INTEGER DEFAULT 0,
         post_timestamp TEXT, location TEXT, hashtags TEXT DEFAULT '[]',
-        post_type TEXT, display_url TEXT, search_tag TEXT,
+        post_type TEXT, display_url TEXT,
+        video_view_count INTEGER DEFAULT 0, mentions TEXT DEFAULT '[]', is_video INTEGER DEFAULT 0,
+        search_tag TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE TABLE IF NOT EXISTS influencers (
@@ -52,6 +54,11 @@ function getDb() {
       CREATE INDEX IF NOT EXISTS idx_posts_likes ON posts(likes DESC);
       CREATE INDEX IF NOT EXISTS idx_influencers_engagement ON influencers(avg_engagement DESC);
     `)
+
+    // ALTER TABLE for existing DBs — posts
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN video_view_count INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN mentions TEXT DEFAULT '[]'`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN is_video INTEGER DEFAULT 0`) } catch {}
   }
   return _db
 }
@@ -101,6 +108,9 @@ export function insertPosts(collectionId: number, rawPosts: any[], searchTag: st
         hashtags: JSON.stringify(p.hashtags || []),
         postType: p.type || p.productType || '',
         displayUrl: p.displayUrl || '',
+        videoViewCount: p.videoViewCount ?? p.videoPlayCount ?? 0,
+        mentions: JSON.stringify(p.mentions || p.taggedUsers || []),
+        isVideo: (p.isVideo || p.type === 'Video' || p.productType === 'clips') ? 1 : 0,
         searchTag,
       }).onConflictDoNothing().run()
       inserted++

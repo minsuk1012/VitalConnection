@@ -26,6 +26,9 @@ export const posts = sqliteTable('posts', {
   hashtags: text('hashtags').default('[]'),
   postType: text('post_type'),
   displayUrl: text('display_url'),
+  videoViewCount: integer('video_view_count').default(0),
+  mentions: text('mentions').default('[]'),
+  isVideo: integer('is_video').default(0),
   searchTag: text('search_tag'),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 }, (table) => [
