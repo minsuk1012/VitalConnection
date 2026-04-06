@@ -17,11 +17,16 @@ export default async function AdminDashboard() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">상담 신청 현황</h1>
-          <form action={logoutAdmin}>
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
-              로그아웃
-            </button>
-          </form>
+          <div className="flex items-center gap-3">
+            <a href="/admin/instagram" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition text-sm">
+              인스타그램 수집
+            </a>
+            <form action={logoutAdmin}>
+              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                로그아웃
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
