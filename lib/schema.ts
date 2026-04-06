@@ -104,3 +104,15 @@ export const reelComments = sqliteTable('reel_comments', {
   index('idx_reel_comments_reel').on(table.reelId),
   index('idx_reel_comments_lang').on(table.detectedLanguage),
 ])
+
+export const apifyKeys = sqliteTable('apify_keys', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  token: text('token').notNull().unique(),
+  label: text('label').notNull(),
+  monthlyLimit: real('monthly_limit').default(5.0),
+  currentUsage: real('current_usage').default(0),
+  remaining: real('remaining').default(5.0),
+  isActive: integer('is_active').default(1),
+  lastChecked: text('last_checked').default(''),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+})

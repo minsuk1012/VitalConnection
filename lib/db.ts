@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { eq, desc, asc, gte, sql, count, max, ne, and } from 'drizzle-orm'
 import path from 'path'
 import * as schema from './schema'
-import { collections, posts, influencers, reels, reelComments } from './schema'
+import { collections, posts, influencers, reels, reelComments, apifyKeys } from './schema'
 import { computeAllMetrics, type MetricsInput } from './metrics'
 
 const DB_PATH = path.join(process.cwd(), 'instagram.db')
@@ -100,6 +100,18 @@ function getDb() {
       );
       CREATE INDEX IF NOT EXISTS idx_reel_comments_reel ON reel_comments(reel_id);
       CREATE INDEX IF NOT EXISTS idx_reel_comments_lang ON reel_comments(detected_language);
+
+      CREATE TABLE IF NOT EXISTS apify_keys (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        token TEXT NOT NULL UNIQUE,
+        label TEXT NOT NULL,
+        monthly_limit REAL DEFAULT 5.0,
+        current_usage REAL DEFAULT 0,
+        remaining REAL DEFAULT 5.0,
+        is_active INTEGER DEFAULT 1,
+        last_checked TEXT DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
     `)
 
     // ALTER TABLE for existing DBs — posts
@@ -556,4 +568,41 @@ export function updateInfluencerDeepAnalysis(username: string, data: {
     deepAnalyzedAt: sql`datetime('now')`,
     lastUpdated: sql`datetime('now')`,
   }).where(eq(influencers.username, username)).run()
+}
+
+// ─── Apify Keys ───
+
+export function getApifyKeys() {
+  const db = getDb()
+  return db.select().from(apifyKeys).orderBy(desc(apifyKeys.remaining)).all()
+}
+
+export function getActiveApifyKeys() {
+  const db = getDb()
+  return db.select().from(apifyKeys).where(eq(apifyKeys.isActive, 1)).orderBy(desc(apifyKeys.remaining)).all()
+}
+
+export function addApifyKey(token: string, label: string, monthlyLimit: number = 5.0, currentUsage: number = 0) {
+  const db = getDb()
+  const remaining = monthlyLimit - currentUsage
+  return db.insert(apifyKeys).values({
+    token, label, monthlyLimit, currentUsage, remaining,
+    lastChecked: new Date().toISOString(),
+  }).returning({ id: apifyKeys.id }).get()
+}
+
+export function deleteApifyKey(id: number) {
+  const db = getDb()
+  db.delete(apifyKeys).where(eq(apifyKeys.id, id)).run()
+}
+
+export function updateApifyKeyBalance(id: number, currentUsage: number, monthlyLimit: number) {
+  const db = getDb()
+  const remaining = Math.max(0, monthlyLimit - currentUsage)
+  db.update(apifyKeys).set({
+    currentUsage,
+    monthlyLimit,
+    remaining,
+    lastChecked: new Date().toISOString(),
+  }).where(eq(apifyKeys.id, id)).run()
 }
