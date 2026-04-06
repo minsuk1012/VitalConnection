@@ -1,172 +1,115 @@
 import Database from 'better-sqlite3'
+import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { eq, desc, asc, gte, sql, count, max, ne, and } from 'drizzle-orm'
 import path from 'path'
+import * as schema from './schema'
+import { collections, posts, influencers } from './schema'
 
 const DB_PATH = path.join(process.cwd(), 'instagram.db')
 
-let _db: Database.Database | null = null
+let _db: ReturnType<typeof drizzle> | null = null
 
-function getDb(): Database.Database {
+function getDb() {
   if (!_db) {
-    _db = new Database(DB_PATH)
-    _db.pragma('journal_mode = WAL')
-    _db.pragma('foreign_keys = ON')
-    initTables(_db)
+    const sqlite = new Database(DB_PATH)
+    sqlite.pragma('journal_mode = WAL')
+    sqlite.pragma('foreign_keys = ON')
+    _db = drizzle(sqlite, { schema })
+
+    // Create tables if not exist (push schema)
+    sqlite.exec(`
+      CREATE TABLE IF NOT EXISTS collections (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        query TEXT NOT NULL,
+        limit_per_item INTEGER NOT NULL DEFAULT 30,
+        status TEXT NOT NULL DEFAULT 'pending',
+        total_collected INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        collection_id INTEGER NOT NULL REFERENCES collections(id),
+        shortcode TEXT NOT NULL UNIQUE,
+        url TEXT, caption TEXT, owner_username TEXT, owner_fullname TEXT,
+        likes INTEGER DEFAULT 0, comments INTEGER DEFAULT 0,
+        post_timestamp TEXT, location TEXT, hashtags TEXT DEFAULT '[]',
+        post_type TEXT, display_url TEXT, search_tag TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS influencers (
+        username TEXT PRIMARY KEY, fullname TEXT, profile_url TEXT,
+        post_count INTEGER DEFAULT 0, avg_likes REAL DEFAULT 0,
+        avg_comments REAL DEFAULT 0, avg_engagement REAL DEFAULT 0,
+        hashtags TEXT DEFAULT '[]', status TEXT NOT NULL DEFAULT '미확인',
+        memo TEXT DEFAULT '', bio TEXT DEFAULT '',
+        followers INTEGER DEFAULT 0, following INTEGER DEFAULT 0,
+        is_business INTEGER DEFAULT 0,
+        last_updated TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_posts_collection ON posts(collection_id);
+      CREATE INDEX IF NOT EXISTS idx_posts_username ON posts(owner_username);
+      CREATE INDEX IF NOT EXISTS idx_posts_likes ON posts(likes DESC);
+      CREATE INDEX IF NOT EXISTS idx_influencers_engagement ON influencers(avg_engagement DESC);
+    `)
   }
   return _db
 }
 
-function initTables(db: Database.Database) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS collections (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      type TEXT NOT NULL,
-      query TEXT NOT NULL,
-      limit_per_item INTEGER NOT NULL DEFAULT 30,
-      status TEXT NOT NULL DEFAULT 'pending',
-      total_collected INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      collection_id INTEGER NOT NULL REFERENCES collections(id),
-      shortcode TEXT NOT NULL,
-      url TEXT,
-      caption TEXT,
-      owner_username TEXT,
-      owner_fullname TEXT,
-      likes INTEGER DEFAULT 0,
-      comments INTEGER DEFAULT 0,
-      post_timestamp TEXT,
-      location TEXT,
-      hashtags TEXT DEFAULT '[]',
-      post_type TEXT,
-      display_url TEXT,
-      search_tag TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      UNIQUE(shortcode)
-    );
-
-    CREATE TABLE IF NOT EXISTS influencers (
-      username TEXT PRIMARY KEY,
-      fullname TEXT,
-      profile_url TEXT,
-      post_count INTEGER DEFAULT 0,
-      avg_likes REAL DEFAULT 0,
-      avg_comments REAL DEFAULT 0,
-      avg_engagement REAL DEFAULT 0,
-      hashtags TEXT DEFAULT '[]',
-      status TEXT NOT NULL DEFAULT '미확인',
-      memo TEXT DEFAULT '',
-      bio TEXT DEFAULT '',
-      followers INTEGER DEFAULT 0,
-      following INTEGER DEFAULT 0,
-      is_business INTEGER DEFAULT 0,
-      last_updated TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_posts_collection ON posts(collection_id);
-    CREATE INDEX IF NOT EXISTS idx_posts_username ON posts(owner_username);
-    CREATE INDEX IF NOT EXISTS idx_posts_likes ON posts(likes DESC);
-    CREATE INDEX IF NOT EXISTS idx_influencers_engagement ON influencers(avg_engagement DESC);
-  `)
-}
+// ─── Collections ───
 
 export function createCollection(type: string, query: string, limitPerItem: number) {
   const db = getDb()
-  const result = db.prepare(
-    'INSERT INTO collections (type, query, limit_per_item, status) VALUES (?, ?, ?, ?)'
-  ).run(type, query, limitPerItem, 'running')
-  return result.lastInsertRowid as number
+  const result = db.insert(collections).values({
+    type, query, limitPerItem, status: 'running',
+  }).returning({ id: collections.id }).get()
+  return result.id
 }
 
 export function updateCollection(id: number, status: string, totalCollected: number) {
   const db = getDb()
-  db.prepare(
-    'UPDATE collections SET status = ?, total_collected = ? WHERE id = ?'
-  ).run(status, totalCollected, id)
+  db.update(collections)
+    .set({ status, totalCollected })
+    .where(eq(collections.id, id))
+    .run()
 }
 
-export function insertPosts(collectionId: number, posts: any[], searchTag: string) {
+export function getCollections() {
   const db = getDb()
-  const stmt = db.prepare(`
-    INSERT OR IGNORE INTO posts
-      (collection_id, shortcode, url, caption, owner_username, owner_fullname,
-       likes, comments, post_timestamp, location, hashtags, post_type, display_url, search_tag)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `)
-
-  const insertMany = db.transaction((items: any[]) => {
-    let inserted = 0
-    for (const p of items) {
-      const result = stmt.run(
-        collectionId,
-        p.shortCode || p.shortcode || p.id || '',
-        p.url || '',
-        p.caption || '',
-        p.ownerUsername || p.owner?.username || '',
-        p.ownerFullName || p.owner?.fullName || '',
-        p.likesCount ?? p.likes ?? 0,
-        p.commentsCount ?? p.comments ?? 0,
-        p.timestamp || '',
-        p.locationName || p.location || '',
-        JSON.stringify(p.hashtags || []),
-        p.type || p.productType || '',
-        p.displayUrl || '',
-        searchTag
-      )
-      if (result.changes > 0) inserted++
-    }
-    return inserted
-  })
-
-  return insertMany(posts)
+  return db.select().from(collections).orderBy(desc(collections.createdAt)).all()
 }
 
-export function refreshInfluencers() {
+// ─── Posts ───
+
+export function insertPosts(collectionId: number, rawPosts: any[], searchTag: string) {
   const db = getDb()
-  db.exec(`
-    INSERT INTO influencers (username, fullname, profile_url, post_count, avg_likes, avg_comments, avg_engagement, hashtags, last_updated)
-    SELECT
-      owner_username,
-      MAX(owner_fullname),
-      'https://instagram.com/' || owner_username,
-      COUNT(*),
-      ROUND(AVG(likes), 1),
-      ROUND(AVG(comments), 1),
-      ROUND(AVG(likes) + AVG(comments), 1),
-      '[]',
-      datetime('now')
-    FROM posts
-    WHERE owner_username != ''
-    GROUP BY owner_username
-    ON CONFLICT(username) DO UPDATE SET
-      fullname = excluded.fullname,
-      profile_url = excluded.profile_url,
-      post_count = excluded.post_count,
-      avg_likes = excluded.avg_likes,
-      avg_comments = excluded.avg_comments,
-      avg_engagement = excluded.avg_engagement,
-      last_updated = excluded.last_updated
-  `)
+  let inserted = 0
 
-  const rows = db.prepare(
-    'SELECT owner_username, hashtags FROM posts WHERE owner_username != \'\''
-  ).all() as { owner_username: string; hashtags: string }[]
-
-  const map: Record<string, Set<string>> = {}
-  for (const row of rows) {
-    if (!map[row.owner_username]) map[row.owner_username] = new Set()
+  for (const p of rawPosts) {
     try {
-      const tags = JSON.parse(row.hashtags)
-      for (const t of tags) map[row.owner_username].add(t)
-    } catch {}
+      db.insert(posts).values({
+        collectionId,
+        shortcode: p.shortCode || p.shortcode || p.id || '',
+        url: p.url || '',
+        caption: p.caption || '',
+        ownerUsername: p.ownerUsername || p.owner?.username || '',
+        ownerFullname: p.ownerFullName || p.owner?.fullName || '',
+        likes: p.likesCount ?? p.likes ?? 0,
+        comments: p.commentsCount ?? p.comments ?? 0,
+        postTimestamp: p.timestamp || '',
+        location: p.locationName || p.location || '',
+        hashtags: JSON.stringify(p.hashtags || []),
+        postType: p.type || p.productType || '',
+        displayUrl: p.displayUrl || '',
+        searchTag,
+      }).onConflictDoNothing().run()
+      inserted++
+    } catch {
+      // duplicate shortcode — skip
+    }
   }
 
-  const updateStmt = db.prepare('UPDATE influencers SET hashtags = ? WHERE username = ?')
-  for (const [username, tags] of Object.entries(map)) {
-    updateStmt.run(JSON.stringify([...tags]), username)
-  }
+  return inserted
 }
 
 export function queryResults(params: {
@@ -179,43 +122,146 @@ export function queryResults(params: {
   pageSize?: number
 }) {
   const db = getDb()
-  const conditions: string[] = []
-  const values: any[] = []
-
-  if (params.collectionId) {
-    conditions.push('p.collection_id = ?')
-    values.push(params.collectionId)
-  }
-  if (params.searchTag) {
-    conditions.push('p.search_tag = ?')
-    values.push(params.searchTag)
-  }
-  if (params.minLikes !== undefined) {
-    conditions.push('p.likes >= ?')
-    values.push(params.minLikes)
-  }
-
-  const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''
-
-  const sortCol = { likes: 'p.likes', comments: 'p.comments', date: 'p.post_timestamp' }[params.sortBy || 'likes'] || 'p.likes'
-  const sortDir = params.sortOrder === 'asc' ? 'ASC' : 'DESC'
-
   const page = params.page || 1
   const pageSize = params.pageSize || 50
   const offset = (page - 1) * pageSize
 
-  const total = (db.prepare(`SELECT COUNT(*) as cnt FROM posts p ${where}`).get(...values) as any).cnt
+  const conditions = []
+  if (params.collectionId) conditions.push(eq(posts.collectionId, params.collectionId))
+  if (params.searchTag) conditions.push(eq(posts.searchTag, params.searchTag))
+  if (params.minLikes !== undefined) conditions.push(gte(posts.likes, params.minLikes))
 
-  const rows = db.prepare(`
-    SELECT p.*, c.type as collection_type, c.query as collection_query
-    FROM posts p
-    JOIN collections c ON p.collection_id = c.id
-    ${where}
-    ORDER BY ${sortCol} ${sortDir}
-    LIMIT ? OFFSET ?
-  `).all(...values, pageSize, offset)
+  const where = conditions.length > 0 ? and(...conditions) : undefined
+
+  const sortCol = {
+    likes: posts.likes,
+    comments: posts.comments,
+    date: posts.postTimestamp,
+  }[params.sortBy || 'likes'] || posts.likes
+
+  const orderFn = params.sortOrder === 'asc' ? asc : desc
+
+  const totalResult = db.select({ cnt: count() }).from(posts).where(where).get()
+  const total = totalResult?.cnt || 0
+
+  const rows = db.select({
+    id: posts.id,
+    collectionId: posts.collectionId,
+    shortcode: posts.shortcode,
+    url: posts.url,
+    caption: posts.caption,
+    owner_username: posts.ownerUsername,
+    owner_fullname: posts.ownerFullname,
+    likes: posts.likes,
+    comments: posts.comments,
+    post_timestamp: posts.postTimestamp,
+    location: posts.location,
+    hashtags: posts.hashtags,
+    post_type: posts.postType,
+    display_url: posts.displayUrl,
+    search_tag: posts.searchTag,
+    created_at: posts.createdAt,
+    collection_type: collections.type,
+    collection_query: collections.query,
+  })
+    .from(posts)
+    .innerJoin(collections, eq(posts.collectionId, collections.id))
+    .where(where)
+    .orderBy(orderFn(sortCol))
+    .limit(pageSize)
+    .offset(offset)
+    .all()
 
   return { rows, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
+}
+
+export function getDistinctSearchTags() {
+  const db = getDb()
+  const rows = db.selectDistinct({ searchTag: posts.searchTag })
+    .from(posts)
+    .where(ne(posts.searchTag, ''))
+    .orderBy(asc(posts.searchTag))
+    .all()
+  return rows.map(r => r.searchTag).filter(Boolean) as string[]
+}
+
+export function getAllPostsForExport(params: { collectionId?: number; searchTag?: string; minLikes?: number }) {
+  const db = getDb()
+  const conditions = []
+  if (params.collectionId) conditions.push(eq(posts.collectionId, params.collectionId))
+  if (params.searchTag) conditions.push(eq(posts.searchTag, params.searchTag))
+  if (params.minLikes !== undefined) conditions.push(gte(posts.likes, params.minLikes))
+
+  const where = conditions.length > 0 ? and(...conditions) : undefined
+
+  return db.select().from(posts).where(where).orderBy(desc(posts.likes)).all()
+}
+
+// ─── Influencers ───
+
+export function refreshInfluencers() {
+  const db = getDb()
+
+  // Aggregate stats from posts
+  const stats = db.select({
+    ownerUsername: posts.ownerUsername,
+    fullname: max(posts.ownerFullname),
+    postCount: count(),
+    avgLikes: sql<number>`ROUND(AVG(${posts.likes}), 1)`,
+    avgComments: sql<number>`ROUND(AVG(${posts.comments}), 1)`,
+    avgEngagement: sql<number>`ROUND(AVG(${posts.likes}) + AVG(${posts.comments}), 1)`,
+  })
+    .from(posts)
+    .where(ne(posts.ownerUsername, ''))
+    .groupBy(posts.ownerUsername)
+    .all()
+
+  for (const s of stats) {
+    db.insert(influencers).values({
+      username: s.ownerUsername!,
+      fullname: s.fullname,
+      profileUrl: `https://instagram.com/${s.ownerUsername}`,
+      postCount: s.postCount,
+      avgLikes: s.avgLikes,
+      avgComments: s.avgComments,
+      avgEngagement: s.avgEngagement,
+      hashtags: '[]',
+    }).onConflictDoUpdate({
+      target: influencers.username,
+      set: {
+        fullname: sql`excluded.fullname`,
+        profileUrl: sql`excluded.profile_url`,
+        postCount: sql`excluded.post_count`,
+        avgLikes: sql`excluded.avg_likes`,
+        avgComments: sql`excluded.avg_comments`,
+        avgEngagement: sql`excluded.avg_engagement`,
+        lastUpdated: sql`datetime('now')`,
+      },
+    }).run()
+  }
+
+  // Update hashtags per influencer
+  const postRows = db.select({
+    ownerUsername: posts.ownerUsername,
+    hashtags: posts.hashtags,
+  }).from(posts).where(ne(posts.ownerUsername, '')).all()
+
+  const map: Record<string, Set<string>> = {}
+  for (const row of postRows) {
+    if (!row.ownerUsername) continue
+    if (!map[row.ownerUsername]) map[row.ownerUsername] = new Set()
+    try {
+      const tags = JSON.parse(row.hashtags || '[]')
+      for (const t of tags) map[row.ownerUsername].add(t)
+    } catch {}
+  }
+
+  for (const [username, tags] of Object.entries(map)) {
+    db.update(influencers)
+      .set({ hashtags: JSON.stringify([...tags]) })
+      .where(eq(influencers.username, username))
+      .run()
+  }
 }
 
 export function queryInfluencers(params: {
@@ -226,105 +272,77 @@ export function queryInfluencers(params: {
   pageSize?: number
 }) {
   const db = getDb()
-
-  const conditions: string[] = []
-  const values: any[] = []
-
-  if (params.status) {
-    conditions.push('status = ?')
-    values.push(params.status)
-  }
-
-  const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''
-
-  const sortCol = { likes: 'avg_likes', comments: 'avg_comments', posts: 'post_count' }[params.sortBy || ''] || 'avg_engagement'
-  const sortDir = params.sortOrder === 'asc' ? 'ASC' : 'DESC'
-
   const page = params.page || 1
   const pageSize = params.pageSize || 50
   const offset = (page - 1) * pageSize
 
-  const total = (db.prepare(`SELECT COUNT(*) as cnt FROM influencers ${where}`).get(...values) as any).cnt
+  const conditions = []
+  if (params.status) conditions.push(eq(influencers.status, params.status))
+  const where = conditions.length > 0 ? and(...conditions) : undefined
 
-  const rows = db.prepare(`
-    SELECT * FROM influencers
-    ${where}
-    ORDER BY ${sortCol} ${sortDir}
-    LIMIT ? OFFSET ?
-  `).all(...values, pageSize, offset)
+  const sortCol = {
+    likes: influencers.avgLikes,
+    comments: influencers.avgComments,
+    posts: influencers.postCount,
+  }[params.sortBy || ''] || influencers.avgEngagement
+
+  const orderFn = params.sortOrder === 'asc' ? asc : desc
+
+  const totalResult = db.select({ cnt: count() }).from(influencers).where(where).get()
+  const total = totalResult?.cnt || 0
+
+  const rows = db.select().from(influencers).where(where).orderBy(orderFn(sortCol)).limit(pageSize).offset(offset).all()
 
   return { rows, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
 }
 
 export function getInfluencerSamplePosts(username: string, limit = 3) {
   const db = getDb()
-  return db.prepare(
-    'SELECT url, caption, likes, comments FROM posts WHERE owner_username = ? ORDER BY likes DESC LIMIT ?'
-  ).all(username, limit)
-}
-
-export function getCollections() {
-  const db = getDb()
-  return db.prepare('SELECT * FROM collections ORDER BY created_at DESC').all()
-}
-
-export function getDistinctSearchTags() {
-  const db = getDb()
-  return (db.prepare("SELECT DISTINCT search_tag FROM posts WHERE search_tag != '' ORDER BY search_tag").all() as { search_tag: string }[]).map(r => r.search_tag)
-}
-
-export function getAllPostsForExport(params: { collectionId?: number; searchTag?: string; minLikes?: number }) {
-  const db = getDb()
-  const conditions: string[] = []
-  const values: any[] = []
-
-  if (params.collectionId) { conditions.push('collection_id = ?'); values.push(params.collectionId) }
-  if (params.searchTag) { conditions.push('search_tag = ?'); values.push(params.searchTag) }
-  if (params.minLikes !== undefined) { conditions.push('likes >= ?'); values.push(params.minLikes) }
-
-  const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''
-  return db.prepare(`SELECT * FROM posts ${where} ORDER BY likes DESC`).all(...values)
+  return db.select({
+    url: posts.url,
+    caption: posts.caption,
+    likes: posts.likes,
+    comments: posts.comments,
+  })
+    .from(posts)
+    .where(eq(posts.ownerUsername, username))
+    .orderBy(desc(posts.likes))
+    .limit(limit)
+    .all()
 }
 
 export function getAllInfluencersForExport() {
   const db = getDb()
-  return db.prepare('SELECT * FROM influencers ORDER BY avg_engagement DESC').all()
+  return db.select().from(influencers).orderBy(desc(influencers.avgEngagement)).all()
 }
 
 export function updateCandidate(username: string, updates: { status?: string; memo?: string; tags?: string[] }) {
   const db = getDb()
-  const sets: string[] = []
-  const values: any[] = []
+  const set: Record<string, any> = { lastUpdated: sql`datetime('now')` }
 
-  if (updates.status !== undefined) { sets.push('status = ?'); values.push(updates.status) }
-  if (updates.memo !== undefined) { sets.push('memo = ?'); values.push(updates.memo) }
-  if (updates.tags !== undefined) { sets.push('hashtags = ?'); values.push(JSON.stringify(updates.tags)) }
+  if (updates.status !== undefined) set.status = updates.status
+  if (updates.memo !== undefined) set.memo = updates.memo
+  if (updates.tags !== undefined) set.hashtags = JSON.stringify(updates.tags)
 
-  if (sets.length === 0) return
-
-  sets.push("last_updated = datetime('now')")
-  values.push(username)
-
-  db.prepare(`UPDATE influencers SET ${sets.join(', ')} WHERE username = ?`).run(...values)
+  db.update(influencers).set(set).where(eq(influencers.username, username)).run()
 }
 
-export function updateInfluencerProfile(username: string, profile: { bio?: string; followers?: number; following?: number; is_business?: boolean; fullname?: string }) {
+export function updateInfluencerProfile(username: string, profile: {
+  bio?: string; followers?: number; following?: number; is_business?: boolean; fullname?: string
+}) {
   const db = getDb()
-  const sets: string[] = ["last_updated = datetime('now')"]
-  const values: any[] = []
+  const set: Record<string, any> = { lastUpdated: sql`datetime('now')` }
 
-  if (profile.bio !== undefined) { sets.push('bio = ?'); values.push(profile.bio) }
-  if (profile.followers !== undefined) { sets.push('followers = ?'); values.push(profile.followers) }
-  if (profile.following !== undefined) { sets.push('following = ?'); values.push(profile.following) }
-  if (profile.is_business !== undefined) { sets.push('is_business = ?'); values.push(profile.is_business ? 1 : 0) }
-  if (profile.fullname !== undefined) { sets.push('fullname = ?'); values.push(profile.fullname) }
+  if (profile.bio !== undefined) set.bio = profile.bio
+  if (profile.followers !== undefined) set.followers = profile.followers
+  if (profile.following !== undefined) set.following = profile.following
+  if (profile.is_business !== undefined) set.isBusiness = profile.is_business ? 1 : 0
+  if (profile.fullname !== undefined) set.fullname = profile.fullname
 
-  values.push(username)
-
-  db.prepare(`UPDATE influencers SET ${sets.join(', ')} WHERE username = ?`).run(...values)
+  db.update(influencers).set(set).where(eq(influencers.username, username)).run()
 }
 
 export function getInfluencer(username: string) {
   const db = getDb()
-  return db.prepare('SELECT * FROM influencers WHERE username = ?').get(username)
+  return db.select().from(influencers).where(eq(influencers.username, username)).get()
 }

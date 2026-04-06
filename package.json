@@ -16,6 +16,8 @@
     "better-sqlite3": "^12.8.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.561.0",
     "next": "^16.0.10",
