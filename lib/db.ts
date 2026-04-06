@@ -4,6 +4,7 @@ import { eq, desc, asc, gte, sql, count, max, ne, and } from 'drizzle-orm'
 import path from 'path'
 import * as schema from './schema'
 import { collections, posts, influencers } from './schema'
+import { computeAllMetrics, type MetricsInput } from './metrics'
 
 const DB_PATH = path.join(process.cwd(), 'instagram.db')
 
@@ -261,15 +262,88 @@ export function refreshInfluencers() {
     .all()
 
   for (const s of stats) {
+    const username = s.ownerUsername!
+
+    // Query individual posts for this user
+    const userPosts = db.select({
+      caption: posts.caption,
+      hashtags: posts.hashtags,
+      location: posts.location,
+      postTimestamp: posts.postTimestamp,
+      likes: posts.likes,
+      comments: posts.comments,
+    })
+      .from(posts)
+      .where(eq(posts.ownerUsername, username))
+      .all()
+
+    // Look up existing influencer record for profile data
+    const existing = db.select({
+      followers: influencers.followers,
+      following: influencers.following,
+      bio: influencers.bio,
+      externalUrl: influencers.externalUrl,
+      isBusiness: influencers.isBusiness,
+      isVerified: influencers.isVerified,
+    })
+      .from(influencers)
+      .where(eq(influencers.username, username))
+      .get()
+
+    const followers = existing?.followers ?? 0
+    const following = existing?.following ?? 0
+    const bio = existing?.bio ?? ''
+    const externalUrl = existing?.externalUrl ?? ''
+    const isBusiness = !!(existing?.isBusiness)
+    const isVerified = !!(existing?.isVerified)
+
+    // Build per-post arrays
+    const captions = userPosts.map(p => p.caption || '')
+    const hashtagArrays = userPosts.map(p => {
+      try { return JSON.parse(p.hashtags || '[]') as string[] } catch { return [] }
+    })
+    const allHashtags = [...new Set(hashtagArrays.flat())]
+    const locations = userPosts.map(p => p.location || '').filter(Boolean)
+    const postTimestamps = userPosts.map(p => p.postTimestamp || '').filter(Boolean)
+    const engagements = userPosts.map(p => (p.likes ?? 0) + (p.comments ?? 0))
+
+    // Compute all metrics
+    const metricsInput: MetricsInput = {
+      avgLikes: s.avgLikes,
+      avgComments: s.avgComments,
+      followers,
+      following,
+      bio,
+      externalUrl,
+      isBusiness,
+      isVerified,
+      captions,
+      hashtags: hashtagArrays,
+      allHashtags,
+      locations,
+      postTimestamps,
+      engagements,
+    }
+    const metrics = computeAllMetrics(metricsInput)
+
+    // Upsert influencer with all metrics
     db.insert(influencers).values({
-      username: s.ownerUsername!,
+      username,
       fullname: s.fullname,
-      profileUrl: `https://instagram.com/${s.ownerUsername}`,
+      profileUrl: `https://instagram.com/${username}`,
       postCount: s.postCount,
       avgLikes: s.avgLikes,
       avgComments: s.avgComments,
       avgEngagement: s.avgEngagement,
-      hashtags: '[]',
+      hashtags: JSON.stringify(allHashtags),
+      engagementRate: metrics.engagementRate,
+      commentLikeRatio: metrics.commentLikeRatio,
+      followerFollowingRatio: metrics.followerFollowingRatio,
+      postingFrequency: metrics.postingFrequency,
+      lastPostDate: metrics.lastPostDate,
+      contentRelevance: metrics.contentRelevance,
+      detectedLanguage: metrics.detectedLanguage,
+      fitScore: metrics.fitScore,
     }).onConflictDoUpdate({
       target: influencers.username,
       set: {
@@ -279,32 +353,18 @@ export function refreshInfluencers() {
         avgLikes: sql`excluded.avg_likes`,
         avgComments: sql`excluded.avg_comments`,
         avgEngagement: sql`excluded.avg_engagement`,
+        hashtags: sql`excluded.hashtags`,
+        engagementRate: sql`excluded.engagement_rate`,
+        commentLikeRatio: sql`excluded.comment_like_ratio`,
+        followerFollowingRatio: sql`excluded.follower_following_ratio`,
+        postingFrequency: sql`excluded.posting_frequency`,
+        lastPostDate: sql`excluded.last_post_date`,
+        contentRelevance: sql`excluded.content_relevance`,
+        detectedLanguage: sql`excluded.detected_language`,
+        fitScore: sql`excluded.fit_score`,
         lastUpdated: sql`datetime('now')`,
       },
     }).run()
-  }
-
-  // Update hashtags per influencer
-  const postRows = db.select({
-    ownerUsername: posts.ownerUsername,
-    hashtags: posts.hashtags,
-  }).from(posts).where(ne(posts.ownerUsername, '')).all()
-
-  const map: Record<string, Set<string>> = {}
-  for (const row of postRows) {
-    if (!row.ownerUsername) continue
-    if (!map[row.ownerUsername]) map[row.ownerUsername] = new Set()
-    try {
-      const tags = JSON.parse(row.hashtags || '[]')
-      for (const t of tags) map[row.ownerUsername].add(t)
-    } catch {}
-  }
-
-  for (const [username, tags] of Object.entries(map)) {
-    db.update(influencers)
-      .set({ hashtags: JSON.stringify([...tags]) })
-      .where(eq(influencers.username, username))
-      .run()
   }
 }
 
@@ -328,7 +388,9 @@ export function queryInfluencers(params: {
     likes: influencers.avgLikes,
     comments: influencers.avgComments,
     posts: influencers.postCount,
-  }[params.sortBy || ''] || influencers.avgEngagement
+    fitScore: influencers.fitScore,
+    engagementRate: influencers.engagementRate,
+  }[params.sortBy || ''] || influencers.fitScore
 
   const orderFn = params.sortOrder === 'asc' ? asc : desc
 
