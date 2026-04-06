@@ -41,6 +41,8 @@ interface Influencer {
   lastPostDate: string
   contentRelevance: number
   detectedLanguage: string
+  commentQualityScore: number
+  commentLangDistribution: string
   deepAnalyzedAt: string
 }
 
@@ -55,6 +57,7 @@ export default function CandidatesTab() {
   const [expanded, setExpanded] = useState<string | null>(null)
   const [editingMemo, setEditingMemo] = useState<string | null>(null)
   const [memoValue, setMemoValue] = useState('')
+  const [deepAnalyzing, setDeepAnalyzing] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -91,6 +94,28 @@ export default function CandidatesTab() {
     })
     setInfluencers(prev => prev.map(i => i.username === username ? { ...i, memo: memoValue } : i))
     setEditingMemo(null)
+  }
+
+  async function deepAnalyze(username: string) {
+    if (!confirm(`${username}의 심층 분석을 시작합니다.\n릴스 수집 + 댓글 수집으로 Apify 크레딧이 ~$1.2 소모됩니다.\n계속하시겠습니까?`)) return
+    setDeepAnalyzing(username)
+    try {
+      const res = await fetch('/api/instagram/deep-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      })
+      const data = await res.json()
+      if (data.influencer) {
+        setInfluencers(prev => prev.map(i => i.username === username ? {
+          ...i,
+          ...data.influencer,
+          hashtags: JSON.parse(data.influencer.hashtags || '[]'),
+          samplePosts: i.samplePosts,
+        } : i))
+      }
+    } catch {}
+    setDeepAnalyzing(null)
   }
 
   function startEditMemo(username: string, currentMemo: string) {
@@ -280,6 +305,56 @@ export default function CandidatesTab() {
                               </div>
                             </div>
                           )}
+                          {/* 심층 분석 */}
+                          <div className="mt-3 pt-3 border-t">
+                            {inf.deepAnalyzedAt ? (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-semibold text-muted-foreground">심층 분석 결과</span>
+                                  <span className="text-xs text-muted-foreground">({new Date(inf.deepAnalyzedAt).toLocaleDateString('ko-KR')})</span>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                  <div>
+                                    <div className="text-muted-foreground text-xs">댓글 품질</div>
+                                    <div className="font-medium">{(inf.commentQualityScore * 100).toFixed(0)}%</div>
+                                  </div>
+                                  {(() => {
+                                    try {
+                                      const dist = JSON.parse(inf.commentLangDistribution || '{}')
+                                      const entries = Object.entries(dist).sort(([,a]: any, [,b]: any) => b - a)
+                                      return entries.length > 0 ? (
+                                        <div className="col-span-2 md:col-span-3">
+                                          <div className="text-muted-foreground text-xs">댓글 언어 분포</div>
+                                          <div className="flex gap-2 mt-1">
+                                            {entries.map(([lang, ratio]: any) => (
+                                              <Badge key={lang} variant="secondary" className="text-xs">
+                                                {lang}: {(ratio * 100).toFixed(0)}%
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ) : null
+                                    } catch { return null }
+                                  })()}
+                                </div>
+                                <Button
+                                  variant="outline" size="sm"
+                                  onClick={() => deepAnalyze(inf.username)}
+                                  disabled={deepAnalyzing === inf.username}
+                                >
+                                  {deepAnalyzing === inf.username ? '분석중...' : '재분석'}
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="outline" size="sm"
+                                onClick={() => deepAnalyze(inf.username)}
+                                disabled={deepAnalyzing === inf.username}
+                              >
+                                {deepAnalyzing === inf.username ? '릴스/댓글 분석중...' : '심층 분석 (릴스+댓글)'}
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     )}
