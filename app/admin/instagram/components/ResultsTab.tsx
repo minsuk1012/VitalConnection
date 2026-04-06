@@ -11,6 +11,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
+import {
+  Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious,
+} from '@/components/ui/pagination'
 
 interface Post {
   id: number
@@ -69,7 +72,6 @@ export default function ResultsTab() {
 
   return (
     <div className="space-y-4">
-      {/* 필터 바 */}
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3 pt-6">
           <Select value={filterTag} onValueChange={v => { setFilterTag(v === 'all' ? '' : v); setPage(1) }}>
@@ -106,7 +108,7 @@ export default function ResultsTab() {
             size="sm"
             onClick={() => setSortOrder(o => o === 'desc' ? 'asc' : 'desc')}
           >
-            {sortOrder === 'desc' ? '↓ 내림차순' : '↑ 오름차순'}
+            {sortOrder === 'desc' ? '내림차순' : '오름차순'}
           </Button>
 
           <div className="flex-1" />
@@ -117,7 +119,6 @@ export default function ResultsTab() {
         </CardContent>
       </Card>
 
-      {/* 테이블 */}
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -169,27 +170,28 @@ export default function ResultsTab() {
         </CardContent>
       </Card>
 
-      {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            이전
-          </Button>
-          <span className="px-3 py-1 text-sm text-muted-foreground">{page} / {totalPages}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-          >
-            다음
-          </Button>
-        </div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                text="이전"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <span className="px-3 py-1 text-sm text-muted-foreground">{page} / {totalPages}</span>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                text="다음"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                className={page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   )

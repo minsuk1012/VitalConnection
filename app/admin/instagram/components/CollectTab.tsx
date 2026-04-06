@@ -5,24 +5,18 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-
-const PRESETS: Record<string, { label: string; tags: string[] }> = {
-  kbeauty: { label: '🇰🇷 K-Beauty', tags: ['kbeauty', 'kbeautyskincare', 'koreanbeauty', 'koreanskincare'] },
-  medical_tourism: { label: '🏥 의료관광', tags: ['plasticsurgerykorea', 'koreandermatology', 'gangnamclinic', 'koreamedical'] },
-  japan: { label: '🇯🇵 일본', tags: ['韓国美容', '韓国皮膚科', '韓国整形'] },
-  thai: { label: '🇹🇭 태국', tags: ['ศัลยกรรมเกาหลี', 'คลินิกเกาหลี'] },
-  vietnam: { label: '🇻🇳 베트남', tags: ['thẩmmỹhànquốc', 'dauhanquoc'] },
-}
 
 type CollectType = 'hashtag' | 'profile' | 'location' | 'keyword'
 
 const MODES: { id: CollectType; label: string }[] = [
-  { id: 'hashtag', label: '#️⃣ 해시태그' },
-  { id: 'profile', label: '👤 프로필' },
-  { id: 'location', label: '📍 위치' },
-  { id: 'keyword', label: '🔍 키워드' },
+  { id: 'hashtag', label: '해시태그' },
+  { id: 'profile', label: '프로필' },
+  { id: 'location', label: '위치' },
+  { id: 'keyword', label: '키워드' },
 ]
 
 type ProgressItem = { query: string; status: 'pending' | 'collecting' | 'done' | 'error'; count?: number; error?: string }
@@ -45,12 +39,6 @@ export default function CollectTab() {
 
   function removeTag(tag: string) {
     setTags(tags.filter(t => t !== tag))
-  }
-
-  function applyPreset(key: string) {
-    const preset = PRESETS[key]
-    if (!preset) return
-    setTags([...new Set([...tags, ...preset.tags])])
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -97,42 +85,21 @@ export default function CollectTab() {
 
   return (
     <div className="space-y-6">
-      {/* 프리셋 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">빠른 프리셋</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(PRESETS).map(([key, preset]) => (
-              <Button key={key} variant="secondary" size="sm" onClick={() => applyPreset(key)}>
-                {preset.label}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* 수집 방식 */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">수집 방식</label>
-        <div className="flex gap-1">
-          {MODES.map(m => (
-            <Button
-              key={m.id}
-              variant={mode === m.id ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setMode(m.id)}
-            >
-              {m.label}
-            </Button>
-          ))}
-        </div>
+        <Label>수집 방식</Label>
+        <Tabs value={mode} onValueChange={v => setMode(v as CollectType)}>
+          <TabsList>
+            {MODES.map(m => (
+              <TabsTrigger key={m.id} value={m.id}>{m.label}</TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* 검색어 입력 */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">검색어 입력</label>
+        <Label>검색어 입력</Label>
         <div className="flex flex-wrap gap-2 items-center border rounded-lg p-3 min-h-[48px] bg-background">
           {tags.map(tag => (
             <Badge key={tag} variant="default" className="gap-1">
@@ -152,10 +119,11 @@ export default function CollectTab() {
       </div>
 
       {/* 설정 + 시작 */}
-      <div className="flex items-center gap-4">
-        <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">건수/항목당</label>
+      <div className="flex items-end gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="limit">건수/항목당</Label>
           <Input
+            id="limit"
             type="number"
             value={limit}
             onChange={e => setLimit(Number(e.target.value))}
@@ -169,12 +137,11 @@ export default function CollectTab() {
         <Button
           onClick={startCollect}
           disabled={tags.length === 0 || isCollecting}
-          className="mt-5"
         >
           {isCollecting ? '수집중...' : '수집 시작'}
         </Button>
 
-        <span className="text-sm text-muted-foreground mt-5">
+        <span className="text-sm text-muted-foreground pb-2">
           예상 크레딧: ~${estimatedCost}
         </span>
       </div>
@@ -196,9 +163,9 @@ export default function CollectTab() {
                     item.status === 'error' && 'text-destructive',
                     item.status === 'pending' && 'text-muted-foreground',
                   )}>
-                    {item.status === 'done' ? `✓ ${item.count}건 완료` :
+                    {item.status === 'done' ? `${item.count}건 완료` :
                      item.status === 'collecting' ? '수집중...' :
-                     item.status === 'error' ? `✕ ${item.error}` :
+                     item.status === 'error' ? item.error :
                      '대기중'}
                   </span>
                 </div>
