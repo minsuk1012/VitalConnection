@@ -31,12 +31,12 @@ interface ProfileData {
   bio: string
   followers: number
   following: number
-  is_business: number
+  isBusiness: number
   fullname: string
-  post_count: number
-  avg_likes: number
-  avg_comments: number
-  avg_engagement: number
+  postCount: number
+  avgLikes: number
+  avgComments: number
+  avgEngagement: number
 }
 
 export default function ExploreTab() {
@@ -229,14 +229,14 @@ export default function ExploreTab() {
                             </div>
                             <div>
                               <div className="text-muted-foreground text-xs">평균 Engagement</div>
-                              <div className="font-medium">{profileData[p.owner_username].avg_engagement.toLocaleString()}</div>
+                              <div className="font-medium">{profileData[p.owner_username].avgEngagement.toLocaleString()}</div>
                             </div>
                             <div className="col-span-2 md:col-span-4">
                               <div className="text-muted-foreground text-xs">바이오</div>
                               <div className="text-sm">{profileData[p.owner_username].bio || '-'}</div>
                             </div>
                           </div>
-                          {profileData[p.owner_username].is_business === 1 && (
+                          {profileData[p.owner_username].isBusiness === 1 && (
                             <Badge variant="secondary" className="mt-2">비즈니스 계정</Badge>
                           )}
                         </TableCell>

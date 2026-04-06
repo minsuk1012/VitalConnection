@@ -20,18 +20,18 @@ const STATUSES = ['미확인', '후보', '연락중', '확정', '제외'] as con
 interface Influencer {
   username: string
   fullname: string
-  profile_url: string
-  post_count: number
-  avg_likes: number
-  avg_comments: number
-  avg_engagement: number
+  profileUrl: string
+  postCount: number
+  avgLikes: number
+  avgComments: number
+  avgEngagement: number
   hashtags: string[]
   status: string
   memo: string
   bio: string
   followers: number
   following: number
-  is_business: number
+  isBusiness: number
   samplePosts: { url: string; caption: string; likes: number; comments: number }[]
 }
 
@@ -156,13 +156,13 @@ export default function CandidatesTab() {
                     >
                       <TableCell className="text-muted-foreground">{(page - 1) * 50 + idx + 1}</TableCell>
                       <TableCell>
-                        <a href={inf.profile_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium" onClick={e => e.stopPropagation()}>
+                        <a href={inf.profileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium" onClick={e => e.stopPropagation()}>
                           @{inf.username}
                         </a>
                         {inf.fullname && <div className="text-xs text-muted-foreground">{inf.fullname}</div>}
                       </TableCell>
                       <TableCell className="text-right">{inf.followers > 0 ? inf.followers.toLocaleString() : '-'}</TableCell>
-                      <TableCell className="text-right font-bold text-primary">{inf.avg_engagement.toLocaleString()}</TableCell>
+                      <TableCell className="text-right font-bold text-primary">{inf.avgEngagement.toLocaleString()}</TableCell>
                       <TableCell onClick={e => e.stopPropagation()}>
                         <Select value={inf.status} onValueChange={v => updateStatus(inf.username, v)}>
                           <SelectTrigger className="w-[100px] h-7 text-xs">
@@ -209,11 +209,11 @@ export default function CandidatesTab() {
                             </div>
                             <div>
                               <div className="text-muted-foreground text-xs">평균 좋아요</div>
-                              <div className="font-medium">{inf.avg_likes.toLocaleString()}</div>
+                              <div className="font-medium">{inf.avgLikes.toLocaleString()}</div>
                             </div>
                             <div>
                               <div className="text-muted-foreground text-xs">평균 댓글</div>
-                              <div className="font-medium">{inf.avg_comments.toLocaleString()}</div>
+                              <div className="font-medium">{inf.avgComments.toLocaleString()}</div>
                             </div>
                             {inf.bio && (
                               <div className="col-span-2 md:col-span-4">

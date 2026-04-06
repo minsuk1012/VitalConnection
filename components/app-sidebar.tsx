@@ -59,13 +59,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
               <Collapsible defaultOpen={isInstagramActive} className="group/collapsible">
                 <SidebarMenuItem>
-                  <CollapsibleTrigger className="w-full">
-                    <SidebarMenuButton isActive={isInstagramActive}>
-                      <Radar />
-                      <span>인스타그램</span>
-                      <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
+                  <SidebarMenuButton render={<CollapsibleTrigger />} isActive={isInstagramActive}>
+                    <Radar />
+                    <span>인스타그램</span>
+                    <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {INSTAGRAM_SUBS.map(sub => (
