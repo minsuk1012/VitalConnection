@@ -47,6 +47,22 @@ function getDb() {
         memo TEXT DEFAULT '', bio TEXT DEFAULT '',
         followers INTEGER DEFAULT 0, following INTEGER DEFAULT 0,
         is_business INTEGER DEFAULT 0,
+        total_posts INTEGER DEFAULT 0,
+        is_verified INTEGER DEFAULT 0,
+        external_url TEXT DEFAULT '',
+        category TEXT DEFAULT '',
+        profile_pic_url TEXT DEFAULT '',
+        engagement_rate REAL DEFAULT 0,
+        fit_score REAL DEFAULT 0,
+        comment_like_ratio REAL DEFAULT 0,
+        follower_following_ratio REAL DEFAULT 0,
+        posting_frequency REAL DEFAULT 0,
+        last_post_date TEXT DEFAULT '',
+        content_relevance REAL DEFAULT 0,
+        detected_language TEXT DEFAULT '',
+        comment_lang_distribution TEXT DEFAULT '{}',
+        comment_quality_score REAL DEFAULT 0,
+        deep_analyzed_at TEXT DEFAULT '',
         last_updated TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_posts_collection ON posts(collection_id);
@@ -59,6 +75,24 @@ function getDb() {
     try { sqlite.exec(`ALTER TABLE posts ADD COLUMN video_view_count INTEGER DEFAULT 0`) } catch {}
     try { sqlite.exec(`ALTER TABLE posts ADD COLUMN mentions TEXT DEFAULT '[]'`) } catch {}
     try { sqlite.exec(`ALTER TABLE posts ADD COLUMN is_video INTEGER DEFAULT 0`) } catch {}
+
+    // ALTER TABLE for existing DBs — influencers
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN total_posts INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN is_verified INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN external_url TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN category TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN profile_pic_url TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN engagement_rate REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN fit_score REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN comment_like_ratio REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN follower_following_ratio REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN posting_frequency REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN last_post_date TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN content_relevance REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN detected_language TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN comment_lang_distribution TEXT DEFAULT '{}'`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN comment_quality_score REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN deep_analyzed_at TEXT DEFAULT ''`) } catch {}
   }
   return _db
 }
@@ -338,7 +372,8 @@ export function updateCandidate(username: string, updates: { status?: string; me
 }
 
 export function updateInfluencerProfile(username: string, profile: {
-  bio?: string; followers?: number; following?: number; is_business?: boolean; fullname?: string
+  bio?: string; followers?: number; following?: number; is_business?: boolean; fullname?: string;
+  total_posts?: number; is_verified?: boolean; external_url?: string; category?: string; profile_pic_url?: string;
 }) {
   const db = getDb()
   const set: Record<string, any> = { lastUpdated: sql`datetime('now')` }
@@ -348,6 +383,11 @@ export function updateInfluencerProfile(username: string, profile: {
   if (profile.following !== undefined) set.following = profile.following
   if (profile.is_business !== undefined) set.isBusiness = profile.is_business ? 1 : 0
   if (profile.fullname !== undefined) set.fullname = profile.fullname
+  if (profile.total_posts !== undefined) set.totalPosts = profile.total_posts
+  if (profile.is_verified !== undefined) set.isVerified = profile.is_verified ? 1 : 0
+  if (profile.external_url !== undefined) set.externalUrl = profile.external_url
+  if (profile.category !== undefined) set.category = profile.category
+  if (profile.profile_pic_url !== undefined) set.profilePicUrl = profile.profile_pic_url
 
   db.update(influencers).set(set).where(eq(influencers.username, username)).run()
 }

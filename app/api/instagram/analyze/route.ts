@@ -23,6 +23,11 @@ export async function POST(request: NextRequest) {
         following: profile.followingCount ?? profile.following ?? 0,
         is_business: profile.isBusinessAccount ?? profile.isBusiness ?? false,
         fullname: profile.fullName || profile.name || '',
+        total_posts: profile.postsCount ?? profile.mediaCount ?? 0,
+        is_verified: profile.isVerified ?? profile.verified ?? false,
+        external_url: profile.externalUrl || profile.website || '',
+        category: profile.businessCategoryName || profile.categoryName || '',
+        profile_pic_url: profile.profilePicUrl || profile.profilePicUrlHd || '',
       })
     }
 
