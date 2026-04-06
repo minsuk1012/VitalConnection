@@ -33,6 +33,15 @@ interface Influencer {
   following: number
   isBusiness: number
   samplePosts: { url: string; caption: string; likes: number; comments: number }[]
+  engagementRate: number
+  fitScore: number
+  commentLikeRatio: number
+  followerFollowingRatio: number
+  postingFrequency: number
+  lastPostDate: string
+  contentRelevance: number
+  detectedLanguage: string
+  deepAnalyzedAt: string
 }
 
 export default function CandidatesTab() {
@@ -40,7 +49,7 @@ export default function CandidatesTab() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
-  const [sortBy, setSortBy] = useState('engagement')
+  const [sortBy, setSortBy] = useState('fitScore')
   const [filterStatus, setFilterStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -51,7 +60,7 @@ export default function CandidatesTab() {
     setLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
-    if (sortBy && sortBy !== 'engagement') params.set('sortBy', sortBy)
+    if (sortBy && sortBy !== 'fitScore') params.set('sortBy', sortBy)
     if (filterStatus) params.set('status', filterStatus)
 
     const res = await fetch(`/api/instagram/influencers?${params}`)
@@ -112,6 +121,8 @@ export default function CandidatesTab() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="fitScore">Fit Score순</SelectItem>
+              <SelectItem value="engagementRate">ERF순</SelectItem>
               <SelectItem value="engagement">Engagement순</SelectItem>
               <SelectItem value="likes">평균 좋아요순</SelectItem>
               <SelectItem value="comments">평균 댓글순</SelectItem>
@@ -132,8 +143,9 @@ export default function CandidatesTab() {
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>계정</TableHead>
+                <TableHead className="text-right">Fit</TableHead>
+                <TableHead className="text-right">ERF%</TableHead>
                 <TableHead className="text-right">팔로워</TableHead>
-                <TableHead className="text-right">Engagement</TableHead>
                 <TableHead>상태</TableHead>
                 <TableHead>메모</TableHead>
               </TableRow>
@@ -141,11 +153,11 @@ export default function CandidatesTab() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
                 </TableRow>
               ) : influencers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">후보 데이터가 없습니다. 먼저 수집 후 탐색에서 프로필을 분석하세요.</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">후보 데이터가 없습니다. 먼저 수집 후 탐색에서 프로필을 분석하세요.</TableCell>
                 </TableRow>
               ) : (
                 influencers.map((inf, idx) => (
@@ -161,8 +173,15 @@ export default function CandidatesTab() {
                         </a>
                         {inf.fullname && <div className="text-xs text-muted-foreground">{inf.fullname}</div>}
                       </TableCell>
+                      <TableCell className="text-right">
+                        <span className={`font-bold ${inf.fitScore >= 70 ? 'text-green-600' : inf.fitScore >= 40 ? 'text-yellow-600' : 'text-muted-foreground'}`}>
+                          {inf.fitScore}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right text-sm">
+                        {inf.engagementRate > 0 ? `${inf.engagementRate}%` : '-'}
+                      </TableCell>
                       <TableCell className="text-right">{inf.followers > 0 ? inf.followers.toLocaleString() : '-'}</TableCell>
-                      <TableCell className="text-right font-bold text-primary">{inf.avgEngagement.toLocaleString()}</TableCell>
                       <TableCell onClick={e => e.stopPropagation()}>
                         <Select value={inf.status} onValueChange={v => updateStatus(inf.username, v)}>
                           <SelectTrigger className="w-[100px] h-7 text-xs">
@@ -197,23 +216,39 @@ export default function CandidatesTab() {
                     </TableRow>
                     {expanded === inf.username && (
                       <TableRow>
-                        <TableCell colSpan={6} className="bg-muted/50 px-8 py-4">
+                        <TableCell colSpan={7} className="bg-muted/50 px-8 py-4">
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                            <div>
+                              <div className="text-muted-foreground text-xs">Fit Score</div>
+                              <div className="font-medium text-lg">{inf.fitScore}/100</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">ERF (팔로워 대비)</div>
+                              <div className="font-medium">{inf.engagementRate > 0 ? `${inf.engagementRate}%` : '미분석'}</div>
+                            </div>
                             <div>
                               <div className="text-muted-foreground text-xs">팔로워</div>
                               <div className="font-medium">{inf.followers > 0 ? inf.followers.toLocaleString() : '미수집'}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">팔로잉</div>
-                              <div className="font-medium">{inf.following > 0 ? inf.following.toLocaleString() : '미수집'}</div>
+                              <div className="text-muted-foreground text-xs">팔로잉 비율</div>
+                              <div className="font-medium">{inf.followerFollowingRatio > 0 ? `${inf.followerFollowingRatio}x` : '미수집'}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">평균 좋아요</div>
-                              <div className="font-medium">{inf.avgLikes.toLocaleString()}</div>
+                              <div className="text-muted-foreground text-xs">댓글/좋아요 비율</div>
+                              <div className="font-medium">{inf.commentLikeRatio > 0 ? `${(inf.commentLikeRatio * 100).toFixed(1)}%` : '-'}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">평균 댓글</div>
-                              <div className="font-medium">{inf.avgComments.toLocaleString()}</div>
+                              <div className="text-muted-foreground text-xs">포스팅 빈도</div>
+                              <div className="font-medium">{inf.postingFrequency > 0 ? `주 ${inf.postingFrequency}회` : '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">감지 언어</div>
+                              <div className="font-medium">{inf.detectedLanguage || '-'}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">콘텐츠 관련성</div>
+                              <div className="font-medium">{inf.contentRelevance > 0 ? `${inf.contentRelevance}/100` : '-'}</div>
                             </div>
                             {inf.bio && (
                               <div className="col-span-2 md:col-span-4">
