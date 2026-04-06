@@ -72,3 +72,35 @@ export const influencers = sqliteTable('influencers', {
 }, (table) => [
   index('idx_influencers_engagement').on(table.avgEngagement),
 ])
+
+export const reels = sqliteTable('reels', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  username: text('username').notNull(),
+  reelUrl: text('reel_url').notNull().unique(),
+  shortcode: text('shortcode'),
+  caption: text('caption'),
+  likes: integer('likes').default(0),
+  commentsCount: integer('comments_count').default(0),
+  views: integer('views').default(0),
+  plays: integer('plays').default(0),
+  duration: real('duration').default(0),
+  postTimestamp: text('post_timestamp'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+  index('idx_reels_username').on(table.username),
+])
+
+export const reelComments = sqliteTable('reel_comments', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  reelId: integer('reel_id').notNull().references(() => reels.id),
+  commentText: text('comment_text'),
+  commenterUsername: text('commenter_username'),
+  likes: integer('likes').default(0),
+  isReply: integer('is_reply').default(0),
+  detectedLanguage: text('detected_language').default(''),
+  commentTimestamp: text('comment_timestamp'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+  index('idx_reel_comments_reel').on(table.reelId),
+  index('idx_reel_comments_lang').on(table.detectedLanguage),
+])

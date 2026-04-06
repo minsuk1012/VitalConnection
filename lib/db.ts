@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { eq, desc, asc, gte, sql, count, max, ne, and } from 'drizzle-orm'
 import path from 'path'
 import * as schema from './schema'
-import { collections, posts, influencers } from './schema'
+import { collections, posts, influencers, reels, reelComments } from './schema'
 import { computeAllMetrics, type MetricsInput } from './metrics'
 
 const DB_PATH = path.join(process.cwd(), 'instagram.db')
@@ -70,6 +70,36 @@ function getDb() {
       CREATE INDEX IF NOT EXISTS idx_posts_username ON posts(owner_username);
       CREATE INDEX IF NOT EXISTS idx_posts_likes ON posts(likes DESC);
       CREATE INDEX IF NOT EXISTS idx_influencers_engagement ON influencers(avg_engagement DESC);
+
+      CREATE TABLE IF NOT EXISTS reels (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        reel_url TEXT NOT NULL UNIQUE,
+        shortcode TEXT,
+        caption TEXT,
+        likes INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
+        views INTEGER DEFAULT 0,
+        plays INTEGER DEFAULT 0,
+        duration REAL DEFAULT 0,
+        post_timestamp TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_reels_username ON reels(username);
+
+      CREATE TABLE IF NOT EXISTS reel_comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        reel_id INTEGER NOT NULL REFERENCES reels(id),
+        comment_text TEXT,
+        commenter_username TEXT,
+        likes INTEGER DEFAULT 0,
+        is_reply INTEGER DEFAULT 0,
+        detected_language TEXT DEFAULT '',
+        comment_timestamp TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_reel_comments_reel ON reel_comments(reel_id);
+      CREATE INDEX IF NOT EXISTS idx_reel_comments_lang ON reel_comments(detected_language);
     `)
 
     // ALTER TABLE for existing DBs — posts
@@ -457,4 +487,73 @@ export function updateInfluencerProfile(username: string, profile: {
 export function getInfluencer(username: string) {
   const db = getDb()
   return db.select().from(influencers).where(eq(influencers.username, username)).get()
+}
+
+// ─── Reels ───
+
+export function insertReels(username: string, rawReels: any[]) {
+  const db = getDb()
+  let inserted = 0
+  for (const r of rawReels) {
+    try {
+      db.insert(reels).values({
+        username,
+        reelUrl: r.url || r.inputUrl || '',
+        shortcode: r.shortCode || r.id || '',
+        caption: r.caption || '',
+        likes: r.likesCount ?? r.likes ?? 0,
+        commentsCount: r.commentsCount ?? r.comments ?? 0,
+        views: r.videoViewCount ?? r.viewCount ?? r.views ?? 0,
+        plays: r.videoPlayCount ?? r.plays ?? 0,
+        duration: r.videoDuration ?? r.duration ?? 0,
+        postTimestamp: r.timestamp || '',
+      }).onConflictDoNothing().run()
+      inserted++
+    } catch {}
+  }
+  return inserted
+}
+
+export function getReelsByUsername(username: string) {
+  const db = getDb()
+  return db.select().from(reels).where(eq(reels.username, username)).orderBy(desc(reels.views)).all()
+}
+
+export function insertReelComments(reelId: number, rawComments: any[], detectLangFn: (text: string) => string) {
+  const db = getDb()
+  let inserted = 0
+  for (const c of rawComments) {
+    try {
+      const text = c.text || c.comment || ''
+      db.insert(reelComments).values({
+        reelId,
+        commentText: text,
+        commenterUsername: c.ownerUsername || c.username || '',
+        likes: c.likesCount ?? c.likes ?? 0,
+        isReply: c.isReply ? 1 : 0,
+        detectedLanguage: detectLangFn(text),
+        commentTimestamp: c.timestamp || '',
+      }).run()
+      inserted++
+    } catch {}
+  }
+  return inserted
+}
+
+export function getReelsByUsernameList(username: string) {
+  const db = getDb()
+  return db.select().from(reels).where(eq(reels.username, username)).orderBy(desc(reels.views)).all()
+}
+
+export function updateInfluencerDeepAnalysis(username: string, data: {
+  commentLangDistribution: Record<string, number>
+  commentQualityScore: number
+}) {
+  const db = getDb()
+  db.update(influencers).set({
+    commentLangDistribution: JSON.stringify(data.commentLangDistribution),
+    commentQualityScore: data.commentQualityScore,
+    deepAnalyzedAt: sql`datetime('now')`,
+    lastUpdated: sql`datetime('now')`,
+  }).where(eq(influencers.username, username)).run()
 }
