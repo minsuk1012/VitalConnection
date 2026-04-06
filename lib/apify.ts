@@ -1,0 +1,65 @@
+import { ApifyClient } from 'apify-client'
+
+function getClient() {
+  const token = process.env.APIFY_TOKEN
+  if (!token) throw new Error('APIFY_TOKEN 환경변수가 설정되지 않았습니다.')
+  return new ApifyClient({ token })
+}
+
+type CollectType = 'hashtag' | 'profile' | 'location' | 'keyword'
+
+const ACTOR_MAP: Record<CollectType, string> = {
+  hashtag: 'apify/instagram-hashtag-scraper',
+  profile: 'apify/instagram-scraper',
+  location: 'apify/instagram-scraper',
+  keyword: 'apify/instagram-search-scraper',
+}
+
+function buildInput(type: CollectType, query: string, limit: number): Record<string, any> {
+  switch (type) {
+    case 'hashtag':
+      return { hashtags: [query], resultsLimit: limit, resultsType: 'posts' }
+    case 'profile':
+      return { usernames: [query.replace(/^@/, '')], resultsLimit: limit, resultsType: 'posts' }
+    case 'location':
+      return {
+        directUrls: [query.startsWith('http') ? query : `https://www.instagram.com/explore/locations/${query}/`],
+        resultsLimit: limit,
+      }
+    case 'keyword':
+      return { search: query, searchType: 'hashtag', resultsLimit: limit }
+  }
+}
+
+export async function collectFromInstagram(type: CollectType, query: string, limit: number) {
+  const client = getClient()
+  const actorId = ACTOR_MAP[type]
+  const input = buildInput(type, query, limit)
+
+  const run = await client.actor(actorId).call({ ...input })
+  const items = await client.dataset(run.defaultDatasetId).listItems()
+  return items.items
+}
+
+export const PRESETS: Record<string, { label: string; tags: string[] }> = {
+  kbeauty: {
+    label: '🇰🇷 K-Beauty',
+    tags: ['kbeauty', 'kbeautyskincare', 'koreanbeauty', 'koreanskincare'],
+  },
+  medical_tourism: {
+    label: '🏥 의료관광',
+    tags: ['plasticsurgerykorea', 'koreandermatology', 'gangnamclinic', 'koreamedical'],
+  },
+  japan: {
+    label: '🇯🇵 일본',
+    tags: ['韓国美容', '韓国皮膚科', '韓国整形'],
+  },
+  thai: {
+    label: '🇹🇭 태국',
+    tags: ['ศัลยกรรมเกาหลี', 'คลินิกเกาหลี'],
+  },
+  vietnam: {
+    label: '🇻🇳 베트남',
+    tags: ['thẩmmỹhànquốc', 'dauhanquoc'],
+  },
+}
