@@ -1,5 +1,9 @@
-import InstagramClient from './components/InstagramClient'
+import CollectTab from './components/CollectTab'
 
-export default function InstagramPage() {
-  return <InstagramClient />
+export default function InstagramCollectPage() {
+  return (
+    <div className="flex flex-1 flex-col gap-4 py-4 px-4 md:gap-6 md:py-6 lg:px-6">
+      <CollectTab />
+    </div>
+  )
 }

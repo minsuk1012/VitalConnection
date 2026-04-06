@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, LogOut, Radar } from 'lucide-react'
+import { LayoutDashboard, LogOut, Radar, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -14,15 +14,21 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
-const NAV_ITEMS = [
-  { title: '대시보드', href: '/admin', icon: LayoutDashboard },
-  { title: '인스타그램 수집', href: '/admin/instagram', icon: Radar },
+const INSTAGRAM_SUBS = [
+  { title: '수집', href: '/admin/instagram' },
+  { title: '수집 결과', href: '/admin/instagram/results' },
+  { title: '인플루언서', href: '/admin/instagram/influencers' },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
+  const isInstagramActive = pathname.startsWith('/admin/instagram')
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -44,14 +50,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>메뉴</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map(item => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton render={<Link href={item.href} />} isActive={pathname === item.href}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
+              <SidebarMenuItem>
+                <SidebarMenuButton render={<Link href="/admin" />} isActive={pathname === '/admin'}>
+                  <LayoutDashboard />
+                  <span>대시보드</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <Collapsible defaultOpen={isInstagramActive} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton isActive={isInstagramActive}>
+                      <Radar />
+                      <span>인스타그램</span>
+                      <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {INSTAGRAM_SUBS.map(sub => (
+                        <SidebarMenuSubItem key={sub.href}>
+                          <SidebarMenuSubButton render={<Link href={sub.href} />} isActive={pathname === sub.href}>
+                            <span>{sub.title}</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              ))}
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
