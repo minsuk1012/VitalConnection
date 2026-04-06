@@ -126,7 +126,7 @@ export function insertPosts(collectionId: number, posts: any[], searchTag: strin
 export function refreshInfluencers() {
   const db = getDb()
   db.exec(`
-    INSERT OR REPLACE INTO influencers (username, fullname, profile_url, post_count, avg_likes, avg_comments, avg_engagement, hashtags, last_updated)
+    INSERT INTO influencers (username, fullname, profile_url, post_count, avg_likes, avg_comments, avg_engagement, hashtags, last_updated)
     SELECT
       owner_username,
       MAX(owner_fullname),
@@ -140,6 +140,14 @@ export function refreshInfluencers() {
     FROM posts
     WHERE owner_username != ''
     GROUP BY owner_username
+    ON CONFLICT(username) DO UPDATE SET
+      fullname = excluded.fullname,
+      profile_url = excluded.profile_url,
+      post_count = excluded.post_count,
+      avg_likes = excluded.avg_likes,
+      avg_comments = excluded.avg_comments,
+      avg_engagement = excluded.avg_engagement,
+      last_updated = excluded.last_updated
   `)
 
   const rows = db.prepare(
@@ -262,7 +270,7 @@ export function getCollections() {
 
 export function getDistinctSearchTags() {
   const db = getDb()
-  return (db.prepare('SELECT DISTINCT search_tag FROM posts WHERE search_tag != "" ORDER BY search_tag').all() as { search_tag: string }[]).map(r => r.search_tag)
+  return (db.prepare("SELECT DISTINCT search_tag FROM posts WHERE search_tag != '' ORDER BY search_tag").all() as { search_tag: string }[]).map(r => r.search_tag)
 }
 
 export function getAllPostsForExport(params: { collectionId?: number; searchTag?: string; minLikes?: number }) {
