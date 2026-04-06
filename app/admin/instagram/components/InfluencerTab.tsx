@@ -1,6 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback, Fragment } from 'react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
 
 interface Influencer {
   username: string
@@ -19,7 +28,7 @@ export default function InfluencerTab() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
-  const [sortBy, setSortBy] = useState('')
+  const [sortBy, setSortBy] = useState('engagement')
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
 
@@ -27,7 +36,7 @@ export default function InfluencerTab() {
     setLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
-    if (sortBy) params.set('sortBy', sortBy)
+    if (sortBy && sortBy !== 'engagement') params.set('sortBy', sortBy)
 
     const res = await fetch(`/api/instagram/influencers?${params}`)
     const data = await res.json()
@@ -46,118 +55,119 @@ export default function InfluencerTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-4">
-        <select
-          value={sortBy}
-          onChange={e => { setSortBy(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-        >
-          <option value="">Engagement순</option>
-          <option value="likes">평균 좋아요순</option>
-          <option value="comments">평균 댓글순</option>
-          <option value="posts">게시물 수순</option>
-        </select>
+      {/* 필터 바 */}
+      <Card>
+        <CardContent className="flex items-center gap-3 pt-6">
+          <Select value={sortBy} onValueChange={v => { setSortBy(v); setPage(1) }}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="engagement">Engagement순</SelectItem>
+              <SelectItem value="likes">평균 좋아요순</SelectItem>
+              <SelectItem value="comments">평균 댓글순</SelectItem>
+              <SelectItem value="posts">게시물 수순</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <div className="flex-1" />
-        <span className="text-sm text-gray-500">{total}명</span>
-        <button
-          onClick={exportCSV}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
-        >
-          CSV 내보내기
-        </button>
-      </div>
+          <div className="flex-1" />
+          <span className="text-sm text-muted-foreground">{total}명</span>
+          <Button variant="outline" size="sm" onClick={exportCSV}>
+            CSV 내보내기
+          </Button>
+        </CardContent>
+      </Card>
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-gray-50 text-gray-600 font-semibold">
-            <tr>
-              <th className="px-4 py-3">#</th>
-              <th className="px-4 py-3">계정</th>
-              <th className="px-4 py-3 text-right">게시물</th>
-              <th className="px-4 py-3 text-right">평균 좋아요</th>
-              <th className="px-4 py-3 text-right">평균 댓글</th>
-              <th className="px-4 py-3 text-right">Engagement</th>
-              <th className="px-4 py-3">해시태그</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">로딩중...</td></tr>
-            ) : influencers.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">인플루언서 데이터가 없습니다.</td></tr>
-            ) : (
-              influencers.map((inf, idx) => (
-                <Fragment key={inf.username}>
-                  <tr
-                    onClick={() => setExpanded(expanded === inf.username ? null : inf.username)}
-                    className="hover:bg-gray-50 cursor-pointer"
-                  >
-                    <td className="px-4 py-3 text-gray-400">{(page - 1) * 50 + idx + 1}</td>
-                    <td className="px-4 py-3">
-                      <a href={inf.profile_url} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline font-medium"
-                         onClick={e => e.stopPropagation()}>
-                        @{inf.username}
-                      </a>
-                      {inf.fullname && <div className="text-xs text-gray-400">{inf.fullname}</div>}
-                    </td>
-                    <td className="px-4 py-3 text-right">{inf.post_count}</td>
-                    <td className="px-4 py-3 text-right">{inf.avg_likes.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right">{inf.avg_comments.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right font-bold text-purple-600">{inf.avg_engagement.toLocaleString()}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {inf.hashtags.slice(0, 3).map(h => (
-                          <span key={h} className="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">#{h}</span>
-                        ))}
-                        {inf.hashtags.length > 3 && (
-                          <span className="text-gray-400 text-xs">+{inf.hashtags.length - 3}</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  {expanded === inf.username && inf.samplePosts.length > 0 && (
-                    <tr>
-                      <td colSpan={7} className="px-8 py-3 bg-gray-50">
-                        <div className="text-xs font-semibold text-gray-500 mb-2">샘플 게시물 (상위 {inf.samplePosts.length}개)</div>
-                        <div className="space-y-2">
-                          {inf.samplePosts.map((post, i) => (
-                            <div key={i} className="flex items-center gap-3 text-xs">
-                              <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:underline truncate max-w-xs">
-                                {(post.caption || '').slice(0, 60) || post.url}
-                              </a>
-                              <span className="text-gray-400">❤️ {post.likes}</span>
-                              <span className="text-gray-400">💬 {post.comments}</span>
-                            </div>
+      {/* 테이블 */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>계정</TableHead>
+                <TableHead className="text-right">게시물</TableHead>
+                <TableHead className="text-right">평균 좋아요</TableHead>
+                <TableHead className="text-right">평균 댓글</TableHead>
+                <TableHead className="text-right">Engagement</TableHead>
+                <TableHead>해시태그</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
+                </TableRow>
+              ) : influencers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">인플루언서 데이터가 없습니다.</TableCell>
+                </TableRow>
+              ) : (
+                influencers.map((inf, idx) => (
+                  <Fragment key={inf.username}>
+                    <TableRow
+                      onClick={() => setExpanded(expanded === inf.username ? null : inf.username)}
+                      className="cursor-pointer"
+                    >
+                      <TableCell className="text-muted-foreground">{(page - 1) * 50 + idx + 1}</TableCell>
+                      <TableCell>
+                        <a href={inf.profile_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium"
+                           onClick={e => e.stopPropagation()}>
+                          @{inf.username}
+                        </a>
+                        {inf.fullname && <div className="text-xs text-muted-foreground">{inf.fullname}</div>}
+                      </TableCell>
+                      <TableCell className="text-right">{inf.post_count}</TableCell>
+                      <TableCell className="text-right">{inf.avg_likes.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{inf.avg_comments.toLocaleString()}</TableCell>
+                      <TableCell className="text-right font-bold text-primary">{inf.avg_engagement.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {inf.hashtags.slice(0, 3).map(h => (
+                            <Badge key={h} variant="secondary" className="text-xs">#{h}</Badge>
                           ))}
+                          {inf.hashtags.length > 3 && (
+                            <span className="text-muted-foreground text-xs">+{inf.hashtags.length - 3}</span>
+                          )}
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                      </TableCell>
+                    </TableRow>
+                    {expanded === inf.username && inf.samplePosts.length > 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="bg-muted/50 px-8">
+                          <div className="text-xs font-semibold text-muted-foreground mb-2">샘플 게시물 (상위 {inf.samplePosts.length}개)</div>
+                          <div className="space-y-2">
+                            {inf.samplePosts.map((post, i) => (
+                              <div key={i} className="flex items-center gap-3 text-xs">
+                                <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-xs">
+                                  {(post.caption || '').slice(0, 60) || post.url}
+                                </a>
+                                <span className="text-muted-foreground">❤️ {post.likes}</span>
+                                <span className="text-muted-foreground">💬 {post.comments}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
+      {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-3 py-1 border border-gray-200 rounded text-sm disabled:opacity-30"
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
             이전
-          </button>
-          <span className="px-3 py-1 text-sm text-gray-600">{page} / {totalPages}</span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-3 py-1 border border-gray-200 rounded text-sm disabled:opacity-30"
-          >
+          </Button>
+          <span className="px-3 py-1 text-sm text-muted-foreground">{page} / {totalPages}</span>
+          <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
             다음
-          </button>
+          </Button>
         </div>
       )}
     </div>

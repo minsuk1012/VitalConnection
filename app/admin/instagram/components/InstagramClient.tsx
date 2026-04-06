@@ -1,50 +1,46 @@
 'use client'
 
-import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 import CollectTab from './CollectTab'
 import ResultsTab from './ResultsTab'
 import InfluencerTab from './InfluencerTab'
-
-const TABS = [
-  { id: 'collect', label: '🔍 수집' },
-  { id: 'results', label: '📊 수집 결과' },
-  { id: 'influencers', label: '⭐ 인플루언서' },
-] as const
-
-type TabId = typeof TABS[number]['id']
+import Link from 'next/link'
 
 export default function InstagramClient() {
-  const [activeTab, setActiveTab] = useState<TabId>('collect')
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">인스타그램 수집</h1>
-          <a href="/admin" className="text-sm text-gray-500 hover:text-gray-700">
-            ← 대시보드
-          </a>
+    <div className="min-h-screen bg-background p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">인스타그램 수집</h1>
+            <p className="text-muted-foreground">해시태그, 프로필, 위치, 키워드 기반 데이터 수집</p>
+          </div>
+          <Link href="/admin">
+            <Button variant="outline">← 대시보드</Button>
+          </Link>
         </div>
 
-        <div className="flex gap-1 border-b border-gray-200 mb-6">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-3 text-sm font-medium transition ${
-                activeTab === tab.id
-                  ? 'border-b-2 border-purple-600 text-purple-600'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Separator />
 
-        {activeTab === 'collect' && <CollectTab />}
-        {activeTab === 'results' && <ResultsTab />}
-        {activeTab === 'influencers' && <InfluencerTab />}
+        <Tabs defaultValue="collect">
+          <TabsList>
+            <TabsTrigger value="collect">🔍 수집</TabsTrigger>
+            <TabsTrigger value="results">📊 수집 결과</TabsTrigger>
+            <TabsTrigger value="influencers">⭐ 인플루언서</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="collect" className="mt-6">
+            <CollectTab />
+          </TabsContent>
+          <TabsContent value="results" className="mt-6">
+            <ResultsTab />
+          </TabsContent>
+          <TabsContent value="influencers" className="mt-6">
+            <InfluencerTab />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

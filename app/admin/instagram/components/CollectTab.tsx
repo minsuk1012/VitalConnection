@@ -1,6 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Progress } from '@/components/ui/progress'
+import { cn } from '@/lib/utils'
 
 const PRESETS: Record<string, { label: string; tags: string[] }> = {
   kbeauty: { label: '🇰🇷 K-Beauty', tags: ['kbeauty', 'kbeautyskincare', 'koreanbeauty', 'koreanskincare'] },
@@ -44,8 +50,7 @@ export default function CollectTab() {
   function applyPreset(key: string) {
     const preset = PRESETS[key]
     if (!preset) return
-    const newTags = [...new Set([...tags, ...preset.tags])]
-    setTags(newTags)
+    setTags([...new Set([...tags, ...preset.tags])])
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -93,125 +98,126 @@ export default function CollectTab() {
   return (
     <div className="space-y-6">
       {/* 프리셋 */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">빠른 프리셋</label>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(PRESETS).map(([key, preset]) => (
-            <button
-              key={key}
-              onClick={() => applyPreset(key)}
-              className="px-4 py-2 rounded-full text-sm bg-purple-50 text-purple-700 hover:bg-purple-100 transition"
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">빠른 프리셋</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(PRESETS).map(([key, preset]) => (
+              <Button key={key} variant="secondary" size="sm" onClick={() => applyPreset(key)}>
+                {preset.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 수집 방식 */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">수집 방식</label>
-        <div className="flex border border-gray-200 rounded-lg overflow-hidden w-fit">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">수집 방식</label>
+        <div className="flex gap-1">
           {MODES.map(m => (
-            <button
+            <Button
               key={m.id}
+              variant={mode === m.id ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setMode(m.id)}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                mode === m.id
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
             >
               {m.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       {/* 검색어 입력 */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">검색어 입력</label>
-        <div className="bg-white border border-gray-200 rounded-lg p-3 flex flex-wrap gap-2 items-center min-h-[48px]">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">검색어 입력</label>
+        <div className="flex flex-wrap gap-2 items-center border rounded-lg p-3 min-h-[48px] bg-background">
           {tags.map(tag => (
-            <span key={tag} className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+            <Badge key={tag} variant="default" className="gap-1">
               {tag}
-              <button onClick={() => removeTag(tag)} className="hover:text-purple-200">✕</button>
-            </span>
+              <button onClick={() => removeTag(tag)} className="ml-1 hover:opacity-70">✕</button>
+            </Badge>
           ))}
-          <input
+          <Input
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="입력 후 Enter..."
             disabled={isCollecting}
-            className="flex-1 min-w-[150px] outline-none text-sm text-gray-700 placeholder:text-gray-400"
+            className="flex-1 min-w-[150px] border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
           />
         </div>
       </div>
 
       {/* 설정 + 시작 */}
       <div className="flex items-center gap-4">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">건수/항목당</label>
-          <input
+        <div className="space-y-1">
+          <label className="text-xs text-muted-foreground">건수/항목당</label>
+          <Input
             type="number"
             value={limit}
             onChange={e => setLimit(Number(e.target.value))}
             min={1}
             max={100}
             disabled={isCollecting}
-            className="w-20 border border-gray-200 rounded-lg px-3 py-2 text-sm"
+            className="w-20"
           />
         </div>
 
-        <button
+        <Button
           onClick={startCollect}
           disabled={tags.length === 0 || isCollecting}
-          className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-5"
         >
           {isCollecting ? '수집중...' : '수집 시작'}
-        </button>
+        </Button>
 
-        <span className="text-sm text-gray-400">
+        <span className="text-sm text-muted-foreground mt-5">
           예상 크레딧: ~${estimatedCost}
         </span>
       </div>
 
       {/* 진행 상황 */}
       {progress.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">수집 진행 상황</h3>
-          <div className="space-y-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">수집 진행 상황</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             {progress.map(item => (
-              <div key={item.query}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-700">{mode === 'hashtag' ? '#' : ''}{item.query}</span>
-                  <span className={
-                    item.status === 'done' ? 'text-green-600' :
-                    item.status === 'collecting' ? 'text-purple-600' :
-                    item.status === 'error' ? 'text-red-500' :
-                    'text-gray-400'
-                  }>
+              <div key={item.query} className="space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span>{mode === 'hashtag' ? '#' : ''}{item.query}</span>
+                  <span className={cn(
+                    item.status === 'done' && 'text-green-600',
+                    item.status === 'collecting' && 'text-primary',
+                    item.status === 'error' && 'text-destructive',
+                    item.status === 'pending' && 'text-muted-foreground',
+                  )}>
                     {item.status === 'done' ? `✓ ${item.count}건 완료` :
                      item.status === 'collecting' ? '수집중...' :
                      item.status === 'error' ? `✕ ${item.error}` :
                      '대기중'}
                   </span>
                 </div>
-                <div className="bg-gray-100 rounded-full h-1.5">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      item.status === 'done' ? 'bg-green-500 w-full' :
-                      item.status === 'collecting' ? 'bg-purple-500 w-1/2 animate-pulse' :
-                      item.status === 'error' ? 'bg-red-400 w-full' :
-                      'w-0'
-                    }`}
-                  />
-                </div>
+                <Progress
+                  value={
+                    item.status === 'done' || item.status === 'error' ? 100 :
+                    item.status === 'collecting' ? 50 : 0
+                  }
+                  className={cn(
+                    'h-1.5',
+                    item.status === 'done' && '[&>div]:bg-green-500',
+                    item.status === 'error' && '[&>div]:bg-destructive',
+                    item.status === 'collecting' && 'animate-pulse',
+                  )}
+                />
               </div>
             ))}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

@@ -1,6 +1,16 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
 
 interface Post {
   id: number
@@ -59,115 +69,126 @@ export default function ResultsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 bg-white border border-gray-200 rounded-lg p-4">
-        <select
-          value={filterTag}
-          onChange={e => { setFilterTag(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-        >
-          <option value="">전체 해시태그</option>
-          {searchTags.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
+      {/* 필터 바 */}
+      <Card>
+        <CardContent className="flex flex-wrap items-center gap-3 pt-6">
+          <Select value={filterTag} onValueChange={v => { setFilterTag(v === 'all' ? '' : v); setPage(1) }}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="전체 해시태그" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 해시태그</SelectItem>
+              {searchTags.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
 
-        <input
-          type="number"
-          placeholder="최소 좋아요"
-          value={minLikes}
-          onChange={e => { setMinLikes(e.target.value); setPage(1) }}
-          className="w-32 border border-gray-200 rounded-lg px-3 py-2 text-sm"
-        />
+          <Input
+            type="number"
+            placeholder="최소 좋아요"
+            value={minLikes}
+            onChange={e => { setMinLikes(e.target.value); setPage(1) }}
+            className="w-32"
+          />
 
-        <select
-          value={sortBy}
-          onChange={e => { setSortBy(e.target.value); setPage(1) }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-        >
-          <option value="likes">좋아요순</option>
-          <option value="comments">댓글순</option>
-          <option value="date">최신순</option>
-        </select>
+          <Select value={sortBy} onValueChange={v => { setSortBy(v); setPage(1) }}>
+            <SelectTrigger className="w-[130px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="likes">좋아요순</SelectItem>
+              <SelectItem value="comments">댓글순</SelectItem>
+              <SelectItem value="date">최신순</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <button
-          onClick={() => setSortOrder(o => o === 'desc' ? 'asc' : 'desc')}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm hover:bg-gray-50"
-        >
-          {sortOrder === 'desc' ? '↓ 내림차순' : '↑ 오름차순'}
-        </button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortOrder(o => o === 'desc' ? 'asc' : 'desc')}
+          >
+            {sortOrder === 'desc' ? '↓ 내림차순' : '↑ 오름차순'}
+          </Button>
 
-        <div className="flex-1" />
-        <span className="text-sm text-gray-500">{total}건</span>
-        <button
-          onClick={exportCSV}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
-        >
-          CSV 내보내기
-        </button>
-      </div>
+          <div className="flex-1" />
+          <span className="text-sm text-muted-foreground">{total}건</span>
+          <Button variant="outline" size="sm" onClick={exportCSV}>
+            CSV 내보내기
+          </Button>
+        </CardContent>
+      </Card>
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 text-gray-600 font-semibold">
-              <tr>
-                <th className="px-4 py-3">작성자</th>
-                <th className="px-4 py-3">캡션</th>
-                <th className="px-4 py-3 text-right">좋아요</th>
-                <th className="px-4 py-3 text-right">댓글</th>
-                <th className="px-4 py-3">태그</th>
-                <th className="px-4 py-3">날짜</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+      {/* 테이블 */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>작성자</TableHead>
+                <TableHead>캡션</TableHead>
+                <TableHead className="text-right">좋아요</TableHead>
+                <TableHead className="text-right">댓글</TableHead>
+                <TableHead>태그</TableHead>
+                <TableHead>날짜</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {loading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">로딩중...</td></tr>
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
+                </TableRow>
               ) : posts.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">수집된 데이터가 없습니다.</td></tr>
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">수집된 데이터가 없습니다.</TableCell>
+                </TableRow>
               ) : (
                 posts.map(p => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <a href={`https://instagram.com/${p.owner_username}`} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline font-medium">
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      <a href={`https://instagram.com/${p.owner_username}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
                         @{p.owner_username}
                       </a>
-                    </td>
-                    <td className="px-4 py-3 max-w-xs truncate text-gray-600">
-                      <a href={p.url} target="_blank" rel="noopener noreferrer" className="hover:text-gray-900">
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      <a href={p.url} target="_blank" rel="noopener noreferrer" className="hover:text-foreground text-muted-foreground">
                         {(p.caption || '').slice(0, 80)}
                       </a>
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium">{p.likes.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right">{p.comments.toLocaleString()}</td>
-                    <td className="px-4 py-3">
-                      <span className="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">{p.search_tag}</span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                    </TableCell>
+                    <TableCell className="text-right font-medium">{p.likes.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{p.comments.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{p.search_tag}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
                       {p.post_timestamp ? new Date(p.post_timestamp).toLocaleDateString('ko-KR') : '-'}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
+      {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1 border border-gray-200 rounded text-sm disabled:opacity-30"
           >
             이전
-          </button>
-          <span className="px-3 py-1 text-sm text-gray-600">{page} / {totalPages}</span>
-          <button
+          </Button>
+          <span className="px-3 py-1 text-sm text-muted-foreground">{page} / {totalPages}</span>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-3 py-1 border border-gray-200 rounded text-sm disabled:opacity-30"
           >
             다음
-          </button>
+          </Button>
         </div>
       )}
     </div>
