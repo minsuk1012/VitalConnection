@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams
 
   const data = queryInfluencers({
+    status: params.get('status') || undefined,
     sortBy: params.get('sortBy') || undefined,
     sortOrder: params.get('sortOrder') || 'desc',
     page: params.get('page') ? Number(params.get('page')) : 1,

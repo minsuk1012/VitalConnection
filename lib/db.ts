@@ -56,6 +56,12 @@ function initTables(db: Database.Database) {
       avg_comments REAL DEFAULT 0,
       avg_engagement REAL DEFAULT 0,
       hashtags TEXT DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT '미확인',
+      memo TEXT DEFAULT '',
+      bio TEXT DEFAULT '',
+      followers INTEGER DEFAULT 0,
+      following INTEGER DEFAULT 0,
+      is_business INTEGER DEFAULT 0,
       last_updated TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -205,12 +211,24 @@ export function queryResults(params: {
 }
 
 export function queryInfluencers(params: {
+  status?: string
   sortBy?: string
   sortOrder?: string
   page?: number
   pageSize?: number
 }) {
   const db = getDb()
+
+  const conditions: string[] = []
+  const values: any[] = []
+
+  if (params.status) {
+    conditions.push('status = ?')
+    values.push(params.status)
+  }
+
+  const where = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''
+
   const sortCol = { likes: 'avg_likes', comments: 'avg_comments', posts: 'post_count' }[params.sortBy || ''] || 'avg_engagement'
   const sortDir = params.sortOrder === 'asc' ? 'ASC' : 'DESC'
 
@@ -218,13 +236,14 @@ export function queryInfluencers(params: {
   const pageSize = params.pageSize || 50
   const offset = (page - 1) * pageSize
 
-  const total = (db.prepare('SELECT COUNT(*) as cnt FROM influencers').get() as any).cnt
+  const total = (db.prepare(`SELECT COUNT(*) as cnt FROM influencers ${where}`).get(...values) as any).cnt
 
   const rows = db.prepare(`
     SELECT * FROM influencers
+    ${where}
     ORDER BY ${sortCol} ${sortDir}
     LIMIT ? OFFSET ?
-  `).all(pageSize, offset)
+  `).all(...values, pageSize, offset)
 
   return { rows, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
 }
@@ -262,4 +281,42 @@ export function getAllPostsForExport(params: { collectionId?: number; searchTag?
 export function getAllInfluencersForExport() {
   const db = getDb()
   return db.prepare('SELECT * FROM influencers ORDER BY avg_engagement DESC').all()
+}
+
+export function updateCandidate(username: string, updates: { status?: string; memo?: string; tags?: string[] }) {
+  const db = getDb()
+  const sets: string[] = []
+  const values: any[] = []
+
+  if (updates.status !== undefined) { sets.push('status = ?'); values.push(updates.status) }
+  if (updates.memo !== undefined) { sets.push('memo = ?'); values.push(updates.memo) }
+  if (updates.tags !== undefined) { sets.push('hashtags = ?'); values.push(JSON.stringify(updates.tags)) }
+
+  if (sets.length === 0) return
+
+  sets.push("last_updated = datetime('now')")
+  values.push(username)
+
+  db.prepare(`UPDATE influencers SET ${sets.join(', ')} WHERE username = ?`).run(...values)
+}
+
+export function updateInfluencerProfile(username: string, profile: { bio?: string; followers?: number; following?: number; is_business?: boolean; fullname?: string }) {
+  const db = getDb()
+  const sets: string[] = ["last_updated = datetime('now')"]
+  const values: any[] = []
+
+  if (profile.bio !== undefined) { sets.push('bio = ?'); values.push(profile.bio) }
+  if (profile.followers !== undefined) { sets.push('followers = ?'); values.push(profile.followers) }
+  if (profile.following !== undefined) { sets.push('following = ?'); values.push(profile.following) }
+  if (profile.is_business !== undefined) { sets.push('is_business = ?'); values.push(profile.is_business ? 1 : 0) }
+  if (profile.fullname !== undefined) { sets.push('fullname = ?'); values.push(profile.fullname) }
+
+  values.push(username)
+
+  db.prepare(`UPDATE influencers SET ${sets.join(', ')} WHERE username = ?`).run(...values)
+}
+
+export function getInfluencer(username: string) {
+  const db = getDb()
+  return db.prepare('SELECT * FROM influencers WHERE username = ?').get(username)
 }

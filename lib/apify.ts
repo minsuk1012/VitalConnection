@@ -41,6 +41,21 @@ export async function collectFromInstagram(type: CollectType, query: string, lim
   return items.items
 }
 
+export async function analyzeProfile(username: string) {
+  const client = getClient()
+
+  // 1. Profile info
+  const profileRun = await client.actor('apify/instagram-profile-scraper').call({
+    usernames: [username.replace(/^@/, '')],
+  })
+  const profiles = await client.dataset(profileRun.defaultDatasetId).listItems()
+
+  // 2. Recent posts (already collected via other means, so just get profile)
+  return {
+    profile: profiles.items[0] || null,
+  }
+}
+
 export const PRESETS: Record<string, { label: string; tags: string[] }> = {
   kbeauty: {
     label: '🇰🇷 K-Beauty',

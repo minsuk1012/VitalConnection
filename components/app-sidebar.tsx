@@ -22,8 +22,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 
 const INSTAGRAM_SUBS = [
   { title: '수집', href: '/admin/instagram' },
-  { title: '수집 결과', href: '/admin/instagram/results' },
-  { title: '인플루언서', href: '/admin/instagram/influencers' },
+  { title: '탐색', href: '/admin/instagram/explore' },
+  { title: '후보 관리', href: '/admin/instagram/candidates' },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

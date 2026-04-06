@@ -10,11 +10,10 @@ import { Progress } from '@/components/ui/progress'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 
-type CollectType = 'hashtag' | 'profile' | 'location' | 'keyword'
+type CollectType = 'hashtag' | 'location' | 'keyword'
 
 const MODES: { id: CollectType; label: string }[] = [
   { id: 'hashtag', label: '해시태그' },
-  { id: 'profile', label: '프로필' },
   { id: 'location', label: '위치' },
   { id: 'keyword', label: '키워드' },
 ]
