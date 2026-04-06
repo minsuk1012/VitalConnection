@@ -56,6 +56,26 @@ export async function analyzeProfile(username: string) {
   }
 }
 
+export async function collectReels(username: string, limit: number = 20) {
+  const client = getClient()
+  const run = await client.actor('apify/instagram-reel-scraper').call({
+    username: [username.replace(/^@/, '')],
+    resultsLimit: limit,
+  })
+  const items = await client.dataset(run.defaultDatasetId).listItems()
+  return items.items
+}
+
+export async function collectComments(reelUrls: string[], limitPerReel: number = 100) {
+  const client = getClient()
+  const run = await client.actor('apify/instagram-comment-scraper').call({
+    directUrls: reelUrls,
+    resultsLimit: limitPerReel,
+  })
+  const items = await client.dataset(run.defaultDatasetId).listItems()
+  return items.items
+}
+
 export const PRESETS: Record<string, { label: string; tags: string[] }> = {
   kbeauty: {
     label: '🇰🇷 K-Beauty',
