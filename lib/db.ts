@@ -6,7 +6,7 @@ import * as schema from './schema'
 import { collections, posts, influencers, reels, reelComments, apifyKeys } from './schema'
 import { computeAllMetrics, type MetricsInput } from './metrics'
 
-const DB_PATH = path.join(process.cwd(), 'instagram.db')
+const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'instagram.db')
 
 let _db: ReturnType<typeof drizzle> | null = null
 
