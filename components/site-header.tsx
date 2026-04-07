@@ -6,9 +6,10 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 
 const TITLES: Record<string, string> = {
   '/admin': '대시보드',
-  '/admin/instagram': '수집',
-  '/admin/instagram/explore': '탐색',
+  '/admin/instagram': '수집 이력',
+  '/admin/instagram/explore': '게시물 탐색',
   '/admin/instagram/candidates': '후보 관리',
+  '/admin/settings': '설정',
 }
 
 export function SiteHeader() {

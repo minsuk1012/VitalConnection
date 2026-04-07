@@ -67,10 +67,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // fallback: 매핑 실패 시 전부 첫 번째 릴스에 할당
-    if (totalComments === 0 && rawComments.length > 0) {
-      totalComments = insertReelComments(filteredReels[0].id, rawComments, detectLanguage)
-    }
 
     // Step 4: 댓글 분석
     const allCommentTexts = rawComments.map((c: any) => c.text || c.comment || '')

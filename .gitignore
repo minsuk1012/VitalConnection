@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 .next
 *.db
+*.db-wal
+*.db-shm
 .superpowers/

@@ -118,6 +118,13 @@ function getDb() {
     try { sqlite.exec(`ALTER TABLE posts ADD COLUMN video_view_count INTEGER DEFAULT 0`) } catch {}
     try { sqlite.exec(`ALTER TABLE posts ADD COLUMN mentions TEXT DEFAULT '[]'`) } catch {}
     try { sqlite.exec(`ALTER TABLE posts ADD COLUMN is_video INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN owner_id TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN dimensions_width INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN dimensions_height INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN images TEXT DEFAULT '[]'`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN first_comment TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN latest_comments TEXT DEFAULT '[]'`) } catch {}
+    try { sqlite.exec(`ALTER TABLE posts ADD COLUMN music_info TEXT DEFAULT ''`) } catch {}
 
     // ALTER TABLE for existing DBs — influencers
     try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN total_posts INTEGER DEFAULT 0`) } catch {}
@@ -136,6 +143,32 @@ function getDb() {
     try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN comment_lang_distribution TEXT DEFAULT '{}'`) } catch {}
     try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN comment_quality_score REAL DEFAULT 0`) } catch {}
     try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN deep_analyzed_at TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN reel_count INTEGER DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN avg_reel_views REAL DEFAULT 0`) } catch {}
+    try { sqlite.exec(`ALTER TABLE influencers ADD COLUMN avg_reel_plays REAL DEFAULT 0`) } catch {}
+
+    // ALTER TABLE for existing DBs — reels
+    try { sqlite.exec(`ALTER TABLE reels ADD COLUMN video_url TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE reels ADD COLUMN display_url TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE reels ADD COLUMN audio_title TEXT DEFAULT ''`) } catch {}
+    try { sqlite.exec(`ALTER TABLE reels ADD COLUMN hashtags TEXT DEFAULT '[]'`) } catch {}
+    try { sqlite.exec(`ALTER TABLE reels ADD COLUMN owner_fullname TEXT DEFAULT ''`) } catch {}
+
+    // ALTER TABLE for existing DBs — apify_keys
+    try { sqlite.exec(`ALTER TABLE apify_keys ADD COLUMN is_selected INTEGER DEFAULT 0`) } catch {}
+
+    // ─── 초기 세팅 (마이그레이션) ───
+    // Apify 키: APIFY_TOKEN 환경변수가 있고 DB에 키가 없으면 자동 등록
+    const seedToken = process.env.APIFY_TOKEN
+    if (seedToken) {
+      const keyCount = (sqlite.prepare('SELECT COUNT(*) as cnt FROM apify_keys').get() as any).cnt
+      if (keyCount === 0) {
+        sqlite.prepare(
+          `INSERT INTO apify_keys (token, label, monthly_limit, current_usage, remaining, is_active, is_selected, last_checked)
+           VALUES (?, ?, 5.0, 0, 5.0, 1, 1, ?)`
+        ).run(seedToken, process.env.APIFY_LABEL || '기본 계정', new Date().toISOString())
+      }
+    }
   }
   return _db
 }
@@ -171,6 +204,9 @@ export function insertPosts(collectionId: number, rawPosts: any[], searchTag: st
 
   for (const p of rawPosts) {
     try {
+      // 에러 응답이나 유효하지 않은 아이템 스킵
+      if (p.error || (!p.shortCode && !p.shortcode && !p.id)) continue
+
       db.insert(posts).values({
         collectionId,
         shortcode: p.shortCode || p.shortcode || p.id || '',
@@ -188,11 +224,18 @@ export function insertPosts(collectionId: number, rawPosts: any[], searchTag: st
         videoViewCount: p.videoViewCount ?? p.videoPlayCount ?? 0,
         mentions: JSON.stringify(p.mentions || p.taggedUsers || []),
         isVideo: (p.isVideo || p.type === 'Video' || p.productType === 'clips') ? 1 : 0,
+        ownerId: String(p.ownerId || p.owner?.id || ''),
+        dimensionsWidth: p.dimensionsWidth ?? p.dimensions?.width ?? 0,
+        dimensionsHeight: p.dimensionsHeight ?? p.dimensions?.height ?? 0,
+        images: JSON.stringify(p.images || []),
+        firstComment: p.firstComment || '',
+        latestComments: JSON.stringify(p.latestComments || []),
+        musicInfo: p.musicInfo ? JSON.stringify(p.musicInfo) : '',
         searchTag,
       }).onConflictDoNothing().run()
       inserted++
     } catch {
-      // duplicate shortcode — skip
+      // duplicate or error — skip
     }
   }
 
@@ -201,8 +244,12 @@ export function insertPosts(collectionId: number, rawPosts: any[], searchTag: st
 
 export function queryResults(params: {
   collectionId?: number
-  searchTag?: string
+  collectionType?: string
+  search?: string
   minLikes?: number
+  maxLikes?: number
+  minComments?: number
+  maxComments?: number
   sortBy?: string
   sortOrder?: string
   page?: number
@@ -215,8 +262,15 @@ export function queryResults(params: {
 
   const conditions = []
   if (params.collectionId) conditions.push(eq(posts.collectionId, params.collectionId))
-  if (params.searchTag) conditions.push(eq(posts.searchTag, params.searchTag))
+  if (params.collectionType) conditions.push(eq(collections.type, params.collectionType))
+  if (params.search) {
+    const term = `%${params.search}%`
+    conditions.push(sql`(${posts.caption} LIKE ${term} OR ${posts.location} LIKE ${term} OR ${posts.ownerUsername} LIKE ${term} OR ${posts.hashtags} LIKE ${term})`)
+  }
   if (params.minLikes !== undefined) conditions.push(gte(posts.likes, params.minLikes))
+  if (params.maxLikes !== undefined) conditions.push(sql`${posts.likes} <= ${params.maxLikes}`)
+  if (params.minComments !== undefined) conditions.push(gte(posts.comments, params.minComments))
+  if (params.maxComments !== undefined) conditions.push(sql`${posts.comments} <= ${params.maxComments}`)
 
   const where = conditions.length > 0 ? and(...conditions) : undefined
 
@@ -228,7 +282,7 @@ export function queryResults(params: {
 
   const orderFn = params.sortOrder === 'asc' ? asc : desc
 
-  const totalResult = db.select({ cnt: count() }).from(posts).where(where).get()
+  const totalResult = db.select({ cnt: count() }).from(posts).innerJoin(collections, eq(posts.collectionId, collections.id)).where(where).get()
   const total = totalResult?.cnt || 0
 
   const rows = db.select({
@@ -246,6 +300,12 @@ export function queryResults(params: {
     hashtags: posts.hashtags,
     post_type: posts.postType,
     display_url: posts.displayUrl,
+    is_video: posts.isVideo,
+    video_view_count: posts.videoViewCount,
+    images: posts.images,
+    first_comment: posts.firstComment,
+    latest_comments: posts.latestComments,
+    music_info: posts.musicInfo,
     search_tag: posts.searchTag,
     created_at: posts.createdAt,
     collection_type: collections.type,
@@ -260,6 +320,61 @@ export function queryResults(params: {
     .all()
 
   return { rows, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
+}
+
+export function getPostsGroupedBySearchTag() {
+  const db = getDb()
+  return db.select({
+    searchTag: posts.searchTag,
+    postCount: count(),
+    avgLikes: sql<number>`ROUND(AVG(${posts.likes}), 0)`,
+    avgComments: sql<number>`ROUND(AVG(${posts.comments}), 0)`,
+    totalLikes: sql<number>`SUM(${posts.likes})`,
+    lastCollected: max(posts.createdAt),
+  }).from(posts).where(ne(posts.searchTag, '')).groupBy(posts.searchTag).orderBy(sql`MAX(${posts.createdAt}) DESC`).all()
+}
+
+export function getPostsBySearchTag(searchTag: string) {
+  const db = getDb()
+  return db.select({
+    id: posts.id,
+    url: posts.url,
+    caption: posts.caption,
+    owner_username: posts.ownerUsername,
+    owner_fullname: posts.ownerFullname,
+    likes: posts.likes,
+    comments: posts.comments,
+    post_timestamp: posts.postTimestamp,
+    display_url: posts.displayUrl,
+    post_type: posts.postType,
+    location: posts.location,
+    hashtags: posts.hashtags,
+    first_comment: posts.firstComment,
+    latest_comments: posts.latestComments,
+    images: posts.images,
+    is_video: posts.isVideo,
+    video_view_count: posts.videoViewCount,
+  }).from(posts).where(eq(posts.searchTag, searchTag)).orderBy(desc(posts.likes)).all()
+}
+
+export function getPostsByUsername(username: string) {
+  const db = getDb()
+  return db.select({
+    id: posts.id,
+    url: posts.url,
+    caption: posts.caption,
+    owner_username: posts.ownerUsername,
+    likes: posts.likes,
+    comments: posts.comments,
+    post_timestamp: posts.postTimestamp,
+    display_url: posts.displayUrl,
+    post_type: posts.postType,
+    location: posts.location,
+    hashtags: posts.hashtags,
+    images: posts.images,
+    first_comment: posts.firstComment,
+    latest_comments: posts.latestComments,
+  }).from(posts).where(eq(posts.ownerUsername, username)).orderBy(desc(posts.likes)).all()
 }
 
 export function getDistinctSearchTags() {
@@ -286,97 +401,132 @@ export function getAllPostsForExport(params: { collectionId?: number; searchTag?
 
 // ─── Influencers ───
 
-export function refreshInfluencers() {
+// 통합 메트릭 재계산: posts + reels + profile + comments 전부 반영
+export function recalculateInfluencer(username: string) {
   const db = getDb()
 
-  // Aggregate stats from posts
-  const stats = db.select({
-    ownerUsername: posts.ownerUsername,
-    fullname: max(posts.ownerFullname),
-    postCount: count(),
-    avgLikes: sql<number>`ROUND(AVG(${posts.likes}), 1)`,
-    avgComments: sql<number>`ROUND(AVG(${posts.comments}), 1)`,
-    avgEngagement: sql<number>`ROUND(AVG(${posts.likes}) + AVG(${posts.comments}), 1)`,
-  })
-    .from(posts)
-    .where(ne(posts.ownerUsername, ''))
-    .groupBy(posts.ownerUsername)
-    .all()
+  // 1. posts 데이터
+  const userPosts = db.select({
+    caption: posts.caption,
+    hashtags: posts.hashtags,
+    location: posts.location,
+    postTimestamp: posts.postTimestamp,
+    likes: posts.likes,
+    comments: posts.comments,
+    ownerFullname: posts.ownerFullname,
+  }).from(posts).where(eq(posts.ownerUsername, username)).all()
 
-  for (const s of stats) {
-    const username = s.ownerUsername!
+  // 2. reels 데이터
+  const userReels = db.select({
+    caption: reels.caption,
+    hashtags: reels.hashtags,
+    postTimestamp: reels.postTimestamp,
+    views: reels.views,
+    plays: reels.plays,
+    likes: reels.likes,
+    commentsCount: reels.commentsCount,
+  }).from(reels).where(eq(reels.username, username)).all()
 
-    // Query individual posts for this user
-    const userPosts = db.select({
-      caption: posts.caption,
-      hashtags: posts.hashtags,
-      location: posts.location,
-      postTimestamp: posts.postTimestamp,
-      likes: posts.likes,
-      comments: posts.comments,
-    })
-      .from(posts)
-      .where(eq(posts.ownerUsername, username))
-      .all()
+  // 3. 기존 프로필 정보
+  const existing = db.select().from(influencers).where(eq(influencers.username, username)).get()
 
-    // Look up existing influencer record for profile data
-    const existing = db.select({
-      followers: influencers.followers,
-      following: influencers.following,
-      bio: influencers.bio,
-      externalUrl: influencers.externalUrl,
-      isBusiness: influencers.isBusiness,
-      isVerified: influencers.isVerified,
-    })
-      .from(influencers)
-      .where(eq(influencers.username, username))
-      .get()
+  const postCount = userPosts.length
+  const reelCount = userReels.length
+  if (postCount === 0 && reelCount === 0 && !existing) return
 
-    const followers = existing?.followers ?? 0
-    const following = existing?.following ?? 0
-    const bio = existing?.bio ?? ''
-    const externalUrl = existing?.externalUrl ?? ''
-    const isBusiness = !!(existing?.isBusiness)
-    const isVerified = !!(existing?.isVerified)
+  // 4. posts 통계
+  const avgLikes = postCount > 0 ? Math.round(userPosts.reduce((s, p) => s + (p.likes ?? 0), 0) / postCount * 10) / 10 : 0
+  const avgComments = postCount > 0 ? Math.round(userPosts.reduce((s, p) => s + (p.comments ?? 0), 0) / postCount * 10) / 10 : 0
+  const avgEngagement = Math.round((avgLikes + avgComments) * 10) / 10
 
-    // Build per-post arrays
-    const captions = userPosts.map(p => p.caption || '')
-    const hashtagArrays = userPosts.map(p => {
-      try { return JSON.parse(p.hashtags || '[]') as string[] } catch { return [] }
-    })
-    const allHashtags = [...new Set(hashtagArrays.flat())]
-    const locations = userPosts.map(p => p.location || '').filter(Boolean)
-    const postTimestamps = userPosts.map(p => p.postTimestamp || '').filter(Boolean)
-    const engagements = userPosts.map(p => (p.likes ?? 0) + (p.comments ?? 0))
+  // 5. reels 통계
+  const avgReelViews = reelCount > 0 ? Math.round(userReels.reduce((s, r) => s + (r.views ?? 0), 0) / reelCount) : 0
+  const avgReelPlays = reelCount > 0 ? Math.round(userReels.reduce((s, r) => s + (r.plays ?? 0), 0) / reelCount) : 0
 
-    // Compute all metrics
-    const metricsInput: MetricsInput = {
-      avgLikes: s.avgLikes,
-      avgComments: s.avgComments,
-      followers,
-      following,
-      bio,
-      externalUrl,
-      isBusiness,
-      isVerified,
-      captions,
-      hashtags: hashtagArrays,
-      allHashtags,
-      locations,
-      postTimestamps,
-      engagements,
-    }
-    const metrics = computeAllMetrics(metricsInput)
+  // 6. 캡션/해시태그/위치/타임스탬프 합산 (posts + reels)
+  const allCaptions = [
+    ...userPosts.map(p => p.caption || ''),
+    ...userReels.map(r => r.caption || ''),
+  ]
+  const allHashtagArrays = [
+    ...userPosts.map(p => { try { return JSON.parse(p.hashtags || '[]') as string[] } catch { return [] } }),
+    ...userReels.map(r => { try { return JSON.parse(r.hashtags || '[]') as string[] } catch { return [] } }),
+  ]
+  const allHashtags = [...new Set(allHashtagArrays.flat())]
+  const allLocations = userPosts.map(p => p.location || '').filter(Boolean)
+  const allTimestamps = [
+    ...userPosts.map(p => p.postTimestamp || '').filter(Boolean),
+    ...userReels.map(r => r.postTimestamp || '').filter(Boolean),
+  ]
+  const allEngagements = [
+    ...userPosts.map(p => (p.likes ?? 0) + (p.comments ?? 0)),
+    ...userReels.map(r => (r.views ?? 0) + (r.likes ?? 0)),
+  ]
 
-    // Upsert influencer with all metrics
-    db.insert(influencers).values({
-      username,
-      fullname: s.fullname,
-      profileUrl: `https://instagram.com/${username}`,
-      postCount: s.postCount,
-      avgLikes: s.avgLikes,
-      avgComments: s.avgComments,
-      avgEngagement: s.avgEngagement,
+  // 7. 프로필 정보 (기존 DB에서)
+  const followers = existing?.followers ?? 0
+  const following = existing?.following ?? 0
+  const bio = existing?.bio ?? ''
+  const externalUrl = existing?.externalUrl ?? ''
+  const isBusiness = !!(existing?.isBusiness)
+  const isVerified = !!(existing?.isVerified)
+
+  // 8. computeAllMetrics에 posts+reels 합산 데이터 전달
+  const combinedAvgLikes = postCount > 0 ? avgLikes : (reelCount > 0 ? Math.round(userReels.reduce((s, r) => s + Math.max(0, r.likes ?? 0), 0) / reelCount) : 0)
+  const combinedAvgComments = postCount > 0 ? avgComments : (reelCount > 0 ? Math.round(userReels.reduce((s, r) => s + (r.commentsCount ?? 0), 0) / reelCount) : 0)
+
+  const metricsInput: MetricsInput = {
+    avgLikes: combinedAvgLikes,
+    avgComments: combinedAvgComments,
+    followers,
+    following,
+    bio,
+    externalUrl,
+    isBusiness,
+    isVerified,
+    captions: allCaptions,
+    hashtags: allHashtagArrays,
+    allHashtags,
+    locations: allLocations,
+    postTimestamps: allTimestamps,
+    engagements: allEngagements,
+  }
+  const metrics = computeAllMetrics(metricsInput)
+
+  // 9. Upsert
+  const fullname = userPosts[0]?.ownerFullname || existing?.fullname || ''
+
+  db.insert(influencers).values({
+    username,
+    fullname,
+    profileUrl: `https://instagram.com/${username}`,
+    postCount,
+    avgLikes,
+    avgComments,
+    avgEngagement,
+    reelCount,
+    avgReelViews,
+    avgReelPlays,
+    hashtags: JSON.stringify(allHashtags),
+    engagementRate: metrics.engagementRate,
+    commentLikeRatio: metrics.commentLikeRatio,
+    followerFollowingRatio: metrics.followerFollowingRatio,
+    postingFrequency: metrics.postingFrequency,
+    lastPostDate: metrics.lastPostDate,
+    contentRelevance: metrics.contentRelevance,
+    detectedLanguage: metrics.detectedLanguage,
+    fitScore: metrics.fitScore,
+  }).onConflictDoUpdate({
+    target: influencers.username,
+    set: {
+      fullname: fullname || sql`${influencers.fullname}`,
+      postCount,
+      avgLikes,
+      avgComments,
+      avgEngagement,
+      reelCount,
+      avgReelViews,
+      avgReelPlays,
       hashtags: JSON.stringify(allHashtags),
       engagementRate: metrics.engagementRate,
       commentLikeRatio: metrics.commentLikeRatio,
@@ -386,29 +536,31 @@ export function refreshInfluencers() {
       contentRelevance: metrics.contentRelevance,
       detectedLanguage: metrics.detectedLanguage,
       fitScore: metrics.fitScore,
-    }).onConflictDoUpdate({
-      target: influencers.username,
-      set: {
-        fullname: sql`excluded.fullname`,
-        profileUrl: sql`excluded.profile_url`,
-        postCount: sql`excluded.post_count`,
-        avgLikes: sql`excluded.avg_likes`,
-        avgComments: sql`excluded.avg_comments`,
-        avgEngagement: sql`excluded.avg_engagement`,
-        hashtags: sql`excluded.hashtags`,
-        engagementRate: sql`excluded.engagement_rate`,
-        commentLikeRatio: sql`excluded.comment_like_ratio`,
-        followerFollowingRatio: sql`excluded.follower_following_ratio`,
-        postingFrequency: sql`excluded.posting_frequency`,
-        lastPostDate: sql`excluded.last_post_date`,
-        contentRelevance: sql`excluded.content_relevance`,
-        detectedLanguage: sql`excluded.detected_language`,
-        fitScore: sql`excluded.fit_score`,
-        lastUpdated: sql`datetime('now')`,
-      },
-    }).run()
+      lastUpdated: sql`datetime('now')`,
+    },
+  }).run()
+}
+
+// 전체 influencer 일괄 재계산
+export function refreshInfluencers() {
+  const db = getDb()
+  const usernames = new Set<string>()
+
+  // posts의 모든 username
+  db.select({ u: posts.ownerUsername }).from(posts).where(ne(posts.ownerUsername, '')).groupBy(posts.ownerUsername).all()
+    .forEach(r => usernames.add(r.u!))
+
+  // reels의 모든 username
+  db.select({ u: reels.username }).from(reels).groupBy(reels.username).all()
+    .forEach(r => usernames.add(r.u))
+
+  for (const username of usernames) {
+    recalculateInfluencer(username)
   }
 }
+
+// 하위 호환 — 기존 코드에서 호출하는 곳 대응
+export const refreshInfluencersForUser = recalculateInfluencer
 
 export function queryInfluencers(params: {
   status?: string
@@ -432,6 +584,8 @@ export function queryInfluencers(params: {
     posts: influencers.postCount,
     fitScore: influencers.fitScore,
     engagementRate: influencers.engagementRate,
+    avgEngagement: influencers.avgEngagement,
+    reelViews: influencers.avgReelViews,
   }[params.sortBy || ''] || influencers.fitScore
 
   const orderFn = params.sortOrder === 'asc' ? asc : desc
@@ -501,6 +655,15 @@ export function getInfluencer(username: string) {
   return db.select().from(influencers).where(eq(influencers.username, username)).get()
 }
 
+export function getStatusCounts() {
+  const db = getDb()
+  const rows = db.select({
+    status: influencers.status,
+    count: count(),
+  }).from(influencers).groupBy(influencers.status).all()
+  return Object.fromEntries(rows.map(r => [r.status, r.count]))
+}
+
 // ─── Reels ───
 
 export function insertReels(username: string, rawReels: any[]) {
@@ -513,12 +676,17 @@ export function insertReels(username: string, rawReels: any[]) {
         reelUrl: r.url || r.inputUrl || '',
         shortcode: r.shortCode || r.id || '',
         caption: r.caption || '',
-        likes: r.likesCount ?? r.likes ?? 0,
+        likes: Math.max(0, r.likesCount ?? r.likes ?? 0),
         commentsCount: r.commentsCount ?? r.comments ?? 0,
         views: r.videoViewCount ?? r.viewCount ?? r.views ?? 0,
         plays: r.videoPlayCount ?? r.plays ?? 0,
         duration: r.videoDuration ?? r.duration ?? 0,
         postTimestamp: r.timestamp || '',
+        videoUrl: r.videoUrl || '',
+        displayUrl: r.displayUrl || '',
+        audioTitle: r.musicInfo?.title || r.audioTitle || '',
+        hashtags: JSON.stringify(r.hashtags || []),
+        ownerFullname: r.ownerFullName || r.ownerFullname || '',
       }).onConflictDoNothing().run()
       inserted++
     } catch {}
@@ -537,6 +705,7 @@ export function insertReelComments(reelId: number, rawComments: any[], detectLan
   for (const c of rawComments) {
     try {
       const text = c.text || c.comment || ''
+      if (!text.trim()) continue  // 빈 댓글 스킵
       db.insert(reelComments).values({
         reelId,
         commentText: text,
@@ -552,9 +721,70 @@ export function insertReelComments(reelId: number, rawComments: any[], detectLan
   return inserted
 }
 
+export function deleteReelsByUsername(username: string) {
+  const db = getDb()
+  const reelIds = db.select({ id: reels.id }).from(reels).where(eq(reels.username, username)).all()
+  for (const r of reelIds) {
+    db.delete(reelComments).where(eq(reelComments.reelId, r.id)).run()
+  }
+  db.delete(reels).where(eq(reels.username, username)).run()
+}
+
+export function getReelComments(reelId: number) {
+  const db = getDb()
+  return db.select().from(reelComments).where(eq(reelComments.reelId, reelId)).orderBy(desc(reelComments.likes)).all()
+}
+
 export function getReelsByUsernameList(username: string) {
   const db = getDb()
   return db.select().from(reels).where(eq(reels.username, username)).orderBy(desc(reels.views)).all()
+}
+
+export function getReelsGroupedByUser() {
+  const db = getDb()
+  const groups = db.select({
+    username: reels.username,
+    reelCount: count(),
+    avgViews: sql<number>`ROUND(AVG(${reels.views}), 0)`,
+    avgPlays: sql<number>`ROUND(AVG(${reels.plays}), 0)`,
+    avgLikes: sql<number>`ROUND(AVG(CASE WHEN ${reels.likes} > 0 THEN ${reels.likes} ELSE NULL END), 0)`,
+    totalViews: sql<number>`SUM(${reels.views})`,
+    lastCollected: max(reels.createdAt),
+  }).from(reels).groupBy(reels.username).orderBy(sql`AVG(${reels.views}) DESC`).all()
+  return groups
+}
+
+export function queryReels(params: {
+  username?: string
+  sortBy?: string
+  sortOrder?: string
+  page?: number
+  pageSize?: number
+}) {
+  const db = getDb()
+  const page = params.page || 1
+  const pageSize = params.pageSize || 50
+  const offset = (page - 1) * pageSize
+
+  const conditions = []
+  if (params.username) conditions.push(eq(reels.username, params.username))
+  const where = conditions.length > 0 ? and(...conditions) : undefined
+
+  const sortCol = {
+    views: reels.views,
+    likes: reels.likes,
+    plays: reels.plays,
+    date: reels.postTimestamp,
+  }[params.sortBy || 'views'] || reels.views
+
+  const orderFn = params.sortOrder === 'asc' ? asc : desc
+
+  const totalResult = db.select({ cnt: count() }).from(reels).where(where).get()
+  const total = totalResult?.cnt || 0
+
+  const rows = db.select().from(reels).where(where).orderBy(orderFn(sortCol)).limit(pageSize).offset(offset).all()
+
+  return { rows, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
 }
 
 export function updateInfluencerDeepAnalysis(username: string, data: {
@@ -605,4 +835,16 @@ export function updateApifyKeyBalance(id: number, currentUsage: number, monthlyL
     remaining,
     lastChecked: new Date().toISOString(),
   }).where(eq(apifyKeys.id, id)).run()
+}
+
+export function selectApifyKey(id: number) {
+  const db = getDb()
+  // 모두 해제 후 선택
+  db.update(apifyKeys).set({ isSelected: 0 }).run()
+  db.update(apifyKeys).set({ isSelected: 1 }).where(eq(apifyKeys.id, id)).run()
+}
+
+export function getSelectedApifyKey() {
+  const db = getDb()
+  return db.select().from(apifyKeys).where(eq(apifyKeys.isSelected, 1)).get() ?? null
 }

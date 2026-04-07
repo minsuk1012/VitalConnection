@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
-import { getApifyKeys, addApifyKey, deleteApifyKey } from '@/lib/db'
+import { getApifyKeys, addApifyKey, deleteApifyKey, selectApifyKey } from '@/lib/db'
 
 function maskToken(token: string): string {
   if (token.length <= 10) return '***'
@@ -47,6 +47,20 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: `키 추가 실패: ${error.message}` }, { status: 500 })
   }
+}
+
+// PUT: 키 선택
+export async function PUT(request: NextRequest) {
+  const authError = await checkAdmin()
+  if (authError) return authError
+
+  const { id } = await request.json()
+  if (!id) {
+    return NextResponse.json({ error: 'id는 필수입니다.' }, { status: 400 })
+  }
+
+  selectApifyKey(id)
+  return NextResponse.json({ success: true })
 }
 
 // DELETE: 키 삭제

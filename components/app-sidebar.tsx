@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, LogOut, Radar, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, LogOut, Radar, ChevronRight, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -21,8 +21,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 const INSTAGRAM_SUBS = [
-  { title: '수집', href: '/admin/instagram' },
-  { title: '탐색', href: '/admin/instagram/explore' },
+  { title: '수집 이력', href: '/admin/instagram' },
+  { title: '게시물 탐색', href: '/admin/instagram/explore' },
   { title: '후보 관리', href: '/admin/instagram/candidates' },
 ]
 
@@ -68,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuSub>
                       {INSTAGRAM_SUBS.map(sub => (
                         <SidebarMenuSubItem key={sub.href}>
-                          <SidebarMenuSubButton render={<Link href={sub.href} />} isActive={pathname === sub.href}>
+                          <SidebarMenuSubButton render={<Link href={sub.href} />} isActive={sub.href === '/admin/instagram' ? pathname === sub.href : pathname.startsWith(sub.href)}>
                             <span>{sub.title}</span>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
@@ -77,6 +77,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton render={<Link href="/admin/settings" />} isActive={pathname === '/admin/settings'}>
+                  <Settings />
+                  <span>설정</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

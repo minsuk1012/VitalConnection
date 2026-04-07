@@ -1,53 +1,62 @@
 import { ApifyClient } from 'apify-client'
-import { getActiveApifyKeys, updateApifyKeyBalance } from './db'
+import { getSelectedApifyKey, getActiveApifyKeys, updateApifyKeyBalance } from './db'
 
-async function fetchBalance(token: string): Promise<{ currentUsage: number; monthlyLimit: number } | null> {
-  try {
-    const res = await fetch('https://api.apify.com/v2/users/me/limits', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    return {
-      currentUsage: data.data?.current?.monthlyUsageUsd ?? 0,
-      monthlyLimit: data.data?.limits?.maxMonthlyUsageUsd ?? 5,
-    }
-  } catch {
-    return null
-  }
-}
+// 키 우선순위: 설정에서 선택한 키 → 나머지 활성 키 → .env.local 폴백
+function getKeyOrder(excludeTokens: string[] = []): string[] {
+  const tokens: string[] = []
 
-async function getBestKey(): Promise<string> {
-  // Try DB keys first
-  const keys = getActiveApifyKeys()
-
-  if (keys.length > 0) {
-    const TEN_MINUTES = 10 * 60 * 1000
-    for (const key of keys) {
-      const lastChecked = key.lastChecked ? new Date(key.lastChecked).getTime() : 0
-      if (Date.now() - lastChecked > TEN_MINUTES) {
-        const balance = await fetchBalance(key.token)
-        if (balance) {
-          updateApifyKeyBalance(key.id, balance.currentUsage, balance.monthlyLimit)
-          key.remaining = Math.max(0, balance.monthlyLimit - balance.currentUsage)
-        }
-      }
-    }
-
-    const available = keys.filter(k => (k.remaining ?? 0) > 0.5).sort((a, b) => (b.remaining ?? 0) - (a.remaining ?? 0))
-    if (available.length > 0) return available[0].token
+  // 1. 선택된 키
+  const selected = getSelectedApifyKey()
+  if (selected && !excludeTokens.includes(selected.token)) {
+    tokens.push(selected.token)
   }
 
-  // Fallback to env var
+  // 2. 나머지 활성 키
+  const others = getActiveApifyKeys().filter(k => k.token !== selected?.token && !excludeTokens.includes(k.token))
+  tokens.push(...others.map(k => k.token))
+
+  // 3. .env.local 폴백
   const envToken = process.env.APIFY_TOKEN
-  if (envToken) return envToken
+  if (envToken && !excludeTokens.includes(envToken) && !tokens.includes(envToken)) {
+    tokens.push(envToken)
+  }
 
-  throw new Error('사용 가능한 Apify API 키가 없습니다. Admin에서 키를 추가하세요.')
+  return tokens
 }
 
-async function getClient() {
-  const token = await getBestKey()
-  return new ApifyClient({ token })
+// Actor 호출: 선택된 키 사용 → 에러 시 자동 스위칭
+async function runWithFallback<T>(fn: (client: ApifyClient) => Promise<T>): Promise<T> {
+  const triedTokens: string[] = []
+
+  while (true) {
+    const tokens = getKeyOrder(triedTokens)
+    if (tokens.length === 0) {
+      throw new Error('사용 가능한 API 키가 없습니다. 설정에서 키를 확인하세요.')
+    }
+
+    const token = tokens[0]
+    const client = new ApifyClient({ token })
+
+    try {
+      return await fn(client)
+    } catch (error: any) {
+      const msg = error?.message?.toLowerCase() ?? ''
+      const isLimitError = msg.includes('limit') || msg.includes('usage') || msg.includes('exceeded') || msg.includes('402') || error?.statusCode === 402
+
+      if (isLimitError) {
+        // 해당 키 잔액 0으로 마킹 (DB 키인 경우)
+        const keys = getActiveApifyKeys()
+        const exhausted = keys.find(k => k.token === token)
+        if (exhausted) {
+          updateApifyKeyBalance(exhausted.id, exhausted.monthlyLimit, exhausted.monthlyLimit)
+        }
+        triedTokens.push(token)
+        continue
+      }
+
+      throw error
+    }
+  }
 }
 
 type CollectType = 'hashtag' | 'profile' | 'location' | 'keyword'
@@ -76,48 +85,46 @@ function buildInput(type: CollectType, query: string, limit: number): Record<str
 }
 
 export async function collectFromInstagram(type: CollectType, query: string, limit: number) {
-  const client = await getClient()
   const actorId = ACTOR_MAP[type]
   const input = buildInput(type, query, limit)
 
-  const run = await client.actor(actorId).call({ ...input })
-  const items = await client.dataset(run.defaultDatasetId).listItems()
-  return items.items
+  return runWithFallback(async (client) => {
+    const run = await client.actor(actorId).call({ ...input })
+    const items = await client.dataset(run.defaultDatasetId).listItems()
+    return items.items
+  })
 }
 
 export async function analyzeProfile(username: string) {
-  const client = await getClient()
-
-  // 1. Profile info
-  const profileRun = await client.actor('apify/instagram-profile-scraper').call({
-    usernames: [username.replace(/^@/, '')],
+  return runWithFallback(async (client) => {
+    const profileRun = await client.actor('apify/instagram-profile-scraper').call({
+      usernames: [username.replace(/^@/, '')],
+    })
+    const profiles = await client.dataset(profileRun.defaultDatasetId).listItems()
+    return { profile: profiles.items[0] || null }
   })
-  const profiles = await client.dataset(profileRun.defaultDatasetId).listItems()
-
-  // 2. Recent posts (already collected via other means, so just get profile)
-  return {
-    profile: profiles.items[0] || null,
-  }
 }
 
 export async function collectReels(username: string, limit: number = 20) {
-  const client = await getClient()
-  const run = await client.actor('apify/instagram-reel-scraper').call({
-    username: [username.replace(/^@/, '')],
-    resultsLimit: limit,
+  return runWithFallback(async (client) => {
+    const run = await client.actor('apify/instagram-reel-scraper').call({
+      username: [username.replace(/^@/, '')],
+      resultsLimit: limit,
+    })
+    const items = await client.dataset(run.defaultDatasetId).listItems()
+    return items.items
   })
-  const items = await client.dataset(run.defaultDatasetId).listItems()
-  return items.items
 }
 
 export async function collectComments(reelUrls: string[], limitPerReel: number = 100) {
-  const client = await getClient()
-  const run = await client.actor('apify/instagram-comment-scraper').call({
-    directUrls: reelUrls,
-    resultsLimit: limitPerReel,
+  return runWithFallback(async (client) => {
+    const run = await client.actor('apify/instagram-comment-scraper').call({
+      directUrls: reelUrls,
+      resultsLimit: limitPerReel,
+    })
+    const items = await client.dataset(run.defaultDatasetId).listItems()
+    return items.items
   })
-  const items = await client.dataset(run.defaultDatasetId).listItems()
-  return items.items
 }
 
 export const PRESETS: Record<string, { label: string; tags: string[] }> = {

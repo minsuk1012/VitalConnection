@@ -30,6 +30,13 @@ export const posts = sqliteTable('posts', {
   mentions: text('mentions').default('[]'),
   isVideo: integer('is_video').default(0),
   searchTag: text('search_tag'),
+  ownerId: text('owner_id').default(''),
+  dimensionsWidth: integer('dimensions_width').default(0),
+  dimensionsHeight: integer('dimensions_height').default(0),
+  images: text('images').default('[]'),
+  firstComment: text('first_comment').default(''),
+  latestComments: text('latest_comments').default('[]'),
+  musicInfo: text('music_info').default(''),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 }, (table) => [
   index('idx_posts_collection').on(table.collectionId),
@@ -68,6 +75,9 @@ export const influencers = sqliteTable('influencers', {
   commentLangDistribution: text('comment_lang_distribution').default('{}'),
   commentQualityScore: real('comment_quality_score').default(0),
   deepAnalyzedAt: text('deep_analyzed_at').default(''),
+  reelCount: integer('reel_count').default(0),
+  avgReelViews: real('avg_reel_views').default(0),
+  avgReelPlays: real('avg_reel_plays').default(0),
   lastUpdated: text('last_updated').notNull().default(sql`(datetime('now'))`),
 }, (table) => [
   index('idx_influencers_engagement').on(table.avgEngagement),
@@ -85,6 +95,11 @@ export const reels = sqliteTable('reels', {
   plays: integer('plays').default(0),
   duration: real('duration').default(0),
   postTimestamp: text('post_timestamp'),
+  videoUrl: text('video_url').default(''),
+  displayUrl: text('display_url').default(''),
+  audioTitle: text('audio_title').default(''),
+  hashtags: text('hashtags').default('[]'),
+  ownerFullname: text('owner_fullname').default(''),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 }, (table) => [
   index('idx_reels_username').on(table.username),
@@ -113,6 +128,7 @@ export const apifyKeys = sqliteTable('apify_keys', {
   currentUsage: real('current_usage').default(0),
   remaining: real('remaining').default(5.0),
   isActive: integer('is_active').default(1),
+  isSelected: integer('is_selected').default(0),
   lastChecked: text('last_checked').default(''),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 })

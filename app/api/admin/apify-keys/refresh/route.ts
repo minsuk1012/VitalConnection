@@ -1,12 +1,19 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
 import { getApifyKeys, updateApifyKeyBalance } from '@/lib/db'
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   const authError = await checkAdmin()
   if (authError) return authError
 
-  const keys = getApifyKeys()
+  let targetId: number | null = null
+  try {
+    const body = await request.json()
+    targetId = body.id ?? null
+  } catch {}
+
+  const allKeys = getApifyKeys()
+  const keys = targetId ? allKeys.filter(k => k.id === targetId) : allKeys
   const results = []
 
   for (const key of keys) {

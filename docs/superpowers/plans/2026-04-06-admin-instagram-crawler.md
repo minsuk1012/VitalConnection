@@ -67,7 +67,7 @@ module.exports = nextConfig;
 `.env.local` 파일 끝에 추가:
 
 ```
-APIFY_TOKEN=apify_api_REDACTED
+APIFY_TOKEN=apify_api_xxxxx  # 실제 토큰은 환경변수로 설정
 ```
 
 - [ ] **Step 4: .gitignore에 SQLite DB 파일 추가**

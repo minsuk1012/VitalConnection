@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
-import { queryInfluencers, getInfluencerSamplePosts } from '@/lib/db'
+import { queryInfluencers, getInfluencerSamplePosts, getStatusCounts } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   const authError = await checkAdmin()
@@ -22,5 +22,5 @@ export async function GET(request: NextRequest) {
     samplePosts: getInfluencerSamplePosts(row.username),
   }))
 
-  return NextResponse.json({ ...data, rows: rowsWithSamples })
+  return NextResponse.json({ ...data, rows: rowsWithSamples, statusCounts: getStatusCounts() })
 }

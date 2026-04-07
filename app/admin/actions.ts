@@ -3,8 +3,8 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-const ADMIN_ID = 'vitalconnect'
-const ADMIN_PW = 'vitalconnect123!'
+const ADMIN_ID = process.env.ADMIN_ID!
+const ADMIN_PW = process.env.ADMIN_PW!
 const COOKIE_NAME = 'admin_session'
 
 export async function loginAdmin(formData: FormData) {

@@ -1,194 +1,121 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Progress } from '@/components/ui/progress'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
-type CollectType = 'hashtag' | 'location' | 'keyword'
+const TYPE_LABELS: Record<string, string> = {
+  hashtag: '해시태그',
+  keyword: '키워드',
+  profile: '계정',
+  location: '위치',
+  reel: '릴스',
+  profiles: '프로필',
+}
 
-const MODES: { id: CollectType; label: string }[] = [
-  { id: 'hashtag', label: '해시태그' },
-  { id: 'location', label: '위치' },
-  { id: 'keyword', label: '키워드' },
-]
-
-type ProgressItem = { query: string; status: 'pending' | 'collecting' | 'done' | 'error'; count?: number; error?: string }
+type CollectionRecord = {
+  id: number
+  type: string
+  query: string
+  status: string
+  totalCollected: number
+  createdAt: string
+}
 
 export default function CollectTab() {
-  const [mode, setMode] = useState<CollectType>('hashtag')
-  const [tags, setTags] = useState<string[]>([])
-  const [inputValue, setInputValue] = useState('')
-  const [limit, setLimit] = useState(30)
-  const [isCollecting, setIsCollecting] = useState(false)
-  const [progress, setProgress] = useState<ProgressItem[]>([])
+  const [history, setHistory] = useState<CollectionRecord[]>([])
+  const [loading, setLoading] = useState(false)
 
-  function addTag(value: string) {
-    const trimmed = value.trim().replace(/^[#@]/, '')
-    if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed])
-    }
-    setInputValue('')
-  }
+  useEffect(() => {
+    setLoading(true)
+    fetch('/api/instagram/collections')
+      .then(r => r.json())
+      .then(d => setHistory(Array.isArray(d) ? d : []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
-  function removeTag(tag: string) {
-    setTags(tags.filter(t => t !== tag))
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addTag(inputValue)
-    }
-  }
-
-  async function startCollect() {
-    if (tags.length === 0 || isCollecting) return
-
-    setIsCollecting(true)
-    const items: ProgressItem[] = tags.map(q => ({ query: q, status: 'pending' }))
-    setProgress(items)
-
-    for (let i = 0; i < items.length; i++) {
-      items[i] = { ...items[i], status: 'collecting' }
-      setProgress([...items])
-
-      try {
-        const res = await fetch('/api/instagram/collect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: mode, query: items[i].query, limit }),
-        })
-        const data = await res.json()
-
-        if (res.ok) {
-          items[i] = { ...items[i], status: 'done', count: data.inserted }
-        } else {
-          items[i] = { ...items[i], status: 'error', error: data.error }
-        }
-      } catch (err: any) {
-        items[i] = { ...items[i], status: 'error', error: err.message }
-      }
-      setProgress([...items])
-    }
-
-    setIsCollecting(false)
-  }
-
-  const estimatedCost = (tags.length * limit * 0.01).toFixed(2)
+  const totalCollected = history.reduce((s, h) => s + (h.totalCollected || 0), 0)
+  const completedCount = history.filter(h => h.status === 'completed').length
 
   return (
-    <div className="space-y-6">
-      {/* 수집 방식 */}
-      <div className="space-y-2">
-        <Label>수집 방식</Label>
-        <ToggleGroup
-          value={[mode]}
-          onValueChange={(v: string[]) => { if (v.length > 0) setMode(v[v.length - 1] as CollectType) }}
-          className="justify-start"
-        >
-          {MODES.map(m => (
-            <ToggleGroupItem key={m.id} value={m.id} size="sm">
-              {m.label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
-
-      {/* 검색어 입력 */}
-      <div className="space-y-2">
-        <Label>검색어 입력</Label>
-        <div className="flex flex-wrap gap-2 items-center border rounded-lg p-3 min-h-[48px] bg-background">
-          {tags.map(tag => (
-            <Badge key={tag} variant="default" className="gap-1">
-              {tag}
-              <button onClick={() => removeTag(tag)} className="ml-1 hover:opacity-70">✕</button>
-            </Badge>
-          ))}
-          <Input
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="입력 후 Enter..."
-            disabled={isCollecting}
-            className="flex-1 min-w-[150px] border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
-          />
-        </div>
-      </div>
-
-      {/* 설정 + 시작 */}
-      <div className="flex items-end gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="limit">건수/항목당</Label>
-          <Input
-            id="limit"
-            type="number"
-            value={limit}
-            onChange={e => setLimit(Number(e.target.value))}
-            min={1}
-            max={100}
-            disabled={isCollecting}
-            className="w-20"
-          />
-        </div>
-
-        <Button
-          onClick={startCollect}
-          disabled={tags.length === 0 || isCollecting}
-        >
-          {isCollecting ? '수집중...' : '수집 시작'}
-        </Button>
-
-        <span className="text-sm text-muted-foreground pb-2">
-          예상 크레딧: ~${estimatedCost}
-        </span>
-      </div>
-
-      {/* 진행 상황 */}
-      {progress.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">수집 진행 상황</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {progress.map(item => (
-              <div key={item.query} className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span>{mode === 'hashtag' ? '#' : ''}{item.query}</span>
-                  <span className={cn(
-                    item.status === 'done' && 'text-green-600',
-                    item.status === 'collecting' && 'text-primary',
-                    item.status === 'error' && 'text-destructive',
-                    item.status === 'pending' && 'text-muted-foreground',
-                  )}>
-                    {item.status === 'done' ? `${item.count}건 완료` :
-                     item.status === 'collecting' ? '수집중...' :
-                     item.status === 'error' ? item.error :
-                     '대기중'}
-                  </span>
-                </div>
-                <Progress
-                  value={
-                    item.status === 'done' || item.status === 'error' ? 100 :
-                    item.status === 'collecting' ? 50 : 0
-                  }
-                  className={cn(
-                    'h-1.5',
-                    item.status === 'done' && '[&>div]:bg-green-500',
-                    item.status === 'error' && '[&>div]:bg-destructive',
-                    item.status === 'collecting' && 'animate-pulse',
-                  )}
-                />
-              </div>
-            ))}
+    <div className="space-y-4">
+      {/* 요약 */}
+      <div className="flex gap-4">
+        <Card className="flex-1">
+          <CardContent className="pt-4">
+            <div className="text-xs text-muted-foreground">전체 수집</div>
+            <div className="text-2xl font-bold">{history.length}건</div>
           </CardContent>
         </Card>
-      )}
+        <Card className="flex-1">
+          <CardContent className="pt-4">
+            <div className="text-xs text-muted-foreground">성공</div>
+            <div className="text-2xl font-bold text-green-600">{completedCount}건</div>
+          </CardContent>
+        </Card>
+        <Card className="flex-1">
+          <CardContent className="pt-4">
+            <div className="text-xs text-muted-foreground">총 수집 데이터</div>
+            <div className="text-2xl font-bold">{totalCollected.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 이력 테이블 */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>시간</TableHead>
+                <TableHead>유형</TableHead>
+                <TableHead>검색어</TableHead>
+                <TableHead className="text-right">건수</TableHead>
+                <TableHead>상태</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
+                </TableRow>
+              ) : history.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">수집 이력이 없습니다.</TableCell>
+                </TableRow>
+              ) : (
+                history.map(item => (
+                  <TableRow key={item.id}>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(item.createdAt).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-xs">{TYPE_LABELS[item.type] || item.type}</Badge>
+                    </TableCell>
+                    <TableCell className="text-sm truncate max-w-[250px]">{item.query}</TableCell>
+                    <TableCell className="text-sm text-right">{item.totalCollected}</TableCell>
+                    <TableCell className={cn(
+                      'text-sm',
+                      item.status === 'completed' && 'text-green-600',
+                      item.status === 'failed' && 'text-destructive',
+                      item.status === 'running' && 'text-primary',
+                    )}>
+                      {item.status === 'completed' ? '완료' :
+                       item.status === 'failed' ? '실패' :
+                       item.status === 'running' ? '수집중' : item.status}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }
