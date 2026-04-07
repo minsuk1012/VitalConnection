@@ -511,6 +511,18 @@ export default function CandidatesTab() {
                       }}>
                         프로필 최신화
                       </Button>
+                      <Button variant="outline" size="sm" className="w-full text-destructive hover:bg-destructive/10" onClick={async () => {
+                        if (!confirm(`@${sheetTarget.username}을(를) 삭제하시겠습니까? 관련 릴스, 게시물, 댓글이 모두 삭제됩니다.`)) return
+                        await fetch('/api/instagram/candidates', {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ username: sheetTarget.username }),
+                        })
+                        setSheetTarget(null)
+                        fetchData()
+                      }}>
+                        후보 삭제
+                      </Button>
                     </div>
                   </>
                 )}

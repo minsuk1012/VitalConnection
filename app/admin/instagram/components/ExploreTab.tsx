@@ -227,16 +227,17 @@ export default function ExploreTab() {
                 <TableHead className="text-right">평균 댓글</TableHead>
                 <TableHead className="text-right">총 좋아요</TableHead>
                 <TableHead>수집일</TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">로딩중...</TableCell>
                 </TableRow>
               ) : filteredGroups.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">수집된 게시물이 없습니다. 수집 페이지에서 데이터를 수집하세요.</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">수집된 게시물이 없습니다. 수집 페이지에서 데이터를 수집하세요.</TableCell>
                 </TableRow>
               ) : (
                 filteredGroups.map(g => (
@@ -250,10 +251,23 @@ export default function ExploreTab() {
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                         {g.lastCollected ? new Date(g.lastCollected).toLocaleDateString('ko-KR') : '-'}
                       </TableCell>
+                      <TableCell onClick={e => e.stopPropagation()}>
+                        <Button variant="ghost" size="xs" className="text-xs text-muted-foreground hover:text-destructive" onClick={async () => {
+                          if (!confirm(`"${g.searchTag}" 게시물 ${g.postCount}건을 삭제하시겠습니까?`)) return
+                          await fetch('/api/instagram/results', {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ searchTag: g.searchTag }),
+                          })
+                          fetchGroups()
+                        }}>
+                          삭제
+                        </Button>
+                      </TableCell>
                     </TableRow>
                     {expanded === g.searchTag && (
                       <TableRow>
-                        <TableCell colSpan={6} className="bg-muted/50 p-0">
+                        <TableCell colSpan={7} className="bg-muted/50 p-0">
                           <Table>
                             <TableHeader>
                               <TableRow>

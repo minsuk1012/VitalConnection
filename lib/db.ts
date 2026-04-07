@@ -357,6 +357,26 @@ export function getPostsBySearchTag(searchTag: string) {
   }).from(posts).where(eq(posts.searchTag, searchTag)).orderBy(desc(posts.likes)).all()
 }
 
+export function deletePostsBySearchTag(searchTag: string) {
+  const db = getDb()
+  db.delete(posts).where(eq(posts.searchTag, searchTag)).run()
+}
+
+export function deleteInfluencer(username: string) {
+  const db = getDb()
+  // 릴스 댓글 삭제
+  const userReels = db.select({ id: reels.id }).from(reels).where(eq(reels.username, username)).all()
+  for (const r of userReels) {
+    db.delete(reelComments).where(eq(reelComments.reelId, r.id)).run()
+  }
+  // 릴스 삭제
+  db.delete(reels).where(eq(reels.username, username)).run()
+  // 게시물 삭제
+  db.delete(posts).where(eq(posts.ownerUsername, username)).run()
+  // 인플루언서 삭제
+  db.delete(influencers).where(eq(influencers.username, username)).run()
+}
+
 export function getPostsByUsername(username: string) {
   const db = getDb()
   return db.select({

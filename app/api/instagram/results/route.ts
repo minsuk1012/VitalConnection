@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
-import { queryResults, getCollections, getPostsGroupedBySearchTag, getPostsBySearchTag, getPostsByUsername } from '@/lib/db'
+import { queryResults, getCollections, getPostsGroupedBySearchTag, getPostsBySearchTag, getPostsByUsername, deletePostsBySearchTag } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   const authError = await checkAdmin()
@@ -45,4 +45,17 @@ export async function GET(request: NextRequest) {
   const collections = getCollections()
 
   return NextResponse.json({ ...data, collections })
+}
+
+export async function DELETE(request: NextRequest) {
+  const authError = await checkAdmin()
+  if (authError) return authError
+
+  const { searchTag } = await request.json()
+  if (!searchTag) {
+    return NextResponse.json({ error: 'searchTag는 필수입니다.' }, { status: 400 })
+  }
+
+  deletePostsBySearchTag(searchTag)
+  return NextResponse.json({ success: true })
 }
