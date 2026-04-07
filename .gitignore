@@ -26,4 +26,6 @@ dist-ssr
 *.db
 *.db-wal
 *.db-shm
+tsconfig.tsbuildinfo
+qa-data/
 .superpowers/
