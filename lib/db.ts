@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { eq, desc, asc, gte, sql, count, max, ne, and } from 'drizzle-orm'
 import path from 'path'
 import * as schema from './schema'
-import { collections, posts, influencers, reels, reelComments, apifyKeys } from './schema'
+import { collections, posts, influencers, reels, reelComments, apifyKeys, influencerActivities } from './schema'
 import { computeAllMetrics, type MetricsInput } from './metrics'
 
 const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'instagram.db')
@@ -690,6 +690,9 @@ export function insertReels(username: string, rawReels: any[]) {
   const db = getDb()
   let inserted = 0
   for (const r of rawReels) {
+    // 릴스가 아닌 프로필 메타데이터 등 필터링: 유효한 게시물 URL 필수
+    const url = r.url || r.inputUrl || ''
+    if (!url.includes('/reel/') && !url.includes('/p/')) continue
     try {
       db.insert(reels).values({
         username,
@@ -867,4 +870,25 @@ export function selectApifyKey(id: number) {
 export function getSelectedApifyKey() {
   const db = getDb()
   return db.select().from(apifyKeys).where(eq(apifyKeys.isSelected, 1)).get() ?? null
+}
+
+// ── Influencer Activities ──
+
+export function insertActivity(username: string, action: string, source: string, detail: Record<string, any> = {}) {
+  const db = getDb()
+  db.insert(influencerActivities).values({
+    username,
+    action,
+    source,
+    detail: JSON.stringify(detail),
+  }).run()
+}
+
+export function getActivities(username: string, limit = 50) {
+  const db = getDb()
+  return db.select().from(influencerActivities)
+    .where(eq(influencerActivities.username, username))
+    .orderBy(desc(influencerActivities.createdAt))
+    .limit(limit)
+    .all()
 }

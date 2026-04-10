@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
 import { collectReels, collectComments } from '@/lib/apify'
-import { insertReels, getReelsByUsername, insertReelComments, createCollection, updateCollection, refreshInfluencersForUser } from '@/lib/db'
+import { insertReels, getReelsByUsername, insertReelComments, createCollection, updateCollection, refreshInfluencersForUser, insertActivity } from '@/lib/db'
 import { detectLanguage } from '@/lib/metrics'
 
 export async function POST(request: NextRequest) {
@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
 
     refreshInfluencersForUser(username)
     updateCollection(collectionId, 'completed', inserted)
+    insertActivity(username, 'reels_collect', 'candidate', { inserted, comments: totalComments })
 
     return NextResponse.json({
       collectionId, username,

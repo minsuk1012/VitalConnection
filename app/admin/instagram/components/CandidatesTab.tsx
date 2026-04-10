@@ -6,6 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -70,6 +71,9 @@ export default function CandidatesTab() {
   const [selectedReel, setSelectedReel] = useState<any | null>(null)
   const [reelComments, setReelComments] = useState<any[]>([])
   const [sheetTab, setSheetTab] = useState<'profile' | 'reels' | 'posts'>('profile')
+  const [lookupUsername, setLookupUsername] = useState('')
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [lookupResult, setLookupResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -163,6 +167,33 @@ export default function CandidatesTab() {
     setMemoValue(inf.memo || '')
   }
 
+  async function lookupAccount() {
+    const username = lookupUsername.trim().replace(/^@/, '')
+    if (!username) return
+    setLookupLoading(true)
+    setLookupResult(null)
+    try {
+      const res = await fetch('/api/instagram/collect-profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usernames: [username] }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '조회 실패')
+      const result = data.results?.[0]
+      if (result?.status === 'ok') {
+        setLookupResult({ type: 'success', message: `@${username} 등록 완료` })
+        setLookupUsername('')
+        fetchData()
+      } else {
+        setLookupResult({ type: 'error', message: `@${username}: ${result?.error || '프로필을 찾을 수 없습니다'}` })
+      }
+    } catch (err: any) {
+      setLookupResult({ type: 'error', message: err.message })
+    }
+    setLookupLoading(false)
+  }
+
   function exportCSV() {
     window.open('/api/instagram/influencers/export')
   }
@@ -234,6 +265,29 @@ export default function CandidatesTab() {
           </Card>
         </CollapsibleContent>
       </Collapsible>
+
+      {/* 계정 조회 */}
+      <Card>
+        <CardContent className="flex items-center gap-3 pt-6">
+          <Label className="text-sm font-medium whitespace-nowrap">계정 조회</Label>
+          <Input
+            placeholder="Instagram username"
+            value={lookupUsername}
+            onChange={e => setLookupUsername(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') lookupAccount() }}
+            className="max-w-[240px]"
+            disabled={lookupLoading}
+          />
+          <Button size="sm" onClick={lookupAccount} disabled={lookupLoading || !lookupUsername.trim()}>
+            {lookupLoading ? '조회중...' : '조회'}
+          </Button>
+          {lookupResult && (
+            <span className={`text-sm ${lookupResult.type === 'success' ? 'text-green-600' : 'text-destructive'}`}>
+              {lookupResult.message}
+            </span>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="flex gap-2 flex-wrap">
         {STATUSES.map(s => (

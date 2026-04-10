@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
 import { collectFromInstagram } from '@/lib/apify'
-import { createCollection, updateCollection, insertPosts, refreshInfluencers } from '@/lib/db'
+import { createCollection, updateCollection, insertPosts, refreshInfluencers, insertActivity } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   const authError = await checkAdmin()
@@ -25,6 +25,12 @@ export async function POST(request: NextRequest) {
     const inserted = insertPosts(collectionId, items, query)
     updateCollection(collectionId, 'completed', inserted)
     refreshInfluencers()
+
+    // 수집된 게시물의 고유 username별로 auto_discover 이력 기록
+    const usernames = new Set(items.map((i: any) => i.ownerUsername || i.owner?.username || '').filter(Boolean))
+    for (const u of usernames) {
+      insertActivity(u, 'auto_discover', 'explore', { hashtag: query, posts: items.filter((i: any) => (i.ownerUsername || i.owner?.username) === u).length })
+    }
 
     return NextResponse.json({
       collectionId,

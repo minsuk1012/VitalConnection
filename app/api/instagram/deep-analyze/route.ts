@@ -3,7 +3,7 @@ import { checkAdmin } from '@/lib/auth'
 import { collectReels, collectComments } from '@/lib/apify'
 import {
   insertReels, getReelsByUsername, insertReelComments,
-  updateInfluencerDeepAnalysis, getInfluencer,
+  updateInfluencerDeepAnalysis, getInfluencer, insertActivity,
 } from '@/lib/db'
 import { detectLanguage, detectLanguageDistribution } from '@/lib/metrics'
 
@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
     })
 
     const updated = getInfluencer(username)
+    insertActivity(username, 'deep_analyze', 'candidate', { reels: filteredReels.length, comments: allCommentTexts.length })
 
     return NextResponse.json({
       username,

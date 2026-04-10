@@ -132,6 +132,9 @@ export default function CandidateDetailPage() {
   // Profile refresh state
   const [refreshingProfile, setRefreshingProfile] = useState(false)
 
+  // Activities state
+  const [activities, setActivities] = useState<any[]>([])
+
   // 수집 모달
   const [collectModal, setCollectModal] = useState<'reels' | 'posts' | null>(null)
   const [collectStatus, setCollectStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -175,11 +178,20 @@ export default function CandidateDetailPage() {
     } catch {}
   }
 
+  async function fetchActivities() {
+    try {
+      const res = await fetch(`/api/instagram/activities?username=${username}`)
+      const data = await res.json()
+      setActivities(data.activities || [])
+    } catch {}
+  }
+
   useEffect(() => {
     fetchInfluencer()
     fetchReels()
     fetchUserPosts()
     fetchBalance()
+    fetchActivities()
   }, [username])
 
   async function updateStatus(status: string) {
@@ -212,6 +224,7 @@ export default function CandidateDetailPage() {
       body: JSON.stringify({ usernames: [username] }),
     })
     await fetchInfluencer()
+    await fetchActivities()
     setRefreshingProfile(false)
   }
 
@@ -245,6 +258,7 @@ export default function CandidateDetailPage() {
         await fetchUserPosts()
       }
       await fetchBalance()
+      await fetchActivities()
       setCollectStatus('success')
     } catch (err: any) {
       setCollectError(err.message)
@@ -469,6 +483,48 @@ export default function CandidateDetailPage() {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* 수집 이력 */}
+                <Card>
+                  <CardContent className="pt-4 space-y-2">
+                    <div className="text-xs text-muted-foreground font-medium">수집 이력</div>
+                    {activities.length === 0 ? (
+                      <p className="text-xs text-muted-foreground py-2">이력이 없습니다.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {activities.map((a: any) => {
+                          const actionLabels: Record<string, string> = {
+                            profile_refresh: '프로필 최신화',
+                            reels_collect: '릴스 수집',
+                            posts_collect: '게시물 수집',
+                            deep_analyze: '심층 분석',
+                            auto_discover: '자동 발견',
+                          }
+                          const detail = (() => { try { return JSON.parse(a.detail || '{}') } catch { return {} } })()
+                          const detailText = (() => {
+                            if (a.action === 'auto_discover' && detail.hashtag) return `#${detail.hashtag} (${detail.posts || 0}건)`
+                            if (a.action === 'reels_collect') return `${detail.inserted || 0}건${detail.refreshed ? ' (새로고침)' : ''}`
+                            if (a.action === 'profile_refresh' && detail.postsInserted) return `게시물 ${detail.postsInserted}건`
+                            if (a.action === 'deep_analyze') return `릴스 ${detail.reels || 0}, 댓글 ${detail.comments || 0}`
+                            return ''
+                          })()
+                          return (
+                            <div key={a.id} className="flex items-center gap-2 text-xs">
+                              <span className="text-muted-foreground w-[70px] shrink-0">
+                                {new Date(a.createdAt).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
+                              </span>
+                              <span className="font-medium">{actionLabels[a.action] || a.action}</span>
+                              {detailText && <span className="text-muted-foreground">— {detailText}</span>}
+                              <Badge variant={a.source === 'explore' ? 'secondary' : 'outline'} className="text-[10px] px-1.5 py-0 ml-auto">
+                                {a.source === 'explore' ? '탐색' : '후보관리'}
+                              </Badge>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
 

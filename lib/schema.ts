@@ -120,6 +120,17 @@ export const reelComments = sqliteTable('reel_comments', {
   index('idx_reel_comments_lang').on(table.detectedLanguage),
 ])
 
+export const influencerActivities = sqliteTable('influencer_activities', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  username: text('username').notNull(),
+  action: text('action').notNull(), // profile_refresh | reels_collect | posts_collect | deep_analyze | auto_discover
+  source: text('source').notNull(), // explore | candidate
+  detail: text('detail').default('{}'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+}, (table) => [
+  index('idx_activities_username').on(table.username),
+])
+
 export const apifyKeys = sqliteTable('apify_keys', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   token: text('token').notNull().unique(),

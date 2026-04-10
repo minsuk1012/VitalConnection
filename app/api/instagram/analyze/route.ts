@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
 import { analyzeProfile } from '@/lib/apify'
-import { updateInfluencerProfile, getInfluencer, recalculateInfluencer } from '@/lib/db'
+import { updateInfluencerProfile, getInfluencer, recalculateInfluencer, insertActivity } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   const authError = await checkAdmin()
@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
 
     recalculateInfluencer(username)
     const updated = getInfluencer(username)
+    insertActivity(username, 'profile_refresh', 'explore', {})
 
     return NextResponse.json({ username, profile: updated, raw: profile })
   } catch (error: any) {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/auth'
 import { collectReels, collectComments } from '@/lib/apify'
-import { deleteReelsByUsername, insertReels, getReelsByUsername, insertReelComments, refreshInfluencersForUser } from '@/lib/db'
+import { deleteReelsByUsername, insertReels, getReelsByUsername, insertReelComments, refreshInfluencersForUser, insertActivity } from '@/lib/db'
 import { detectLanguage } from '@/lib/metrics'
 
 export async function POST(request: NextRequest) {
@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     refreshInfluencersForUser(username)
+    insertActivity(username, 'reels_collect', 'candidate', { inserted, comments: totalComments, refreshed: true })
 
     return NextResponse.json({
       username,
