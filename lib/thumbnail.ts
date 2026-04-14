@@ -116,8 +116,18 @@ export function buildTemplateHtml(layoutId: string, input: TemplateInput): strin
   if (!fs.existsSync(configPath))   throw new Error(`Config not found: ${layoutId}`)
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-  const cssVars = Object.entries(config.vars as Record<string, string>)
+  const configVars = Object.entries(config.vars as Record<string, string>)
     .map(([k, v]) => `--${k}: ${v};`).join(' ')
+
+  const inputVars = [
+    input.fontFamily  && `--headline-font: '${input.fontFamily}';`,
+    input.accentColor && `--accent-color: ${input.accentColor};`,
+    input.panelColor  && `--panel-color: ${input.panelColor};`,
+    input.textColor   && `--text-color: ${input.textColor};`,
+    input.subColor    && `--sub-color: ${input.subColor};`,
+  ].filter(Boolean).join(' ')
+
+  const cssVars = `${configVars} ${inputVars}`
 
   const base      = input.baseUrl ?? 'http://localhost:3000'
   // cutout 파라미터가 있으면 layout ID 무관하게 models-cutout 디렉토리 사용
@@ -133,7 +143,7 @@ export function buildTemplateHtml(layoutId: string, input: TemplateInput): strin
 
   let html = fs.readFileSync(templatePath, 'utf-8')
   return html
-    .replace('{{CSS_VARS}}',            cssVars)
+    .replace(/\{\{CSS_VARS\}\}/g,        cssVars)
     .replace(/\{\{FONT_FACES\}\}/g,     fontFaces)
     .replace(/\{\{FONTS_DIR\}\}/g,      fontsUrl)
     .replace(/\{\{MODEL_PATH\}\}/g,     modelUrl)
@@ -154,6 +164,8 @@ export function buildTemplateHtml(layoutId: string, input: TemplateInput): strin
     .replace(/\{\{PRICES_HTML\}\}/g,    '')
     .replace(/\{\{FOOTER_NOTE\}\}/g,    '')
     .replace(/\{\{FOOTER_DISPLAY\}\}/g, 'none')
+    .replace(/\{\{EFFECT_CSS\}\}/g,     '')
+    .replace(/\{\{LAYOUT_CSS\}\}/g,     '')
     .replace(/\{\{PANEL_COLOR\}\}/g,    config.vars['panel-color']  ?? 'rgba(255,255,255,0.9)')
     .replace(/\{\{ACCENT_COLOR\}\}/g,   config.vars['accent-color'] ?? '#FF6B9D')
     .replace(/\{\{DARK_COLOR\}\}/g,     config.vars['panel-color']  ?? '#2C1A0E')
