@@ -1,12 +1,13 @@
 /**
  * GET /api/thumbnail/asset/models/dewy_glow/img.webp
  * GET /api/thumbnail/asset/fonts/BebasNeue-Regular.ttf
+ * GET /api/thumbnail/asset/docs/archetypes.json
  * thumbnail-gen 디렉토리 내 파일을 HTTP로 서빙
  */
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
-import { PATHS } from '@/lib/thumbnail'
+import { PATHS, THUMBNAIL_BASE } from '@/lib/thumbnail'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,7 @@ const MIME: Record<string, string> = {
   '.otf':   'font/otf',
   '.ttc':   'font/collection',
   '.woff2': 'font/woff2',
+  '.json':  'application/json',
 }
 
 const ALLOWED_BASES: Record<string, string> = {
@@ -26,6 +28,7 @@ const ALLOWED_BASES: Record<string, string> = {
   'models-raw':    PATHS.modelsRaw,
   'models-cutout': PATHS.cutout,
   'fonts':         PATHS.fonts,
+  'docs':          path.join(THUMBNAIL_BASE, 'docs'),
 }
 
 export async function GET(

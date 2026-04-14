@@ -1,0 +1,32 @@
+/* stacked-center-cutout.css
+   사용 사례: solid-bg-cutout, solid-bg-stacked
+   단색/그라디언트 배경 위에 누끼 모델이 우측에, 텍스트는 좌측에 세로 정렬 */
+
+/* 모델을 우측 55%로 제한 */
+.model-layer {
+  left: 45%;
+  width: 55%;
+}
+.model-layer img {
+  object-position: top center;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+.text-layer {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 48px;
+  gap: 16px;
+}
+.headline    { font-size: 68px; }
+.subheadline { font-size: 24px; }
+.price-block { margin-top: 12px; }
+.price       { font-size: 62px; }
+.price-unit  { font-size: 24px; }
+.brand-en    { font-size: 14px; margin-top: 10px; }

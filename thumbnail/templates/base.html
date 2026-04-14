@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    background: var(--panel-color, #1a1a2e);
+    font-family: var(--headline-font, 'BlackHan'), sans-serif;
+  }
+  .canvas { width: 1080px; height: 1080px; position: relative; overflow: hidden; }
+
+  /* Model layer — 기본: full-bleed cover */
+  .model-layer { position: absolute; inset: 0; z-index: 1; }
+  .model-layer img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+  /* Effect layer (model 위, text 아래) */
+  .effect-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+  /* Text layer */
+  .text-layer { position: absolute; inset: 0; z-index: 3; }
+
+  /* Text element 기본값 — layout CSS가 override */
+  .brand-ko    { font-size: 22px; font-family: var(--headline-font,'Pretendard'); color: var(--sub-color,rgba(255,255,255,0.7)); }
+  .headline    { font-size: 76px; font-weight: 900; font-family: var(--headline-font,'BlackHan'); color: var(--text-color,#fff); line-height: 1.05; word-break: keep-all; }
+  .subheadline { font-size: 30px; color: var(--sub-color,rgba(255,255,255,0.85)); line-height: 1.4; word-break: keep-all; }
+  .price-block { display: flex; align-items: baseline; gap: 6px; }
+  .price       { font-size: 64px; font-weight: 900; font-family: var(--headline-font,'BlackHan'); color: var(--accent-color,#FF6B9D); }
+  .price-unit  { font-size: 26px; color: var(--sub-color,rgba(255,255,255,0.8)); }
+  .brand-en    { font-size: 16px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sub-color,rgba(255,255,255,0.55)); }
+</style>
+
+<!-- 폰트 선언 -->
+<style>{{FONT_FACES}}</style>
+
+<!-- 효과 토큰 CSS (색상 테마 기본값 설정) -->
+<style>{{EFFECT_CSS}}</style>
+
+<!-- 사용자 CSS 변수 (효과 토큰 기본값 override) -->
+<style>:root { {{CSS_VARS}} }</style>
+
+<!-- 레이아웃 토큰 CSS (텍스트 위치/계층 정의) -->
+<style>{{LAYOUT_CSS}}</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="model-layer">
+    <img src="{{MODEL_PATH}}" alt="" onerror="this.style.display='none'">
+  </div>
+  <div class="effect-layer"></div>
+  <div class="text-layer">
+    <span class="brand-ko" style="display:{{BRAND_KO_DISPLAY}}">{{BRAND_KO}}</span>
+    <h1 class="headline">{{HEADLINE}}</h1>
+    <p class="subheadline" style="display:{{SUB_DISPLAY}}">{{SUBHEADLINE}}</p>
+    <div class="price-block" style="display:{{PRICE_DISPLAY}}">
+      <span class="price">{{PRICE}}</span>
+      <span class="price-unit">{{PRICE_UNIT}}</span>
+    </div>
+    <div class="brand-block">
+      <span class="brand-en">{{BRAND_EN}}</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
