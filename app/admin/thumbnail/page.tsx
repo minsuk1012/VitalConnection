@@ -443,6 +443,11 @@ export default function ThumbnailEditorPage() {
             className="text-xs h-7 gap-1.5">
             <ImageIcon className="w-3 h-3" />갤러리
           </Button>
+          <Button size="sm"
+            render={<Link href="/admin/thumbnail/builder" />}
+            className="text-xs h-7 gap-1.5 bg-gray-900 text-white hover:bg-gray-700">
+            + 새 썸네일 만들기
+          </Button>
           <Button size="sm" onClick={renderThumbnail} disabled={rendering || !selectedId}
             className="text-xs h-7 gap-1.5">
             {rendering
