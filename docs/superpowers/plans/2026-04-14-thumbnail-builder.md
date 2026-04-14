@@ -637,22 +637,32 @@ function esc(s: string) {
 
 - [ ] **Step 2: 수동 동작 검증**
 
-Next.js 개발 서버(`npm run dev`, 포트 2999)를 실행한 상태에서 Node REPL로 확인:
+Next.js 개발 서버(`npm run dev`, 포트 2999) 실행 상태에서 API endpoint로 검증:
 
 ```bash
-node -e "
-const {composeHtml} = require('./lib/thumbnail-compose.js');
-const html = composeHtml('bottom-text-stack', 'overlay-dark', {
-  headline: '보톡스 시술', price: '3.9', baseUrl: 'http://localhost:2999'
-});
-console.log(html.includes('bottom-text-stack.css') ? 'LAYOUT CSS 없음(파일 인라인됨)' : 'OK');
-console.log(html.includes('보톡스 시술') ? 'OK: headline 치환됨' : 'FAIL');
-console.log(html.includes('overlay-dark') ? 'LAYOUT CSS 없음(파일 인라인됨)' : 'OK');
-console.log(html.includes('linear-gradient') ? 'OK: effect CSS 포함됨' : 'FAIL');
-"
+# preview route 경유해 실제 HTML 생성 확인 (ESM 환경 이슈 우회)
+curl -s "http://localhost:2999/api/thumbnail/builder/preview?layoutToken=bottom-text-stack&effectToken=overlay-dark&headline=보톡스시술" \
+  | grep -c "flex-direction: column" | xargs -I{} echo "layout CSS 블록 수: {}"
+
+curl -s "http://localhost:2999/api/thumbnail/builder/preview?layoutToken=bottom-text-stack&effectToken=overlay-dark&headline=보톡스시술" \
+  | grep -c "linear-gradient" | xargs -I{} echo "effect CSS 블록 수: {}"
+
+curl -s "http://localhost:2999/api/thumbnail/builder/preview?layoutToken=bottom-text-stack&effectToken=overlay-dark&headline=보톡스시술" \
+  | grep -c "보톡스시술" | xargs -I{} echo "headline 치환 수: {}"
 ```
 
-Expected 출력: `OK: headline 치환됨`, `OK: effect CSS 포함됨` 2줄 확인
+Expected: 각각 1 이상의 숫자 출력
+
+> **주의:** preview route는 Task 11에서 생성됨. Task 5 단계에서는 tsx로 직접 검증:
+> ```bash
+> npx tsx -e "
+> import { composeHtml } from './lib/thumbnail-compose.ts';
+> const html = composeHtml('bottom-text-stack', 'overlay-dark', { headline: '보톡스시술', baseUrl: 'http://localhost:2999' });
+> console.log(html.includes('flex-direction') ? 'OK: layout CSS 포함' : 'FAIL: layout CSS 없음');
+> console.log(html.includes('linear-gradient') ? 'OK: effect CSS 포함' : 'FAIL: effect CSS 없음');
+> console.log(html.includes('보톡스시술') ? 'OK: headline 치환' : 'FAIL: headline 미치환');
+> "
+> ```
 
 - [ ] **Step 3: 커밋**
 
@@ -716,6 +726,8 @@ export async function POST(req: NextRequest) {
     headline, subheadline, brandEn, brandKo, price, priceUnit,
     model, cutout,
     fontFamily, accentColor, panelColor,
+    sessionId, // 4개 언어 렌더링 시 동일 디렉토리에 저장하기 위한 세션 ID
+    lang,      // 'ko' | 'en' | 'ja' | 'zh'
   } = await req.json()
 
   if (!layoutTokenId || !effectTokenId) {
@@ -742,37 +754,76 @@ export async function POST(req: NextRequest) {
     await page.setViewport({ width: 1080, height: 1080, deviceScaleFactor: 1 })
     await page.goto(`file://${tmpFile}`, { waitUntil: 'networkidle0' })
 
-    const screenshot = await page.screenshot({ type: 'webp', quality: 88 })
+    // 저장 경로: sessionId를 폴더명으로 사용해 4개 언어 파일이 동일 디렉토리에 저장
+    const folderName = sessionId ?? `render-${Date.now()}`
+    const outputDir  = path.join(process.cwd(), 'thumbnail/output/renders', folderName)
+    fs.mkdirSync(outputDir, { recursive: true })
+    const outPath = path.join(outputDir, `${lang ?? 'ko'}.webp`) as `${string}.webp`
+
+    await page.screenshot({ path: outPath, type: 'webp', quality: 88 })
     await page.close()
     await browser.close()
     fs.unlinkSync(tmpFile)
 
-    return new NextResponse(screenshot, {
-      headers: { 'Content-Type': 'image/webp' },
-    })
+    return NextResponse.json({ saved: true, path: outPath, lang: lang ?? 'ko', sessionId: folderName })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
 ```
 
-- [ ] **Step 3: API 동작 확인**
+- [ ] **Step 3: `app/api/thumbnail/asset/[...slug]/route.ts` 수정 — docs 경로 추가**
 
-```bash
-curl -s http://localhost:2999/api/thumbnail/builder/tokens | node -e "
-const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf-8'));
-console.log('layouts:', d.layouts.length, d.layouts.map(l=>l.id));
-console.log('effects:', d.effects.length, d.effects.map(e=>e.id));
-"
+Step1ImageSelect가 `archetypes.json`을 가져올 수 있도록 `ALLOWED_BASES`에 `docs` 항목 추가.
+`app/api/thumbnail/asset/[...slug]/route.ts` 에서:
+
+```typescript
+// 기존:
+const ALLOWED_BASES: Record<string, string> = {
+  'models':        PATHS.models,
+  'models-raw':    PATHS.modelsRaw,
+  'models-cutout': PATHS.cutout,
+  'fonts':         PATHS.fonts,
+}
+
+// 수정 후:
+const ALLOWED_BASES: Record<string, string> = {
+  'models':        PATHS.models,
+  'models-raw':    PATHS.modelsRaw,
+  'models-cutout': PATHS.cutout,
+  'fonts':         PATHS.fonts,
+  'docs':          path.join(THUMBNAIL_BASE, 'docs'),  // archetypes.json 서빙용
+}
 ```
 
-Expected: `layouts: 5 ['bottom-text-stack', ...]`, `effects: 5 ['overlay-dark', ...]`
+`THUMBNAIL_BASE`는 `lib/thumbnail.ts`에서 import. `PATHS` 대신 직접 경로 조합:
+```typescript
+import { PATHS, THUMBNAIL_BASE } from '@/lib/thumbnail'
+// ...
+'docs': path.join(THUMBNAIL_BASE, 'docs'),
+```
 
-- [ ] **Step 4: 커밋**
+> 이 수정 후 `/api/thumbnail/asset/docs/archetypes.json` 으로 archetypes.json 접근 가능
+
+- [ ] **Step 4: API 동작 확인**
 
 ```bash
-git add app/api/thumbnail/builder/
-git commit -m "feat(api): 빌더 tokens GET + render POST 라우트 추가"
+curl -s http://localhost:2999/api/thumbnail/builder/tokens | python3 -m json.tool | grep '"id"' | head -10
+```
+
+Expected: `"id": "bottom-text-stack"` 등 5개 레이아웃, 5개 효과 id 출력
+
+```bash
+curl -s http://localhost:2999/api/thumbnail/asset/docs/archetypes.json | python3 -m json.tool | grep '"id"' | head -5
+```
+
+Expected: `"id": "dewy-glow"` 등 archetypes 목록 출력
+
+- [ ] **Step 5: 커밋**
+
+```bash
+git add app/api/thumbnail/builder/ app/api/thumbnail/asset/
+git commit -m "feat(api): 빌더 tokens/render 라우트 + asset docs 경로 추가"
 ```
 
 ---
@@ -811,9 +862,10 @@ export interface LayoutSuggestion {
 
 export interface BuilderState {
   // Step 1
-  imageType:     'full' | 'cutout' | null
-  archetype:     string | null
-  variantIdx:    number | null
+  imageType:         'full' | 'cutout' | null
+  archetype:         string | null
+  selectedImageFile: string | null   // 실제 파일 경로 (models/ or models-cutout/ 기준 상대경로)
+                                     // e.g. 'dewy_glow/hcanips_53436_...png'
 
   // Step 2
   suggestions:   LayoutSuggestion[]
@@ -837,7 +889,7 @@ export const DEFAULT_TEXT: TextContent = {
 }
 
 export const INITIAL_STATE: BuilderState = {
-  imageType: null, archetype: null, variantIdx: null,
+  imageType: null, archetype: null, selectedImageFile: null,
   suggestions: [], layoutTokenId: null,
   effectTokenId: null,
   texts: { ko: { ...DEFAULT_TEXT }, en: { ...DEFAULT_TEXT }, ja: { ...DEFAULT_TEXT }, zh: { ...DEFAULT_TEXT } },
@@ -882,7 +934,7 @@ interface Props {
 function isStepAccessible(stepId: StepId, state: BuilderState): boolean {
   switch (stepId) {
     case 'image':  return true
-    case 'layout': return !!(state.imageType && state.archetype && state.variantIdx !== null)
+    case 'layout': return !!(state.imageType && state.archetype && state.selectedImageFile)
     case 'effect': return !!state.layoutTokenId
     case 'text':   return !!state.effectTokenId
     case 'export': return Object.values(state.texts.ko).some(v => v.trim())
@@ -957,10 +1009,10 @@ function buildPreviewUrl(state: BuilderState): string | null {
     fontFamily:   state.fontFamily,
     accentColor:  state.accentColor,
     panelColor:   state.panelColor,
-    ...(state.imageType === 'cutout' && state.archetype && state.variantIdx !== null
-      ? { cutout: `${state.archetype}/${state.archetype}-${state.variantIdx}.png` }
-      : state.archetype && state.variantIdx !== null
-      ? { model:  `${state.archetype}/${state.archetype}-${state.variantIdx}.png` }
+    ...(state.selectedImageFile
+      ? state.imageType === 'cutout'
+        ? { cutout: state.selectedImageFile }
+        : { model:  state.selectedImageFile }
       : {}),
   })
   return `/api/thumbnail/builder/preview?${params}`
@@ -971,11 +1023,14 @@ export function PreviewPane({ state }: Props) {
 
   useEffect(() => {
     const url = buildPreviewUrl(state)
-    if (url) setSrc(url)
+    if (!url) return
+    // 400ms 디바운스 — 텍스트 입력 중 연속 호출 방지
+    const timer = setTimeout(() => setSrc(url), 400)
+    return () => clearTimeout(timer)
   }, [
     state.layoutTokenId, state.effectTokenId, state.texts.ko,
     state.fontFamily, state.accentColor, state.panelColor,
-    state.archetype, state.variantIdx, state.imageType,
+    state.archetype, state.selectedImageFile, state.imageType,
   ])
 
   return (
@@ -1064,7 +1119,17 @@ export function Step1ImageSelect({ state, onChange, onNext }: Props) {
     state.imageType === 'cutout' ? a.cutout : !a.cutout
   )
 
-  const canNext = !!(state.imageType && state.archetype && state.variantIdx !== null)
+  // 선택된 아키타입에 해당하는 실제 파일 목록 필터링
+  // archetypes.json id가 'dewy-glow', 폴더명이 'dewy_glow' 형태로 다름 — 둘 다 시도
+  const archetypeFiles = state.archetype
+    ? (state.imageType === 'cutout' ? cutouts : models).filter(f => {
+        const folder = f.split('/')[0]
+        const id = state.archetype!
+        return folder === id || folder === id.replace(/-/g, '_')
+      })
+    : []
+
+  const canNext = !!(state.imageType && state.archetype && state.selectedImageFile)
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
@@ -1115,29 +1180,24 @@ export function Step1ImageSelect({ state, onChange, onNext }: Props) {
           </div>
         )}
 
-        {/* 변형 선택 */}
-        {state.archetype && (
+        {/* 변형 선택 — 실제 파일 목록 기반 */}
+        {state.archetype && archetypeFiles.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">변형 선택</h3>
+            <h3 className="text-sm font-semibold text-gray-800 mb-3">이미지 선택 ({archetypeFiles.length}장)</h3>
             <div className="grid grid-cols-3 gap-2">
-              {(archetypes.find(a => a.id === state.archetype)?.variants ?? []).map((v, i) => {
-                const file = state.imageType === 'cutout'
-                  ? cutouts.find(f => f.includes(v.id))
-                  : models.find(f => f.includes(v.id))
-                const previewUrl = file
-                  ? `/api/thumbnail/asset/${state.imageType === 'cutout' ? 'models-cutout' : 'models'}/${encodeURIComponent(file)}`
-                  : null
+              {archetypeFiles.map((file) => {
+                const assetDir = state.imageType === 'cutout' ? 'models-cutout' : 'models'
+                const previewUrl = `/api/thumbnail/asset/${assetDir}/${file.split('/').map(encodeURIComponent).join('/')}`
+                const isSelected = state.selectedImageFile === file
                 return (
-                  <button key={v.id}
-                    onClick={() => onChange({ variantIdx: i })}
+                  <button key={file}
+                    onClick={() => onChange({ selectedImageFile: file })}
                     className={cn(
                       'relative rounded-xl overflow-hidden border-2 transition-all aspect-square',
-                      state.variantIdx === i ? 'border-gray-900 ring-2 ring-gray-900/20' : 'border-gray-200 hover:border-gray-300',
+                      isSelected ? 'border-gray-900 ring-2 ring-gray-900/20' : 'border-gray-200 hover:border-gray-300',
                     )}>
-                    {previewUrl
-                      ? <img src={previewUrl} alt="" className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-pink-50 to-purple-100 flex items-center justify-center text-2xl">🖼</div>}
-                    {state.variantIdx === i && (
+                    <img src={previewUrl} alt="" className="w-full h-full object-cover" />
+                    {isSelected && (
                       <div className="absolute top-1 right-1 w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
                         <span className="text-[9px] text-white font-bold">✓</span>
                       </div>
@@ -1455,9 +1515,10 @@ export function Step4TextEdit({ state, onChange, onGenerateText, generating, onN
           </div>
           <button
             onClick={() => onGenerateText(activeLang)}
-            disabled={generating || !state.texts.ko.headline}
+            disabled={generating || !state.texts.ko.headline || activeLang === 'ko'}
+            title={activeLang === 'ko' ? '한국어는 직접 입력하세요' : undefined}
             className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-            {generating ? '생성 중...' : '✦ 생성'}
+            {generating ? '생성 중...' : activeLang === 'ko' ? '직접 입력' : '✦ 생성'}
           </button>
         </div>
 
@@ -1704,7 +1765,7 @@ export async function GET(req: NextRequest) {
 ```tsx
 // app/admin/thumbnail/builder/page.tsx
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { StepSidebar } from './_components/StepSidebar'
@@ -1716,7 +1777,6 @@ import { Step4TextEdit } from './_components/Step4TextEdit'
 import { Step5Export } from './_components/Step5Export'
 import { INITIAL_STATE, type BuilderState, type StepId, type Lang } from './_types'
 import type { LayoutToken, EffectToken } from './_types'
-import { useEffect } from 'react'
 
 export default function BuilderPage() {
   const [state, setState] = useState<BuilderState>(INITIAL_STATE)
@@ -1744,9 +1804,9 @@ export default function BuilderPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageType:  state.imageType,
-          archetype:  state.archetype,
-          variantIdx: state.variantIdx,
+          imageType:         state.imageType,
+          archetype:         state.archetype,
+          selectedImageFile: state.selectedImageFile,
           layouts,
         }),
       })
@@ -1779,6 +1839,8 @@ export default function BuilderPage() {
 
   const handleRender = useCallback(async () => {
     const langs: Lang[] = ['ko', 'en', 'ja', 'zh']
+    // 4개 언어 파일이 동일 디렉토리에 저장되도록 세션 ID를 미리 생성
+    const sessionId = new Date().toISOString().slice(0, 19).replace(/[:.T]/g, '-')
     for (const lang of langs) {
       await fetch('/api/thumbnail/builder/render', {
         method: 'POST',
@@ -1790,8 +1852,10 @@ export default function BuilderPage() {
           fontFamily:  state.fontFamily,
           accentColor: state.accentColor,
           panelColor:  state.panelColor,
-          model:  state.imageType !== 'cutout' ? `${state.archetype}/${state.archetype}-${state.variantIdx}.png` : undefined,
-          cutout: state.imageType === 'cutout' ? `${state.archetype}/${state.archetype}-${state.variantIdx}.png` : undefined,
+          model:  state.imageType !== 'cutout' ? state.selectedImageFile : undefined,
+          cutout: state.imageType === 'cutout'  ? state.selectedImageFile : undefined,
+          sessionId,
+          lang,
         }),
       })
     }
@@ -1890,20 +1954,23 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.GEMINI_THUMBNAIL_EDITOR_TRANSLATE_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'GEMINI API 키 없음' }, { status: 500 })
 
-  const { imageType, archetype, variantIdx, layouts } = await req.json()
-  if (!archetype || variantIdx === null || !layouts?.length) {
-    return NextResponse.json({ error: 'archetype, variantIdx, layouts 필수' }, { status: 400 })
+  const { imageType, selectedImageFile, layouts } = await req.json()
+  if (!selectedImageFile || !layouts?.length) {
+    return NextResponse.json({ error: 'selectedImageFile, layouts 필수' }, { status: 400 })
   }
 
-  // 이미지 파일 로컬 로드 → base64
-  const dir      = imageType === 'cutout' ? PATHS.cutout : PATHS.models
-  const allFiles = readdirDeep(dir)
-  const imgFile  = allFiles.find(f => f.includes(archetype))
-  if (!imgFile) return NextResponse.json({ error: `이미지 없음: ${archetype}` }, { status: 404 })
+  // 실제 선택된 파일을 직접 로드 (variantIdx 대신 정확한 경로 사용)
+  const dir     = imageType === 'cutout' ? PATHS.cutout : PATHS.models
+  const imgFile = selectedImageFile  // e.g. 'dewy_glow/hcanips_53436_...png'
+  if (!imgFile) return NextResponse.json({ error: `이미지 없음: ${selectedImageFile}` }, { status: 404 })
 
-  const imgPath   = path.join(dir, imgFile)
-  const imgData   = fs.readFileSync(imgPath).toString('base64')
-  const mimeType  = imgFile.endsWith('.png') ? 'image/png' : 'image/jpeg'
+  // selectedImageFile은 이미 폴더 포함 상대경로 (e.g. 'dewy_glow/hcanips_...png')
+  const imgPath  = path.join(dir, imgFile)
+  if (!fs.existsSync(imgPath)) {
+    return NextResponse.json({ error: `파일 없음: ${imgPath}` }, { status: 404 })
+  }
+  const imgData  = fs.readFileSync(imgPath).toString('base64')
+  const mimeType = imgFile.endsWith('.png') ? 'image/png' : 'image/jpeg'
 
   const layoutList = layouts.map((l: { id: string; name: string; description: string }) =>
     `- id: "${l.id}", 이름: "${l.name}", 설명: "${l.description}"`
@@ -2050,7 +2117,8 @@ export async function POST(req: NextRequest) {
 
   const LANG_NAMES: Record<string, string> = { en: 'English', ja: 'Japanese', zh: 'Simplified Chinese' }
   const langName = LANG_NAMES[targetLang]
-  if (!langName) return NextResponse.json({ error: '지원하지 않는 언어' }, { status: 400 })
+  // ko는 번역 불필요 — 클라이언트에서도 가드하지만 서버에서도 방어
+  if (!langName) return NextResponse.json({ error: `지원하지 않는 targetLang: ${targetLang}. 허용값: en, ja, zh` }, { status: 400 })
 
   const prompt = `You are a professional translator for Korean beauty clinic marketing.
 Translate the following Korean beauty clinic thumbnail texts into ${langName}.
@@ -2063,11 +2131,11 @@ Rules:
 - If a field is empty string, return empty string
 
 Korean input:
-- headline: "${ko.headline}"
-- subheadline: "${ko.subheadline ?? ''}"
-- price: "${ko.price ?? ''}"
-- brandEn: "${ko.brandEn ?? ''}"
-- brandKo: "${ko.brandKo ?? ''}"`
+- headline: ${JSON.stringify(ko.headline)}
+- subheadline: ${JSON.stringify(ko.subheadline ?? '')}
+- price: ${JSON.stringify(ko.price ?? '')}
+- brandEn: ${JSON.stringify(ko.brandEn ?? '')}
+- brandKo: ${JSON.stringify(ko.brandKo ?? '')}`
 
   try {
     const ai = new GoogleGenAI({ apiKey })
