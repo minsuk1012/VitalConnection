@@ -1,0 +1,96 @@
+{
+  "layout": "solid-bg-stamp",
+  "vars": {
+    "bg-color": "#FF7A59",
+    "text-color": "#FFFFFF",
+    "accent-color": "#FFEA00",
+    "headline-size": "170px",
+    "price-size": "140px",
+    "headline-rotation": "0deg",
+    "headline-max-width": "var(--headline-max-width, 900px)",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "색상",
+      "items": [
+        {
+          "var": "bg-color",
+          "label": "배경 색상",
+          "type": "color"
+        },
+        {
+          "var": "text-color",
+          "label": "텍스트 색상",
+          "type": "color"
+        },
+        {
+          "var": "accent-color",
+          "label": "스탬프 및 가격",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "크기",
+      "items": [
+        {
+          "var": "headline-size",
+          "label": "헤드라인 크기",
+          "type": "range",
+          "min": 60,
+          "max": 250,
+          "unit": "px"
+        },
+        {
+          "var": "price-size",
+          "label": "가격 크기",
+          "type": "range",
+          "min": 60,
+          "max": 250,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    }
+  ]
+}

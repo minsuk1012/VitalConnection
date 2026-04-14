@@ -1,0 +1,261 @@
+{
+  "layout": "gradient-mesh",
+  "vars": {
+    "bg-base": "#FDF8F5",
+    "mesh-blur": "120px",
+    "mesh-opacity": "0.9",
+    "mesh-blend-mode": "multiply",
+    "m1-color": "#FFCDE1",
+    "m1-size": "800px",
+    "m1-x": "-100px",
+    "m1-y": "-100px",
+    "m2-color": "#DCE9FF",
+    "m2-size": "900px",
+    "m2-x": "-200px",
+    "m2-y": "100px",
+    "m3-color": "#FFE9C2",
+    "m3-size": "700px",
+    "m3-x": "100px",
+    "m3-y": "-150px",
+    "model-right": "-50px",
+    "model-bottom": "0px",
+    "model-width": "65%",
+    "text-top": "100px",
+    "text-left": "60px",
+    "text-gap": "20px",
+    "text-max-width": "750px",
+    "headline-font": "Pretendard",
+    "headline-size": "130px",
+    "headline-color": "#333333",
+    "headline-line-height": "1.15",
+    "headline-letter-spacing": "-2px",
+    "sub-size": "40px",
+    "sub-color": "#666666",
+    "price-size": "140px",
+    "price-color": "#FF4D8D",
+    "brand-left": "60px",
+    "brand-bottom": "60px",
+    "brand-size": "24px",
+    "brand-color": "#999999",
+    "headline-rotation": "0deg",
+    "headline-max-width": "var(--text-max-width)",
+    "sub-rotation": "0deg",
+    "sub-margin-top": "0px",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "폰트",
+      "items": [
+        {
+          "var": "headline-font",
+          "label": "헤드라인 폰트",
+          "type": "select",
+          "options": [
+            {
+              "value": "Noto",
+              "label": "Noto Sans KR"
+            },
+            {
+              "value": "Pretendard",
+              "label": "Pretendard Bold"
+            },
+            {
+              "value": "BlackHan",
+              "label": "Black Han Sans"
+            },
+            {
+              "value": "Anton",
+              "label": "Anton (영문 임팩트)"
+            },
+            {
+              "value": "Oswald",
+              "label": "Oswald (영문 압축)"
+            },
+            {
+              "value": "Cormorant",
+              "label": "Cormorant (럭셔리 세리프)"
+            },
+            {
+              "value": "NanumGothic",
+              "label": "나눔고딕"
+            },
+            {
+              "value": "GmarketSans",
+              "label": "지마켓 산스 (트렌디)"
+            },
+            {
+              "value": "NanumSquare",
+              "label": "나눔스퀘어 (모던)"
+            },
+            {
+              "value": "NanumRound",
+              "label": "나눔스퀘어라운드 (부드러운)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "group": "메쉬 컬러 (오로라)",
+      "items": [
+        {
+          "var": "bg-base",
+          "label": "베이스 색상",
+          "type": "color"
+        },
+        {
+          "var": "m1-color",
+          "label": "메쉬 1 (좌상단)",
+          "type": "color"
+        },
+        {
+          "var": "m2-color",
+          "label": "메쉬 2 (우중단)",
+          "type": "color"
+        },
+        {
+          "var": "m3-color",
+          "label": "메쉬 3 (하단)",
+          "type": "color"
+        },
+        {
+          "var": "mesh-blur",
+          "label": "블러 강도",
+          "type": "range",
+          "min": 0,
+          "max": 250,
+          "unit": "px"
+        },
+        {
+          "var": "mesh-opacity",
+          "label": "투명도",
+          "type": "range",
+          "min": 0.1,
+          "max": 1.0,
+          "step": 0.05,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "group": "모델 위치",
+      "items": [
+        {
+          "var": "model-width",
+          "label": "크기",
+          "type": "range",
+          "min": 30,
+          "max": 100,
+          "unit": "%"
+        },
+        {
+          "var": "model-right",
+          "label": "우측 여백",
+          "type": "range",
+          "min": -200,
+          "max": 300,
+          "unit": "px"
+        },
+        {
+          "var": "model-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": -100,
+          "max": 300,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "텍스트 설정",
+      "items": [
+        {
+          "var": "headline-size",
+          "label": "헤드라인 크기",
+          "type": "range",
+          "min": 60,
+          "max": 200,
+          "unit": "px"
+        },
+        {
+          "var": "headline-color",
+          "label": "헤드라인 색상",
+          "type": "color"
+        },
+        {
+          "var": "sub-color",
+          "label": "서브헤드 색상",
+          "type": "color"
+        },
+        {
+          "var": "price-color",
+          "label": "가격 색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "서브헤드라인 커스텀",
+      "items": [
+        {
+          "var": "sub-rotation",
+          "label": "서브헤드 회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "sub-margin-top",
+          "label": "서브헤드 위 여백",
+          "type": "range",
+          "min": 0,
+          "max": 200,
+          "unit": "px"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden; position: relative;
+    background-color: var(--bg-base);
+  }
+
+  /* 메쉬 그라디언트 오브젝트들 */
+  .mesh-layer {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(var(--mesh-blur));
+    mix-blend-mode: var(--mesh-blend-mode, normal);
+    opacity: var(--mesh-opacity, 0.8);
+  }
+  .mesh-1 {
+    top: var(--m1-y); left: var(--m1-x);
+    width: var(--m1-size); height: var(--m1-size);
+    background: radial-gradient(circle, var(--m1-color) 0%, transparent 70%);
+  }
+  .mesh-2 {
+    top: var(--m2-y); right: var(--m2-x);
+    width: var(--m2-size); height: var(--m2-size);
+    background: radial-gradient(circle, var(--m2-color) 0%, transparent 70%);
+  }
+  .mesh-3 {
+    bottom: var(--m3-y); left: var(--m3-x);
+    width: var(--m3-size); height: var(--m3-size);
+    background: radial-gradient(circle, var(--m3-color) 0%, transparent 70%);
+  }
+
+  /* 누끼 모델 */
+  .model-cutout {
+    position: absolute;
+    right: var(--model-right);
+    bottom: var(--model-bottom);
+    width: var(--model-width);
+    object-fit: contain;
+    object-position: bottom center;
+    z-index: 5;
+  }
+
+  /* 텍스트 영역 */
+  .text-container {
+    position: absolute;
+    top: var(--text-top);
+    left: var(--text-left);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: var(--text-gap, 16px);
+  }
+
+  .subheadline {
+    font-family: 'Noto'; font-size: var(--sub-size);
+    color: var(--sub-color); display: {{SUB_DISPLAY}};
+    rotate: var(--sub-rotation, 0deg);
+    margin-top: var(--sub-margin-top, 0px);
+    letter-spacing: 1px;
+  }
+
+  .headline {
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); 
+    font-size: var(--headline-size); font-weight: 900; 
+    color: var(--headline-color);
+    line-height: var(--headline-line-height);
+    word-break: keep-all;
+    max-width: var(--text-max-width);
+    letter-spacing: var(--headline-letter-spacing, 0px);
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+
+  .price-area {
+    display: {{PRICE_DISPLAY}}}};
+    margin-top: 20px;
+  }
+  .price-value {
+    font-family: 'Bebas'; font-size: var(--price-size);
+    color: var(--price-color);
+  }
+  .price-unit {
+    font-family: 'Noto'; font-size: calc(var(--price-size) * 0.35);
+    color: var(--price-color); margin-left: 6px; vertical-align: middle;
+  }
+
+  /* 브랜드명 */
+  .brand {
+    position: absolute;
+    bottom: var(--brand-bottom);
+    left: var(--brand-left);
+    font-family: 'Bebas'; font-size: var(--brand-size);
+    color: var(--brand-color); letter-spacing: 4px; z-index: 10;
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <!-- 오로라/메쉬 배경 -->
+  <div class="mesh-layer mesh-1"></div>
+  <div class="mesh-layer mesh-2"></div>
+  <div class="mesh-layer mesh-3"></div>
+
+  <!-- 누끼 모델 -->
+  <img class="model-cutout" src="{{MODEL_PATH}}" id="model-img">
+
+  <!-- 텍스트 -->
+  <div class="text-container">
+    <div class="subheadline" id="subheadline">{{SUBHEADLINE}}</div>
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+    <div class="price-area">
+      <span class="price-value" id="price">{{PRICE}}</span>
+      <span class="price-unit">{{PRICE_UNIT}}</span>
+    </div>
+  </div>
+
+  <div class="brand" id="brand-en">{{BRAND_EN}}</div>
+</body>
+</html>

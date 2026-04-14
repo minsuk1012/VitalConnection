@@ -1,0 +1,146 @@
+{
+  "layout": "solid-bg-stars",
+  "vars": {
+    "bg-color": "#4A33C0",
+    "star-color": "rgba(255,255,255,0.08)",
+    "text-color": "#FFFFFF",
+    "accent-color": "#FFC800",
+    "headline-size": "170px",
+    "price-size": "150px",
+    "stroke-width": "4px",
+    "stroke-color": "#FFFFFF",
+    "headline-rotation": "0deg",
+    "headline-max-width": "var(--headline-max-width, 900px)",
+    "sub-rotation": "0deg",
+    "sub-margin-top": "0px",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "외곽선",
+      "items": [
+        {
+          "var": "stroke-width",
+          "label": "외곽선 두께",
+          "type": "range",
+          "min": 0,
+          "max": 30,
+          "unit": "px"
+        },
+        {
+          "var": "stroke-color",
+          "label": "외곽선 색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "색상",
+      "items": [
+        {
+          "var": "bg-color",
+          "label": "배경 색상",
+          "type": "color"
+        },
+        {
+          "var": "star-color",
+          "label": "별 장식 색상",
+          "type": "color"
+        },
+        {
+          "var": "text-color",
+          "label": "텍스트 색상",
+          "type": "color"
+        },
+        {
+          "var": "accent-color",
+          "label": "가격 색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "크기",
+      "items": [
+        {
+          "var": "headline-size",
+          "label": "헤드라인 크기",
+          "type": "range",
+          "min": 60,
+          "max": 250,
+          "unit": "px"
+        },
+        {
+          "var": "price-size",
+          "label": "가격 크기",
+          "type": "range",
+          "min": 60,
+          "max": 250,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "서브헤드라인 커스텀",
+      "items": [
+        {
+          "var": "sub-rotation",
+          "label": "서브헤드 회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "sub-margin-top",
+          "label": "서브헤드 위 여백",
+          "type": "range",
+          "min": 0,
+          "max": 200,
+          "unit": "px"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px; overflow: hidden; position: relative;
+    background: var(--bg-color);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: var(--body-pad);
+  }
+
+  /* 배경 대형 숫자 장식 */
+  .bg-number {
+    position: absolute;
+    font-family: 'Bebas'; font-size: 520px; font-weight: 900;
+    color: var(--bg-number-color); opacity: 0.06;
+    right: -60px; bottom: -80px; line-height: 1;
+    pointer-events: none; display: {{PRICE_DISPLAY}}
+  }
+  /* 서브 */
+  .subheadline {
+    font-family: 'Noto'; font-size: var(--sub-size);
+    color: var(--text-color); opacity: 0.6; margin-bottom: 12px;
+    display: {{SUB_DISPLAY}};
+    rotate: var(--sub-rotation, 0deg);
+    margin-top: var(--sub-margin-top, 0px);
+  }
+  /* 메인 헤드라인 */
+  .headline {
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); font-size: var(--headline-size);
+    font-weight: 900; color: var(--text-color);
+    line-height: 1.05; word-break: keep-all;
+    margin-bottom: 32px;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  /* 구분선 */
+  .divider {
+    width: 60px; height: 4px;
+    background: var(--accent-color); margin-bottom: 28px;
+  }
+  /* 가격 — 초대형 */
+  .price-area { display: {{PRICE_DISPLAY}}}}; }
+  .price-value {
+    font-family: 'Bebas'; font-size: var(--price-size);
+    color: var(--accent-color); letter-spacing: 2px;
+    display: block; line-height: 1;
+  }
+  .price-unit {
+    font-family: 'Noto'; font-size: calc(var(--price-size) * 0.3);
+    color: var(--text-color); opacity: 0.7; vertical-align: middle;
+  }
+  /* 브랜드 */
+  .brand {
+    position: absolute; right: var(--brand-right); bottom: var(--brand-bottom);
+    font-family: 'Bebas'; font-size: var(--brand-size);
+    color: var(--text-color); opacity: 0.4; letter-spacing: 3px; text-align: right;
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <div class="bg-number" id="price-bg">{{PRICE}}</div>
+  <div class="subheadline" id="subheadline">{{SUBHEADLINE}}</div>
+  <div class="headline" id="headline">{{HEADLINE}}</div>
+  <div class="divider"></div>
+  <div class="price-area">
+    <span class="price-value" id="price">{{PRICE}}</span>
+    <span class="price-unit">{{PRICE_UNIT}}</span>
+  </div>
+  <div class="brand" id="brand-en">{{BRAND_EN}}</div>
+</body>
+</html>

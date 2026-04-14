@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px; overflow: hidden; position: relative;
+    background: var(--bg-color);
+    display: flex; flex-direction: column;
+    padding: var(--body-pad);
+  }
+
+  /* 해시태그 */
+  .hashtags {
+    font-family: 'Noto'; font-size: var(--tag-size);
+    color: var(--tag-color); line-height: 2;
+    margin-bottom: auto; display: {{TAGLINE_DISPLAY}}
+  }
+  /* 구분선 */
+  .divider {
+    width: var(--divider-width); height: 2px;
+    background: var(--accent-color); margin-bottom: 28px;
+  }
+  /* 메인 헤드라인 */
+  .headline {
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); font-size: var(--headline-size);
+    font-weight: 900; color: var(--text-color);
+    line-height: 1.15; word-break: keep-all;
+    margin-bottom: 20px;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  /* 가격 */
+  .price-area { margin-bottom: 20px; display: {{PRICE_DISPLAY}}}}; }
+  .price-value {
+    font-family: 'Bebas'; font-size: var(--price-size);
+    color: var(--accent-color); letter-spacing: 1px;
+  }
+  .price-unit {
+    font-family: 'Noto'; font-size: calc(var(--price-size) * 0.38);
+    color: var(--text-color); opacity: 0.6; margin-left: 4px; vertical-align: middle;
+  }
+  /* 브랜드 */
+  .brand {
+    font-family: 'Bebas'; font-size: var(--brand-size);
+    color: var(--text-color); opacity: 0.5; letter-spacing: 3px;
+    margin-top: auto;
+  }
+  /* 워터마크 로고 — 배경 */
+  .watermark {
+    position: absolute; right: -40px; top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    font-family: 'Bebas'; font-size: 180px;
+    color: var(--text-color); opacity: 0.04; letter-spacing: 8px;
+    white-space: nowrap; pointer-events: none;
+  }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <div class="watermark" id="brand-ko">{{BRAND_KO}}</div>
+  <div class="hashtags" id="tagline">{{TAGLINE}}</div>
+  <div class="divider"></div>
+  <div class="headline" id="headline">{{HEADLINE}}</div>
+  <div class="price-area">
+    <span class="price-value" id="price">{{PRICE}}</span>
+    <span class="price-unit">{{PRICE_UNIT}}</span>
+  </div>
+  <div class="brand" id="brand-en">{{BRAND_EN}}</div>
+</body>
+</html>

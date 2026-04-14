@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden; position: relative;
+    background: var(--bg-gradient);
+  }
+
+  /* 누끼 모델 — 우측 하단 고정 */
+  .model-cutout {
+    position: absolute;
+    right: var(--model-right);
+    bottom: var(--model-bottom);
+    width: var(--model-width);
+    object-fit: contain;
+    object-position: bottom center;
+  }
+
+  /* 장식 요소 — 반짝이 */
+  .sparkle {
+    position: absolute; color: var(--sparkle-color);
+    font-size: var(--sparkle-size); opacity: 0.8;
+    display: {{SPARKLE_DISPLAY}}
+  }
+  .sparkle-1 { top: 8%; left: 6%; }
+  .sparkle-2 { top: 6%; right: 28%; }
+  .sparkle-3 { bottom: 28%; left: 4%; }
+  .sparkle-4 { top: 22%; left: 38%; }
+
+  /* 브랜드 — 하단 */
+  .brand {
+    position: absolute;
+    bottom: var(--brand-bottom);
+    left: var(--brand-left);
+    font-family: 'Bebas'; font-size: var(--brand-size);
+    color: var(--brand-color); letter-spacing: 3px;
+  }
+
+  /* 서브헤드 */
+  .subheadline {
+    position: absolute;
+    top: var(--sub-top); left: var(--text-left);
+    font-family: 'Noto'; font-size: var(--sub-size);
+    color: var(--sub-color); display: {{SUB_DISPLAY}};
+    rotate: var(--sub-rotation, 0deg);
+    max-width: var(--text-max-width);
+  }
+
+  /* 메인 헤드라인 */
+  .headline {
+    position: absolute;
+    top: var(--headline-top); left: var(--text-left);
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); font-size: var(--headline-size);
+    font-weight: 900; color: var(--headline-color);
+    line-height: var(--headline-line-height);
+    word-break: keep-all;
+    max-width: var(--text-max-width);
+    text-shadow: var(--text-shadow);
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+
+  /* 가격 */
+  .price-area {
+    position: absolute;
+    top: var(--price-top); left: var(--text-left);
+    display: {{PRICE_DISPLAY}}
+  }
+  .price-value {
+    font-family: 'Bebas'; font-size: var(--price-size);
+    color: var(--price-color); letter-spacing: 1px;
+    text-shadow: var(--text-shadow);
+  }
+  .price-unit {
+    font-family: 'Noto'; font-size: calc(var(--price-size) * 0.42);
+    color: var(--price-color); margin-left: 6px; vertical-align: middle;
+    opacity: 0.85;
+  }
+
+  /* 가격 배지 (원형) */
+  .price-badge {
+    position: absolute;
+    left: var(--badge-left); bottom: var(--badge-bottom);
+    width: var(--badge-size); height: var(--badge-size);
+    background: var(--badge-bg);
+    border: var(--badge-border);
+    border-radius: 50%;
+    display: {{BADGE_DISPLAY}};
+    align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .badge-value {
+    font-family: 'Bebas'; font-size: calc(var(--badge-size) * 0.3);
+    color: var(--badge-color); letter-spacing: 0;
+  }
+  .badge-unit {
+    font-family: 'Noto'; font-size: calc(var(--badge-size) * 0.12);
+    color: var(--badge-color); margin-top: -2px;
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <!-- 반짝이 장식 -->
+  <span class="sparkle sparkle-1">✦</span>
+  <span class="sparkle sparkle-2">✦</span>
+  <span class="sparkle sparkle-3">✦</span>
+  <span class="sparkle sparkle-4">✧</span>
+
+  <!-- 누끼 모델 -->
+  <img class="model-cutout" src="{{MODEL_PATH}}" id="model-img">
+
+  <!-- 텍스트 레이어 -->
+  <div class="subheadline" id="subheadline">{{SUBHEADLINE}}</div>
+  <div class="headline" id="headline">{{HEADLINE}}</div>
+  <div class="price-area">
+    <span class="price-value" id="price">{{PRICE}}</span>
+    <span class="price-unit">{{PRICE_UNIT}}</span>
+  </div>
+
+  <!-- 원형 가격 배지 -->
+  <div class="price-badge">
+    <span class="badge-value" id="badge-price">{{PRICE}}</span>
+    <span class="badge-unit">{{PRICE_UNIT}}</span>
+  </div>
+
+  <!-- 브랜드 -->
+  <div class="brand" id="brand-en">{{BRAND_EN}}</div>
+</body>
+</html>

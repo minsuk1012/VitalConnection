@@ -17,7 +17,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-  return NextResponse.next()
+  // pathname을 헤더로 전달 (레이아웃에서 경로 기반 조건 처리용)
+  const response = NextResponse.next()
+  response.headers.set('x-pathname', pathname)
+  return response
 }
 
 export const config = {

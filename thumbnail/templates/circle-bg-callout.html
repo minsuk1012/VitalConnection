@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px; overflow: hidden; position: relative;
+    background: var(--bg-color);
+  }
+
+  /* 원형 마스크 래퍼 (모델이 원 밖으로 튀어나가지 않도록 잘라냄) */
+  .circle-mask-wrapper {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
+    clip-path: circle(calc(var(--circle-size) / 2) at 50% calc(var(--circle-top) + var(--circle-size) / 2));
+  }
+
+  /* 장식 원 — 모델 뒤 */
+  .deco-circle {
+    position: absolute;
+    left: 50%; top: var(--circle-top);
+    transform: translateX(-50%);
+    width: var(--circle-size); height: var(--circle-size);
+    border-radius: 50%;
+    background: var(--circle-color);
+  }
+
+  /* 모델 */
+  .model {
+    position: absolute;
+    left: 50%; top: var(--model-top);
+    transform: translateX(-50%);
+    width: var(--model-width);
+    object-fit: contain;
+    object-position: center top;
+  }
+
+  /* 브랜드명 — 상단 중앙 */
+  .brand {
+    position: absolute;
+    left: 50%; top: var(--brand-top);
+    transform: translateX(-50%);
+    font-family: 'Noto'; font-size: var(--brand-size);
+    font-weight: 900; color: var(--brand-color);
+    letter-spacing: 2px; white-space: nowrap;
+    z-index: 2;
+  }
+
+  /* 말풍선 callout — 우측 */
+  .callout {
+    position: absolute;
+    right: var(--callout-right); top: var(--callout-top);
+    background: var(--callout-bg);
+    border-radius: 12px;
+    padding: var(--callout-pad);
+    font-family: 'Noto'; font-size: var(--callout-size);
+    color: var(--callout-text-color);
+    line-height: 1.6; text-align: center;
+    font-weight: 700;
+    z-index: 2;
+    max-width: 220px;
+    display: {{SUB_DISPLAY}}
+  }
+  /* 말풍선 꼬리 */
+  .callout::before {
+    content: '';
+    position: absolute;
+    left: -10px; top: 50%;
+    transform: translateY(-50%);
+    border: 10px solid transparent;
+    border-right-color: var(--callout-bg);
+    border-left: 0;
+  }
+
+  /* 하단 텍스트 영역 */
+  .bottom-area {
+    position: absolute;
+    left: var(--text-left); bottom: var(--text-bottom);
+    z-index: 2;
+  }
+  .sub-headline {
+    font-family: 'Noto'; font-size: var(--sub-size);
+    color: var(--sub-color); margin-bottom: 4px;
+    display: {{TAGLINE_DISPLAY}}
+  }
+  .price-row {
+    display: flex; align-items: baseline; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .headline {
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); font-size: var(--headline-size);
+    font-weight: 900; color: var(--headline-color);
+    line-height: 1.05;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  .price {
+    font-family: 'Bebas'; font-size: var(--price-size);
+    color: var(--price-color); letter-spacing: 1px;
+    display: {{PRICE_DISPLAY}}
+  }
+  .price-unit {
+    font-family: 'Noto'; font-size: calc(var(--price-size) * 0.38);
+    color: var(--sub-color); vertical-align: middle; margin-left: 2px;
+  }
+
+  /* 하단 주석 */
+  .footnote {
+    position: absolute;
+    left: var(--text-left); bottom: var(--footnote-bottom);
+    font-family: 'Noto'; font-size: 14px;
+    color: var(--sub-color); opacity: 0.6; z-index: 2;
+    display: {{TAGLINE_DISPLAY}}
+  }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .model { opacity: var(--model-opacity, 1); filter: brightness(var(--model-brightness, 1)); }
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <div class="circle-mask-wrapper">
+    <div class="deco-circle"></div>
+    <img class="model" src="{{MODEL_PATH}}" id="model-img">
+  </div>
+
+  <div class="brand" id="brand-en">{{BRAND_EN}}</div>
+
+  <div class="callout" id="subheadline">{{SUBHEADLINE}}</div>
+
+  <div class="bottom-area">
+    <div class="sub-headline" id="tagline">{{TAGLINE}}</div>
+    <div class="price-row">
+      <span class="headline" id="headline">{{HEADLINE}}</span>
+      <span class="price" id="price">{{PRICE}}<span class="price-unit">{{PRICE_UNIT}}</span></span>
+    </div>
+  </div>
+
+  <div class="footnote" id="badge">{{BADGE_TEXT}}</div>
+</body>
+</html>

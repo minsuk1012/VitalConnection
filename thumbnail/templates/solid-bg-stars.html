@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  @font-face { font-family: 'Bebas'; src: url('{{FONTS_DIR}}/BebasNeue-Regular.ttf'); }
+  @font-face { font-family: 'Noto'; src: url('{{FONTS_DIR}}/NotoSansKR.ttf'); }
+  @font-face { font-family: 'NotoSerif'; src: url('{{FONTS_DIR}}/NotoSerif-Regular.ttf'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden; position: relative;
+    background: var(--bg-color, #705BFC);
+  }
+
+  /* 배경 매시브 스타 패턴 */
+  .star-bg {
+    position: absolute;
+    background: var(--star-color, rgba(255,255,255,0.05));
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    z-index: 1; pointer-events: none;
+  }
+  .star-bg-3 { width: 180px; height: 180px; top: 120px; right: 120px; transform: rotate(25deg); opacity: 0.4; }
+
+  /* 4포인트 작은 별 (반짝임) */
+  .four-point-star {
+    position: absolute; width: 80px; height: 80px; z-index: 2;
+    background: var(--star-color, rgba(255,255,255,0.15));
+    clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+  }
+  .fp-1 { top: 120px; left: 180px; transform: scale(1.0); }
+  .fp-2 { bottom: 350px; right: 80px; transform: scale(0.6); }
+  .fp-3 { bottom: 200px; left: 350px; transform: scale(0.8); }
+
+  /* 모델 */
+  .model-cutout {
+    position: absolute; right: -30px; bottom: 0;
+    width: 600px; height: 1000px;
+    object-fit: contain; object-position: bottom center; z-index: 10;
+  }
+
+  /* 거대 텍스트 레이어 */
+  .text-layer {
+    position: absolute; z-index: 20;
+    left: 40px; top: 100px; width: 1000px;
+  }
+  .subheadline {
+    font-family: 'NotoSerif', serif; font-size: 50px; color: var(--text-color);
+    margin-bottom: 20px; font-weight: bold; opacity: 0.9;
+    rotate: var(--sub-rotation, 0deg);
+    margin-top: var(--sub-margin-top, 0px);}
+  .headline {
+    font-family: 'Bebas', 'Noto', sans-serif; font-size: var(--headline-size, 170px);
+    color: var(--text-color); font-weight: 900; line-height: 0.95;
+    letter-spacing: -3px; text-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    -webkit-text-stroke: var(--stroke-width, 4px) var(--stroke-color, var(--text-color));
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  .price {
+    margin-top: 150px; display: {{PRICE_DISPLAY}}
+  }
+  .price-value {
+    font-family: 'Bebas', 'Noto', sans-serif; font-size: var(--price-size, 150px);
+    color: var(--accent-color, #FFE600); font-weight: 900; letter-spacing: -2px;
+    text-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  }
+  .price-unit {
+    font-family: 'Noto', sans-serif; font-size: 60px; color: var(--text-color);
+    font-weight: bold; opacity: 0.8; margin-left: 10px;
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <!-- 별 장식 배경 -->
+  <div class="star-bg star-bg-3"></div>
+
+  <div class="four-point-star fp-1"></div>
+  <div class="four-point-star fp-2"></div>
+  <div class="four-point-star fp-3"></div>
+
+  <img class="model-cutout" src="{{MODEL_PATH}}">
+
+  <div class="text-layer">
+    <div class="subheadline">{{SUBHEADLINE}}</div>
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+    
+    <div class="price">
+      <span class="price-value">{{PRICE}}</span><span class="price-unit">{{PRICE_UNIT}}</span>
+    </div>
+  </div>
+</body>
+</html>

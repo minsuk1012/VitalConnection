@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden; position: relative;
+    background: var(--bg-color);
+  }
+
+  /* 배경 — 좌측 약한 그라디언트 깊이감 */
+  body::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.04) 0%, transparent 50%);
+    z-index: 0; pointer-events: none;
+  }
+
+  /* ── 카드 — 반대 방향 기울기 (+1.5deg) + 고급 부유 ── */
+
+  /* 소프트 드롭 섀도우 */
+  .card-shadow {
+    position: absolute;
+    left: var(--card-left); top: var(--card-top);
+    width: var(--card-width); height: var(--card-height);
+    background: rgba(0,0,0,0.18);
+    transform: rotate(1.5deg) translate(0, 24px) scaleX(0.96);
+    transform-origin: center center;
+    filter: blur(32px);
+    z-index: 2;
+  }
+
+  /* 카드 흰 테두리 (액자 효과) */
+  .card-border {
+    position: absolute;
+    left: var(--card-left); top: var(--card-top);
+    width: var(--card-width); height: var(--card-height);
+    border: 8px solid white;
+    transform: rotate(1.5deg);
+    transform-origin: center center;
+    z-index: 6;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  }
+
+  /* 카드 코너 브래킷 — 좌상단 */
+  .card-border::before {
+    content: '';
+    position: absolute;
+    top: -16px; left: -16px;
+    width: 36px; height: 36px;
+    border-top: 3px solid var(--accent-color);
+    border-left: 3px solid var(--accent-color);
+  }
+  /* 카드 코너 브래킷 — 우하단 */
+  .card-border::after {
+    content: '';
+    position: absolute;
+    bottom: -16px; right: -16px;
+    width: 36px; height: 36px;
+    border-bottom: 3px solid var(--accent-color);
+    border-right: 3px solid var(--accent-color);
+  }
+
+  /* 카드 본체 */
+  .card {
+    position: absolute;
+    left: var(--card-left); top: var(--card-top);
+    width: var(--card-width); height: var(--card-height);
+    overflow: hidden;
+    transform: rotate(1.5deg);
+    transform-origin: center center;
+    z-index: 4;
+  }
+  .model {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    display: block;
+  }
+  /* 카드 하단 그라디언트 — 헤드라인 가독성 */
+  .card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0.15) 35%,
+      transparent 60%
+    );
+  }
+
+  /* ── 브랜드 — 우상단 ── */
+  .brand {
+    position: absolute;
+    top: 52px; right: 60px;
+    z-index: 10;
+    text-align: right;
+  }
+  .brand-icon {
+    font-size: 18px;
+    color: var(--accent-color);
+    display: block;
+    margin-bottom: 5px;
+    opacity: 0.8;
+  }
+  .brand-en {
+    font-family: 'Bebas';
+    font-size: var(--brand-size);
+    color: var(--text-color);
+    letter-spacing: 5px;
+    line-height: 1;
+  }
+  .brand-ko {
+    font-family: 'Noto';
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.35;
+    letter-spacing: 3px;
+    margin-top: 5px;
+    display: {{BRAND_KO_DISPLAY}}
+  }
+
+  /* 브랜드 하단 가는 선 */
+  .brand-line {
+    position: absolute;
+    top: 140px; right: 60px;
+    width: 80px; height: 1px;
+    background: var(--accent-color);
+    opacity: 0.5;
+    z-index: 10;
+  }
+
+  /* ── 헤드라인 블록 — 카드 위로 겹침 ── */
+  .text-block {
+    position: absolute;
+    left: var(--text-left);
+    top: var(--text-top);
+    width: var(--text-width);
+    z-index: 20;
+  }
+  .subheadline {
+    font-family: 'NotoSerif', serif;
+    font-size: var(--sub-size);
+    color: white;
+    opacity: 0.85;
+    letter-spacing: 1px;
+    font-style: italic;
+    margin-bottom: 12px;
+    display: {{SUB_DISPLAY}};
+    rotate: var(--sub-rotation, 0deg);
+    margin-top: var(--sub-margin-top, 0px);
+  }
+  .headline {
+    font-family: 'Bebas', 'Noto', sans-serif;
+    font-weight: 800;
+    font-size: var(--headline-size);
+    color: white;
+    line-height: 0.95;
+    letter-spacing: 1px;
+    word-break: keep-all;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 8px 30px rgba(0,0,0,0.5);
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+
+  /* ── 가격 — 우하단 ── */
+  .price-area {
+    position: absolute;
+    right: 60px; bottom: 68px;
+    z-index: 20;
+    text-align: right;
+    display: {{PRICE_DISPLAY}}
+  }
+  .price-value {
+    font-family: 'Bebas', 'Noto', sans-serif;
+    font-weight: bold;
+    font-size: var(--price-size);
+    color: var(--text-color);
+    line-height: 1;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .price-unit {
+    font-family: 'Noto';
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--text-color);
+    opacity: 0.6;
+    letter-spacing: 1px;
+    margin-left: 5px;
+  }
+
+  /* ── 태그라인 — 좌하단 ── */
+  .tagline {
+    position: absolute;
+    left: 60px; bottom: 80px;
+    z-index: 20;
+    font-family: 'Noto'; font-size: 13px;
+    color: var(--bg-color);
+    background: var(--accent-color);
+    padding: 7px 16px;
+    letter-spacing: 1px;
+    display: {{TAGLINE_DISPLAY}}}};
+    rotate: var(--tagline-rotation, 0deg);
+    bottom: var(--tagline-bottom, 80px);
+    left: var(--tagline-left, 60px);
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+  .tagline { rotate: var(--tagline-rotation, 0deg); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .model { opacity: var(--model-opacity, 1); filter: brightness(var(--model-brightness, 1)); }
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <div class="card-shadow"></div>
+  <div class="card">
+    <img class="model" src="{{MODEL_PATH}}" id="model-img">
+  </div>
+  <div class="card-border"></div>
+
+  <div class="brand">
+    <div class="brand-en" id="brand-en">{{BRAND_EN}}</div>
+    <div class="brand-ko" id="brand-ko">{{BRAND_KO}}</div>
+  </div>
+  <div class="brand-line"></div>
+
+  <div class="text-block">
+    <div class="subheadline" id="subheadline">{{SUBHEADLINE}}</div>
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+  </div>
+
+  <div class="price-area">
+    <span class="price-value" id="price">{{PRICE}}</span>
+    <span class="price-unit">{{PRICE_UNIT}}</span>
+  </div>
+
+  <div class="tagline" id="tagline">{{TAGLINE}}</div>
+</body>
+</html>

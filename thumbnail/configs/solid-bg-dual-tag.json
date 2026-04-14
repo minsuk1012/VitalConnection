@@ -1,0 +1,395 @@
+{
+  "layout": "solid-bg-dual-tag",
+  "vars": {
+    "bg-color": "#FFD84D",
+    "model-opacity": "1",
+    "brand-v-left": "-80px",
+    "brand-v-size": "26px",
+    "brand-v-color": "#333333",
+    "tag-left-x": "52px",
+    "tag-right-x": "52px",
+    "tag-top": "52px",
+    "tag-size": "26px",
+    "tag-color": "#333333",
+    "headline-left": "36px",
+    "headline-bottom": "80px",
+    "headline-size": "148px",
+    "headline-color": "#111111",
+    "badge-right": "52px",
+    "badge-top": "440px",
+    "badge-size": "180px",
+    "badge-color": "#FF6B35",
+    "headline-font": "Noto",
+    "headline-style": "normal",
+    "headline-letter-spacing": "0px",
+    "model-width": "700px",
+    "model-offset-x": "-10%",
+    "headline-rotation": "0deg",
+    "headline-max-width": "var(--headline-max-width, 900px)",
+    "model-z-index": "1",
+    "text-z-index": "10",
+    "badge-z-index": "12",
+    "model-brightness": "1",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "폰트",
+      "items": [
+        {
+          "var": "headline-font",
+          "label": "헤드라인 폰트",
+          "type": "select",
+          "options": [
+            {
+              "value": "Noto",
+              "label": "Noto Sans KR"
+            },
+            {
+              "value": "Pretendard",
+              "label": "Pretendard Bold"
+            },
+            {
+              "value": "BlackHan",
+              "label": "Black Han Sans"
+            },
+            {
+              "value": "Bebas",
+              "label": "Bebas Neue"
+            },
+            {
+              "value": "Montserrat",
+              "label": "Montserrat"
+            },
+            {
+              "value": "Playfair",
+              "label": "Playfair Display"
+            },
+            {
+              "value": "PlayfairI",
+              "label": "Playfair Italic"
+            },
+            {
+              "value": "NotoSerif",
+              "label": "Noto Serif"
+            },
+            {
+              "value": "Anton",
+              "label": "Anton (영문 임팩트)"
+            },
+            {
+              "value": "Oswald",
+              "label": "Oswald (영문 압축)"
+            },
+            {
+              "value": "Cormorant",
+              "label": "Cormorant (럭셔리 세리프)"
+            },
+            {
+              "value": "NanumGothic",
+              "label": "나눔고딕"
+            },
+            {
+              "value": "GmarketSans",
+              "label": "지마켓 산스 (트렌디)"
+            },
+            {
+              "value": "NanumSquare",
+              "label": "나눔스퀘어 (모던)"
+            },
+            {
+              "value": "NanumRound",
+              "label": "나눔스퀘어라운드 (부드러운)"
+            }
+          ]
+        },
+        {
+          "var": "headline-style",
+          "label": "기울이기",
+          "type": "select",
+          "options": [
+            {
+              "value": "normal",
+              "label": "보통"
+            },
+            {
+              "value": "italic",
+              "label": "이탤릭"
+            }
+          ]
+        },
+        {
+          "var": "headline-letter-spacing",
+          "label": "자간",
+          "type": "range",
+          "min": -4,
+          "max": 20,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "배경/모델",
+      "items": [
+        {
+          "var": "bg-color",
+          "label": "배경 색상",
+          "type": "color"
+        },
+        {
+          "var": "model-width",
+          "label": "모델 너비",
+          "type": "range",
+          "min": 300,
+          "max": 1000,
+          "unit": "px"
+        },
+        {
+          "var": "model-offset-x",
+          "label": "모델 좌우 이동",
+          "type": "range",
+          "min": -50,
+          "max": 50,
+          "unit": "%"
+        },
+        {
+          "var": "model-opacity",
+          "label": "모델 불투명도",
+          "type": "range",
+          "min": 0.1,
+          "max": 1.0,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "상단 태그라인",
+      "items": [
+        {
+          "var": "tag-top",
+          "label": "상단 위치",
+          "type": "range",
+          "min": 0,
+          "max": 300,
+          "unit": "px"
+        },
+        {
+          "var": "tag-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 12,
+          "max": 48,
+          "unit": "px"
+        },
+        {
+          "var": "tag-color",
+          "label": "색상",
+          "type": "color"
+        },
+        {
+          "var": "tag-left-x",
+          "label": "좌측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 400,
+          "unit": "px"
+        },
+        {
+          "var": "tag-right-x",
+          "label": "우측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 400,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "세로 브랜드명",
+      "items": [
+        {
+          "var": "brand-v-left",
+          "label": "좌측 위치",
+          "type": "range",
+          "min": -200,
+          "max": 200,
+          "unit": "px"
+        },
+        {
+          "var": "brand-v-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 12,
+          "max": 48,
+          "unit": "px"
+        },
+        {
+          "var": "brand-v-color",
+          "label": "색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인",
+      "items": [
+        {
+          "var": "headline-left",
+          "label": "좌측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 400,
+          "unit": "px"
+        },
+        {
+          "var": "headline-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": 0,
+          "max": 400,
+          "unit": "px"
+        },
+        {
+          "var": "headline-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 36,
+          "max": 180,
+          "unit": "px"
+        },
+        {
+          "var": "headline-color",
+          "label": "색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "가격 배지",
+      "items": [
+        {
+          "var": "badge-right",
+          "label": "우측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 600,
+          "unit": "px"
+        },
+        {
+          "var": "badge-top",
+          "label": "상단 위치",
+          "type": "range",
+          "min": 0,
+          "max": 900,
+          "unit": "px"
+        },
+        {
+          "var": "badge-size",
+          "label": "크기",
+          "type": "range",
+          "min": 60,
+          "max": 400,
+          "unit": "px"
+        },
+        {
+          "var": "badge-color",
+          "label": "색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "레이어 순서",
+      "items": [
+        {
+          "var": "model-z-index",
+          "label": "모델 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "text-z-index",
+          "label": "텍스트 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "badge-z-index",
+          "label": "배지 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "group": "모델",
+      "items": [
+        {
+          "var": "model-opacity",
+          "label": "모델 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        },
+        {
+          "var": "model-brightness",
+          "label": "모델 밝기",
+          "type": "range",
+          "min": 0.3,
+          "max": 2,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    }
+  ]
+}

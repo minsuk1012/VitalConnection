@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; overflow: hidden; position: relative; }
+
+  .model {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: var(--model-x) var(--model-y);
+  }
+  /* 하단 그라디언트 */
+  .gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent var(--grad-start),
+      rgba(0,0,0,var(--grad-opacity)) 100%
+    );
+  }
+  /* 세로 액센트 라인 */
+  .accent-line {
+    position: absolute;
+    left: var(--line-x);
+    top: var(--line-top);
+    bottom: var(--line-bottom);
+    width: var(--line-width);
+    background: var(--line-color);
+    border-radius: 2px;
+    display: var(--line-display);
+  }
+  /* 텍스트 컨테이너 — headline 위, sub 아래 순서 */
+  .text-wrap {
+    position: absolute;
+    left: var(--text-left);
+    bottom: var(--text-bottom);
+    max-width: var(--text-max-width);
+    display: flex;
+    flex-direction: column;
+    gap: var(--text-gap);
+  }
+  .headline {
+    font-family: var(--headline-font, 'Noto');
+    font-size: var(--headline-size);
+    font-weight: 900;
+    font-style: var(--headline-style, normal);
+    color: var(--headline-color);
+    line-height: var(--headline-line-height);
+    letter-spacing: var(--headline-letter-spacing);
+    word-break: keep-all;
+    text-shadow: var(--text-shadow);
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  /* 서브헤드 — 헤드라인 아래 */
+  .sub {
+    font-family: var(--headline-font, 'Noto');
+    font-size: var(--sub-size);
+    color: var(--headline-color);
+    opacity: 0.75;
+    letter-spacing: 1px;
+    display: {{SUB_DISPLAY}};
+    text-shadow: var(--text-shadow);
+  }
+  /* 브랜드 */
+  .brand {
+    position: absolute;
+    right: var(--brand-right);
+    bottom: var(--brand-bottom);
+    font-family: 'Bebas';
+    font-size: var(--brand-size);
+    color: var(--headline-color);
+    opacity: var(--brand-opacity);
+    letter-spacing: 2px;
+  }
+
+  /* 원형 가격 배지 */
+  .price-badge {
+    position: absolute;
+    right: var(--badge-right);
+    bottom: var(--badge-bottom);
+    width: var(--badge-size);
+    height: var(--badge-size);
+    border-radius: 50%;
+    background: var(--badge-color);
+    display: {{BADGE_DISPLAY}};
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .badge-value {
+    font-family: 'Bebas';
+    font-size: calc(var(--badge-size) * 0.3);
+    color: white;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .badge-unit {
+    font-family: 'Noto';
+    font-size: calc(var(--badge-size) * 0.14);
+    color: white;
+    margin-top: 2px;
+  }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .model { opacity: var(--model-opacity, 1); filter: brightness(var(--model-brightness, 1)); }
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <img class="model" src="{{MODEL_PATH}}" id="model-img">
+  <div class="gradient"></div>
+  <div class="accent-line"></div>
+  <div class="text-wrap">
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+    <div class="sub" id="subheadline">{{SUBHEADLINE}}</div>
+  </div>
+  <div class="brand" id="brand-en">{{BRAND_EN}}</div>
+  <div class="price-badge">
+    <span class="badge-value" id="price">{{PRICE}}</span>
+    <span class="badge-unit">{{PRICE_UNIT}}</span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+[
+  {
+    "id": "dewy-glow",
+    "label": "Dewy Glow",
+    "procedures": ["스킨부스터", "물광주사", "리쥬란", "엑소좀", "영양주사", "줄기세포", "피부관리", "스킨케어"],
+    "variants": [
+      {
+        "id": "dewy-glow-1",
+        "prompt": "a 20s Korean beauty model, dewy glowing glass skin with visible moisture, gentle smile, looking directly at camera, close-up beauty shot, bare shoulders, minimal natural makeup, soft pink pastel background, high-end studio lighting, fashion editorial style, 1:1 square, ultra high resolution, photorealistic",
+        "bgColor": "#F9C6D0"
+      },
+      {
+        "id": "dewy-glow-2",
+        "prompt": "a 20s Korean beauty model, luminous hydrated skin with subtle shimmer, hair elegantly pinned up revealing neck, looking slightly upward, beauty close-up shot, peach warm background, soft diffused studio light, fresh dewy complexion, photorealistic, 1:1 square",
+        "bgColor": "#FDDBB4"
+      },
+      {
+        "id": "dewy-glow-3",
+        "prompt": "a 20s Korean beauty model, glass skin effect with golden hour glow, side-lit portrait, serene expression, cream ivory background, natural no-makeup look, high resolution beauty editorial, photorealistic, 1:1 square",
+        "bgColor": "#FFF5E4"
+      }
+    ]
+  },
+  {
+    "id": "clear-tone",
+    "label": "Clear Tone",
+    "procedures": ["레이저토닝", "기미치료", "색소치료", "홍조", "모공", "여드름", "흉터", "피코토닝"],
+    "variants": [
+      {
+        "id": "clear-tone-1",
+        "prompt": "a 20s Korean beauty model, porcelain even skin tone with zero visible pores, minimal fresh makeup, slight head tilt, beauty close-up shot, pure white background, soft diffused studio lighting, ultra smooth flawless complexion, photorealistic, 1:1 square",
+        "bgColor": "#FFFFFF"
+      },
+      {
+        "id": "clear-tone-2",
+        "prompt": "a 20s Korean beauty model, perfectly uniform bright skin tone, 3/4 angle, serene expression, light ivory background, highlighting smooth forehead and clear cheeks, beauty editorial, photorealistic, 1:1 square",
+        "bgColor": "#FAF7F0"
+      },
+      {
+        "id": "clear-tone-3",
+        "prompt": "a 20s Korean beauty model, spotless radiant skin, downward gaze with long lashes, light beige background, beauty shot emphasizing even complexion and smooth texture, soft natural lighting, photorealistic, 1:1 square",
+        "bgColor": "#F5ECD7"
+      }
+    ]
+  },
+  {
+    "id": "vline-sharp",
+    "label": "V-Line Sharp",
+    "procedures": ["써마지", "울쎄라", "실리프팅", "사각턱보톡스", "안면윤곽", "리프팅보톡스", "리프팅"],
+    "variants": [
+      {
+        "id": "vline-sharp-1",
+        "prompt": "a 25s Korean beauty model, sharp defined V-shaped jawline and slim face, 3/4 angle portrait, chin slightly lifted, sleek straight dark hair, light silver gray background, directional studio lighting emphasizing face contour and jawline, photorealistic, 1:1 square",
+        "bgColor": "#E8E8E8"
+      },
+      {
+        "id": "vline-sharp-2",
+        "prompt": "a 25s Korean beauty model, elegant side profile with sharp chin line and elongated neck, looking to the side, cool toned light background, studio rim lighting highlighting jawline definition, photorealistic, 1:1 square",
+        "bgColor": "#ECECEC"
+      },
+      {
+        "id": "vline-sharp-3",
+        "prompt": "a 25s Korean beauty model, defined cheekbones and slim V-line jaw, slight upward angle, confident expression, soft warm gray background, beauty editorial lighting, photorealistic, 1:1 square",
+        "bgColor": "#E0DDD8"
+      }
+    ]
+  },
+  {
+    "id": "lip-gloss",
+    "label": "Lip Gloss",
+    "procedures": ["입술필러", "코필러", "입꼬리보톡스", "애교필러", "눈밑필러"],
+    "variants": [
+      {
+        "id": "lip-gloss-1",
+        "prompt": "a 20s Korean beauty model, glossy plump lips with soft pink tint, lips slightly parted, lower face and lip focus beauty shot, vibrant pink background, studio beauty lighting, high resolution, photorealistic, 1:1 square",
+        "bgColor": "#F9A8C9"
+      },
+      {
+        "id": "lip-gloss-2",
+        "prompt": "a 20s Korean beauty model, applying lip gloss with fingertip, coral pink glossy lips close-up, rose pink background, playful yet elegant expression, beauty editorial style, photorealistic, 1:1 square",
+        "bgColor": "#F4A0B0"
+      },
+      {
+        "id": "lip-gloss-3",
+        "prompt": "a 20s Korean beauty model, full glossy lips in soft rose, side profile emphasizing lip shape, warm pink background, soft studio lighting, photorealistic, 1:1 square",
+        "bgColor": "#F7B8C2"
+      }
+    ]
+  },
+  {
+    "id": "bold-eye",
+    "label": "Bold Eye",
+    "procedures": ["쌍꺼풀", "눈매교정", "아이리쥬란", "눈밑지방제거", "상안검", "하안검"],
+    "variants": [
+      {
+        "id": "bold-eye-1",
+        "prompt": "a 20s Korean beauty model, dramatic double eyelids with intense direct gaze, defined eye makeup with dark lashes, close-up eye-level portrait, soft lavender background, contrast studio lighting, photorealistic, 1:1 square",
+        "bgColor": "#D8C9E8"
+      },
+      {
+        "id": "bold-eye-2",
+        "prompt": "a 20s Korean beauty model, striking eyes with sharp defined eye contour, looking directly into camera, deep blue background, smoky subtle eye makeup, fashion editorial lighting, photorealistic, 1:1 square",
+        "bgColor": "#B0C4DE"
+      },
+      {
+        "id": "bold-eye-3",
+        "prompt": "a 20s Korean beauty model, extreme close-up of one eye showing bright clear eye with long lashes and smooth under-eye skin, purple toned background, high resolution macro beauty shot, photorealistic, 1:1 square",
+        "bgColor": "#C4A8D4"
+      }
+    ]
+  },
+  {
+    "id": "body-line",
+    "label": "Body Line",
+    "procedures": ["지방흡입", "체형관리", "바디리프팅", "제모", "바디보톡스", "바디써마지", "노블쉐이프"],
+    "variants": [
+      {
+        "id": "body-line-1",
+        "prompt": "a 20s Korean beauty model, slim toned body, medium shot from shoulders to waist, wearing white camisole, confident upright posture, pure white background, bright even studio lighting, photorealistic, 1:1 square",
+        "bgColor": "#FFFFFF"
+      },
+      {
+        "id": "body-line-2",
+        "prompt": "a 20s Korean beauty model, S-line slim silhouette, hands on waist pose, light purple background, showing shoulder and waist line, beauty body editorial, photorealistic, 1:1 square",
+        "bgColor": "#E8D5F0"
+      },
+      {
+        "id": "body-line-3",
+        "prompt": "a 20s Korean beauty model, smooth shoulder and back line, back turned slightly to camera, off-white background, elegant body line emphasis, soft studio lighting, photorealistic, 1:1 square",
+        "bgColor": "#F5F0E8"
+      }
+    ]
+  },
+  {
+    "id": "cutout-full",
+    "label": "Cutout Full Body",
+    "procedures": ["지방흡입", "체형관리", "바디리프팅", "제모", "바디보톡스", "실리프팅"],
+    "cutout": true,
+    "variants": [
+      {
+        "id": "cutout-full-1",
+        "prompt": "a 20s Korean beauty model, standing pose facing camera with gentle smile, wearing coral pink blouse and dark navy pants, arms relaxed at sides, solid flat sky blue background #87CEEB, clean studio lighting with no shadows on background, sharp subject edges, professional commercial photo, photorealistic, 1:1 square",
+        "bgColor": "#87CEEB"
+      },
+      {
+        "id": "cutout-full-2",
+        "prompt": "a 20s Korean beauty model, full length body shot from head to toe with feet fully visible in frame, standing three-quarter pose with confident smile, wearing vivid coral red mini dress, solid flat deep sky blue background #4FC3F7, bright even studio lighting, high contrast between subject and background, clean background with no gradients or shadows, sharp clean edges for cutout compositing, photorealistic, 1:1 square",
+        "bgColor": "#4FC3F7"
+      },
+      {
+        "id": "cutout-full-3",
+        "prompt": "a 20s Korean beauty model, full length body shot from head to toe with feet fully visible in frame, slight side angle, confident posture with hand on hip, wearing bright pink crop top and white wide-leg pants, solid flat lavender background #D8B4FE, flat even studio lighting, strong color contrast between outfit and background, no background shadows, crisp subject outline, commercial beauty photo, photorealistic, 1:1 square",
+        "bgColor": "#D8B4FE"
+      }
+    ]
+  },
+  {
+    "id": "cutout-half",
+    "label": "Cutout Half Body",
+    "procedures": ["필러", "보톡스", "스킨부스터", "리프팅", "피부관리", "입술필러"],
+    "cutout": true,
+    "variants": [
+      {
+        "id": "cutout-half-1",
+        "prompt": "a 20s Korean beauty model, upper body shot from waist up, cheerful expression looking at camera, both hands gently touching cheeks, wearing white off-shoulder top, solid flat coral pink background #FF8FAB, bright flat studio lighting, no shadows on background, clean sharp edges perfect for cutout compositing, photorealistic, 1:1 square",
+        "bgColor": "#FF8FAB"
+      },
+      {
+        "id": "cutout-half-2",
+        "prompt": "a 20s Korean beauty model, waist-up shot, elegant pose with one hand raised near face, soft smile, wearing vivid mint green fitted top, solid flat deep coral background #FF6B6B, diffused studio lighting, high contrast between subject and background, completely flat background, sharp crisp subject outline ideal for cutout, photorealistic, 1:1 square",
+        "bgColor": "#FF6B6B"
+      },
+      {
+        "id": "cutout-half-3",
+        "prompt": "a 20s Korean beauty model, half body shot, playful tilted head pose, bright smile showing teeth, wearing pastel pink oversized shirt, solid flat warm yellow background #FFE566, even bright studio lighting, no shadow or gradient on background, clean edges for cutout, photorealistic, 1:1 square",
+        "bgColor": "#FFE566"
+      }
+    ]
+  }
+]

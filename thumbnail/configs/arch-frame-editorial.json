@@ -1,0 +1,107 @@
+{
+  "layout": "arch-frame-editorial",
+  "vars": {
+    "bg-color": "#D35A34",
+    "text-color": "#FFF5EE",
+    "headline-size": "130px",
+    "price-size": "80px",
+    "headline-rotation": "0deg",
+    "headline-max-width": "var(--headline-max-width, 900px)",
+    "model-opacity": "1",
+    "model-brightness": "1",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "색상",
+      "items": [
+        {
+          "var": "bg-color",
+          "label": "배경 색상(피치/오렌지)",
+          "type": "color"
+        },
+        {
+          "var": "text-color",
+          "label": "텍스트 및 라인 색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "사이즈",
+      "items": [
+        {
+          "var": "headline-size",
+          "label": "헤드라인 크기",
+          "type": "range",
+          "min": 40,
+          "max": 150,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "모델",
+      "items": [
+        {
+          "var": "model-opacity",
+          "label": "모델 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        },
+        {
+          "var": "model-brightness",
+          "label": "모델 밝기",
+          "type": "range",
+          "min": 0.3,
+          "max": 2,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    }
+  ]
+}

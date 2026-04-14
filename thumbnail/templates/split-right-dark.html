@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; overflow: hidden; position: relative; background: #111; }
+
+  /* 모델 — 우측 */
+  .model {
+    position: absolute;
+    right: 0; top: 0;
+    width: var(--model-width); height: 100%;
+    object-fit: cover; object-position: left center;
+  }
+  /* 좌측 다크 패널 */
+  .panel {
+    position: absolute; left: 0; top: 0;
+    width: var(--panel-width); height: 100%;
+    background: var(--panel-color);
+    display: flex; flex-direction: column;
+    padding: var(--panel-pad);
+  }
+  /* 브랜드 */
+  .brand-ko {
+    font-family: 'Noto'; font-size: 12px;
+    color: rgba(255,255,255,0.5); margin-bottom: 2px;
+    display: {{BRAND_KO_DISPLAY}}
+  }
+  .brand-en {
+    font-family: 'Bebas'; font-size: var(--brand-size);
+    color: rgba(255,255,255,0.8); letter-spacing: 3px;
+  }
+  /* 액센트 라인 */
+  .accent-line {
+    width: var(--accent-width); height: var(--accent-height);
+    background: var(--accent-color); border-radius: 2px;
+    margin: var(--accent-margin) 0;
+  }
+  /* 서브헤드 */
+  .subheadline {
+    font-family: 'Noto'; font-size: var(--sub-size);
+    color: rgba(255,255,255,0.65); line-height: 1.55;
+    margin-bottom: 14px; display: {{SUB_DISPLAY}};
+    rotate: var(--sub-rotation, 0deg);
+    margin-top: var(--sub-margin-top, 0px);
+  }
+  /* 헤드라인 */
+  .headline {
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); font-size: var(--headline-size);
+    font-weight: 900; color: #fff;
+    line-height: var(--headline-line-height);
+    word-break: keep-all; margin-bottom: auto;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  /* 가격 — 하단 */
+  .price-area { margin-top: auto; display: {{PRICE_DISPLAY}}}}; }
+  .price-value {
+    font-family: 'Bebas'; font-size: var(--price-size);
+    color: var(--accent-color); letter-spacing: 1px;
+  }
+  .price-unit {
+    font-family: 'Noto'; font-size: calc(var(--price-size) * 0.35);
+    color: rgba(255,255,255,0.55); margin-left: 4px; vertical-align: middle;
+  }
+
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .model { opacity: var(--model-opacity, 1); filter: brightness(var(--model-brightness, 1)); }
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <img class="model" src="{{MODEL_PATH}}" id="model-img">
+  <div class="panel">
+    <div class="brand-ko" id="brand-ko">{{BRAND_KO}}</div>
+    <div class="brand-en" id="brand-en">{{BRAND_EN}}</div>
+    <div class="accent-line"></div>
+    <div class="subheadline" id="subheadline">{{SUBHEADLINE}}</div>
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+    <div class="price-area">
+      <div><span class="price-value" id="price">{{PRICE}}</span><span class="price-unit">{{PRICE_UNIT}}</span></div>
+    </div>
+  </div>
+</body>
+</html>

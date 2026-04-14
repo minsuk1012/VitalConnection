@@ -1,0 +1,581 @@
+{
+  "version": "1.0",
+  "templates": [
+    {
+      "id": "full-overlay-dark",
+      "name": "Dark Overlay",
+      "nameKo": "다크 오버레이",
+      "layout": "full-overlay",
+      "tone": "dark",
+      "priceStyle": "inline",
+      "tags": [
+        "dark",
+        "premium",
+        "price"
+      ],
+      "description": "어두운 그라디언트 + 하단 헤드라인 + 가격 대형 타이포",
+      "color": "#1a1a2e"
+    },
+    {
+      "id": "full-overlay-light",
+      "name": "Light Editorial",
+      "nameKo": "라이트 에디토리얼",
+      "layout": "full-overlay",
+      "tone": "light",
+      "priceStyle": "none",
+      "tags": [
+        "light",
+        "minimal",
+        "editorial",
+        "hashtag"
+      ],
+      "description": "밝은 배경 + 해시태그 스타일 캡션, 미니멀",
+      "color": "#f0ede8"
+    },
+    {
+      "id": "full-overlay-gradient",
+      "name": "Gradient Overlay",
+      "nameKo": "그라디언트 오버레이",
+      "layout": "full-overlay",
+      "tone": "bold",
+      "priceStyle": "inline",
+      "tags": [
+        "gradient",
+        "bold",
+        "price",
+        "color"
+      ],
+      "description": "단색 그라디언트 오버레이 + 좌측 텍스트 스택 + 가격",
+      "color": "#ff6b35"
+    },
+    {
+      "id": "full-overlay-left-fade",
+      "name": "Left Fade",
+      "nameKo": "좌측 페이드",
+      "layout": "full-overlay",
+      "tone": "dark",
+      "priceStyle": "inline",
+      "tags": [
+        "fade",
+        "split-light",
+        "price"
+      ],
+      "description": "좌측 어두운 그라디언트 페이드 + 텍스트, 모델 우측 노출",
+      "color": "#2d2d2d"
+    },
+    {
+      "id": "left-split",
+      "name": "Left Split",
+      "nameKo": "좌측 패널",
+      "layout": "split",
+      "tone": "light",
+      "priceStyle": "none",
+      "tags": [
+        "split",
+        "panel",
+        "clean"
+      ],
+      "description": "좌측 밝은 패널 + 텍스트, 모델 우측",
+      "color": "#ffffff"
+    },
+    {
+      "id": "full-overlay",
+      "name": "Price Badge",
+      "nameKo": "가격 배지",
+      "layout": "full-overlay",
+      "tone": "bold",
+      "priceStyle": "badge",
+      "tags": [
+        "badge",
+        "price",
+        "color"
+      ],
+      "description": "풀블리드 + 원형 가격 배지 목록",
+      "color": "#ff6b9d"
+    },
+    {
+      "id": "minimal-editorial",
+      "name": "Minimal Editorial",
+      "nameKo": "미니멀 에디토리얼",
+      "layout": "full-overlay",
+      "tone": "minimal",
+      "priceStyle": "none",
+      "tags": [
+        "minimal",
+        "accent-line",
+        "premium"
+      ],
+      "description": "세로 액센트 라인 + 하단 대형 시술명",
+      "color": "#e8c4a0"
+    },
+    {
+      "id": "solid-bg-cutout",
+      "name": "Solid BG + Cutout",
+      "nameKo": "누끼 합성",
+      "layout": "solid-bg",
+      "tone": "bold",
+      "priceStyle": "badge",
+      "tags": [
+        "cutout",
+        "solid-bg",
+        "gradient",
+        "badge",
+        "sparkle"
+      ],
+      "description": "단색/그라디언트 배경 + 누끼 모델 + 원형 배지 (쥬비덤/아띠에르 스타일)",
+      "color": "#FFBDCD",
+      "requiresCutout": true
+    },
+    {
+      "id": "split-right-light",
+      "name": "Split Right Light",
+      "nameKo": "라이트 스플릿",
+      "layout": "split",
+      "tone": "light",
+      "priceStyle": "inline",
+      "tags": [
+        "split",
+        "panel",
+        "price",
+        "clean"
+      ],
+      "description": "밝은 좌측 패널 + 텍스트+가격, 모델 우측",
+      "color": "#FDF6F0"
+    },
+    {
+      "id": "split-right-dark",
+      "name": "Split Right Dark",
+      "nameKo": "다크 스플릿",
+      "layout": "split",
+      "tone": "dark",
+      "priceStyle": "inline",
+      "tags": [
+        "split",
+        "panel",
+        "dark",
+        "price",
+        "premium"
+      ],
+      "description": "다크 좌측 패널 + 화이트 텍스트+가격, 모델 우측",
+      "color": "#1A1A2E"
+    },
+    {
+      "id": "diagonal-split",
+      "name": "Diagonal Split",
+      "nameKo": "대각선 분할",
+      "layout": "diagonal",
+      "tone": "dark",
+      "priceStyle": "none",
+      "tags": [
+        "diagonal",
+        "premium",
+        "dark"
+      ],
+      "description": "대각선 어두운 패널 + 영문 헤드라인",
+      "color": "#2c1a0e"
+    },
+    {
+      "id": "solid-bg-stacked",
+      "name": "Solid BG Stacked",
+      "nameKo": "단색 배경 스택",
+      "layout": "solid-bg",
+      "tone": "bold",
+      "priceStyle": "inline",
+      "tags": [
+        "solid",
+        "stacked",
+        "price",
+        "color"
+      ],
+      "description": "단색 배경 + 모델 우측 + 좌측 텍스트/가격 세로 스택 (울쎄라 스타일)",
+      "color": "#F5A623",
+      "requiresCutout": true
+    },
+    {
+      "id": "bottom-banner",
+      "name": "Bottom Banner",
+      "nameKo": "하단 배너",
+      "layout": "bottom-banner",
+      "tone": "bold",
+      "priceStyle": "inline",
+      "tags": [
+        "banner",
+        "bottom",
+        "price"
+      ],
+      "description": "모델 상단 + 하단 색상 배너 + 시술명/가격",
+      "color": "#FF6B9D"
+    },
+    {
+      "id": "bottom-banner-circle",
+      "name": "Circle + Banner",
+      "nameKo": "원형+배너",
+      "layout": "bottom-banner",
+      "tone": "bold",
+      "priceStyle": "inline",
+      "tags": [
+        "circle",
+        "banner",
+        "bottom",
+        "price"
+      ],
+      "description": "원형 클립 모델 + 하단 배너 (볼뉴머 스타일)",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "center-frame-circle",
+      "name": "Circle Frame",
+      "nameKo": "원형 프레임",
+      "layout": "frame",
+      "tone": "soft",
+      "priceStyle": "inline",
+      "tags": [
+        "circle",
+        "frame",
+        "center",
+        "soft"
+      ],
+      "description": "원형 프레임 안에 모델, 상하단 텍스트/가격",
+      "color": "#FF6B9D"
+    },
+    {
+      "id": "card-frame-white",
+      "name": "Card Frame (Light)",
+      "nameKo": "카드 프레임 라이트",
+      "layout": "frame",
+      "tone": "bold",
+      "priceStyle": "inline",
+      "tags": [
+        "card",
+        "frame",
+        "split",
+        "bold"
+      ],
+      "description": "단색 배경 + 흰 카드 (모델) + 우측 텍스트/가격 (옴므쁘띠 스타일)",
+      "color": "#C0392B"
+    },
+    {
+      "id": "card-frame-dark",
+      "name": "Card Frame (Dark)",
+      "nameKo": "카드 프레임 다크",
+      "layout": "frame",
+      "tone": "dark",
+      "priceStyle": "inline",
+      "tags": [
+        "card",
+        "frame",
+        "dark",
+        "premium"
+      ],
+      "description": "어두운 배경 + 흰 카드 모델 + 우측 텍스트",
+      "color": "#8B1A1A"
+    },
+    {
+      "id": "text-only-minimal",
+      "name": "Text Only Minimal",
+      "nameKo": "텍스트 전용 미니멀",
+      "layout": "text-only",
+      "tone": "minimal",
+      "priceStyle": "inline",
+      "tags": [
+        "text-only",
+        "minimal",
+        "hashtag",
+        "clean"
+      ],
+      "description": "인물 없음, 단색 배경 + 해시태그 + 헤드라인 + 가격 (루미에의원 스타일)",
+      "color": "#8B6914"
+    },
+    {
+      "id": "text-only-bold",
+      "name": "Text Only Bold",
+      "nameKo": "텍스트 전용 임팩트",
+      "layout": "text-only",
+      "tone": "dark",
+      "priceStyle": "inline",
+      "tags": [
+        "text-only",
+        "bold",
+        "dark",
+        "impact"
+      ],
+      "description": "인물 없음, 다크 배경 + 초대형 헤드라인 + 초대형 가격",
+      "color": "#0A0A0A"
+    },
+    {
+      "id": "gradient-dual-circle",
+      "name": "Gradient Dual Circle",
+      "nameKo": "그라디언트 듀얼 원형",
+      "layout": "gradient-bg",
+      "tone": "bold",
+      "priceStyle": "none",
+      "tags": [
+        "gradient",
+        "circle",
+        "dual",
+        "sparkle",
+        "deco"
+      ],
+      "description": "그라디언트 배경 + 원형 2개(대+소 겹침) + 장식 (맥스웨이브 스타일)",
+      "color": "#FF6B9D"
+    },
+    {
+      "id": "circle-bg-callout",
+      "name": "Circle BG Callout",
+      "nameKo": "원형 배경 말풍선",
+      "layout": "solid-bg",
+      "tone": "soft",
+      "priceStyle": "inline",
+      "tags": [
+        "circle",
+        "callout",
+        "speech-bubble",
+        "cutout",
+        "price"
+      ],
+      "description": "파스텔 단색 배경 + 장식 원 + 말풍선 callout + 하단 시술명+가격 (슈링크 스타일)",
+      "color": "#FFCDD8",
+      "requiresCutout": true
+    },
+    {
+      "id": "solid-bg-dual-tag",
+      "name": "Solid BG Dual Tag",
+      "nameKo": "단색 배경 듀얼 태그",
+      "layout": "solid-bg",
+      "tone": "bold",
+      "priceStyle": "badge",
+      "tags": [
+        "solid",
+        "dual-tag",
+        "vertical-brand",
+        "badge",
+        "price"
+      ],
+      "description": "단색 배경 + 상단 좌우 태그라인 + 세로 브랜드명 + 하단 대형 헤드라인 + 원형 가격 배지 (눈밑탱탱주사 스타일)",
+      "color": "#FFD84D",
+      "requiresCutout": true
+    },
+    {
+      "id": "arch-frame-editorial",
+      "name": "Arch Frame Editorial",
+      "nameKo": "아치 프레임 에디토리얼",
+      "layout": "frame",
+      "tone": "premium",
+      "priceStyle": "minimal",
+      "tags": [
+        "arch",
+        "frame",
+        "editorial",
+        "star",
+        "premium"
+      ],
+      "description": "단색 배경에 미세한 그리드 라인 + 장식용 별 + 중앙 아치형 액자 프레임 + 세리프체 헤드라인 교차 (보톡스 포스터 스타일)",
+      "color": "#D35A34",
+      "requiresCutout": true
+    },
+    {
+      "id": "center-frame-sparkle",
+      "name": "Center Frame Sparkle",
+      "nameKo": "타원 프레임 스파클",
+      "layout": "frame",
+      "tone": "premium",
+      "priceStyle": "minimal",
+      "tags": [
+        "circle",
+        "oval",
+        "sparkle",
+        "stroke",
+        "badge"
+      ],
+      "description": "반짝이는 보케 배경 + 초대형 중앙 타원 프레임 + 좌상단 구름 뱃지 + 초대형 화이트 스트로크 헤드라인 (LSSA 스타일)",
+      "color": "#FFDFBA",
+      "requiresCutout": true
+    },
+    {
+      "id": "overlay-line-bottom",
+      "name": "Line Bottom",
+      "nameKo": "라인 하단 오버레이",
+      "layout": "full-overlay",
+      "tone": "minimal",
+      "priceStyle": "none",
+      "tags": [
+        "overlay",
+        "line",
+        "bottom",
+        "editorial",
+        "minimal"
+      ],
+      "description": "세로 라인 + 좌하단 초대형 텍스트 (#21 엉덩이지방이식 스타일)",
+      "color": "#2d2d2d"
+    },
+    {
+      "id": "overlay-dark-center",
+      "name": "Dark Center",
+      "nameKo": "다크 중앙 오버레이",
+      "layout": "full-overlay",
+      "tone": "dark",
+      "priceStyle": "none",
+      "tags": [
+        "overlay",
+        "dark",
+        "center",
+        "sparkle",
+        "hashtag"
+      ],
+      "description": "어두운 전체 오버레이 + 중앙 텍스트 + 스파클 + 해시태그 (#22 피코토닝 스타일)",
+      "color": "#1a1a1a"
+    },
+    {
+      "id": "overlay-line-top",
+      "name": "Line Top",
+      "nameKo": "라인 상단 오버레이",
+      "layout": "full-overlay",
+      "tone": "minimal",
+      "priceStyle": "none",
+      "tags": [
+        "overlay",
+        "line",
+        "top",
+        "editorial"
+      ],
+      "description": "상단 그라디언트 + 세로 라인 + 좌상단 텍스트 (역방향 변형)",
+      "color": "#3d3d3d"
+    },
+    {
+      "id": "solid-bg-stars",
+      "name": "Solid BG Stars",
+      "nameKo": "단색 배경 매시브 별",
+      "layout": "solid-bg",
+      "tone": "bold",
+      "priceStyle": "inline",
+      "tags": [
+        "solid",
+        "stars",
+        "graphic"
+      ],
+      "description": "배경으로 은은하게 깔린 기하학적 별자리 패턴과 4포인트 작은 별들, 그리고 극대화된 텍스트 크기",
+      "color": "#4A33C0",
+      "requiresCutout": true
+    },
+    {
+      "id": "solid-bg-icons",
+      "name": "Solid BG Icons",
+      "nameKo": "단색 배경 도형 아이콘",
+      "layout": "solid-bg",
+      "tone": "pop",
+      "priceStyle": "inline",
+      "tags": [
+        "solid",
+        "icons",
+        "pop-art",
+        "plus"
+      ],
+      "description": "플러스 기호(+), 원형 아웃라인, 도트 패턴 등 에너제틱한 팝아트 요소가 가득 배치된 단색 템플릿",
+      "color": "#FFE135",
+      "requiresCutout": true
+    },
+    {
+      "id": "solid-bg-stamp",
+      "name": "Solid BG Stamp",
+      "nameKo": "단색 배경 우표 스탬프",
+      "layout": "solid-bg",
+      "tone": "retro",
+      "priceStyle": "block",
+      "tags": [
+        "solid",
+        "stamp",
+        "retro",
+        "marquee"
+      ],
+      "description": "거대한 지그재그 스탬프 태그라인과 화면을 가로지르는 Marquee 텍스트 바가 돋보이는 레트로 강조형",
+      "color": "#FF7A59",
+      "requiresCutout": true
+    },
+    {
+      "id": "vertical-split-gold",
+      "name": "Vertical Split Gold",
+      "nameKo": "세로 패널 골드 프레임",
+      "layout": "split",
+      "tone": "premium",
+      "priceStyle": "badge",
+      "tags": [
+        "vertical",
+        "gold",
+        "premium",
+        "badge"
+      ],
+      "description": "좌측 세로로 긴 텍스트 패널과 우측상단 모서리를 감싸는 골드 프레임 테두리가 돋보이는 고급형 (라라필 스타일)",
+      "color": "#D4AF37",
+      "requiresCutout": false
+    },
+    {
+      "id": "gradient-mesh",
+      "name": "Aurora Mesh Gradient",
+      "nameKo": "오로라 메쉬 그라디언트",
+      "layout": "gradient-bg",
+      "tone": "soft",
+      "priceStyle": "inline",
+      "tags": [
+        "gradient",
+        "mesh",
+        "aurora",
+        "soft",
+        "cutout"
+      ],
+      "description": "파스텔톤 여러 색상이 겹치는 물광/오로라 느낌의 트렌디 그라디언트 배경",
+      "color": "#FFCDE1",
+      "requiresCutout": true
+    },
+    {
+      "id": "gradient-glassmorphism",
+      "name": "Glassmorphism",
+      "nameKo": "글래스모피즘 그라디언트",
+      "layout": "gradient-bg",
+      "tone": "premium",
+      "priceStyle": "inline",
+      "tags": [
+        "gradient",
+        "glassmorphism",
+        "blur",
+        "card"
+      ],
+      "description": "화려한 그라디언트 풀 배경 위에 반투명 유리 질감의 텍스트 카드",
+      "color": "#A1C4FD",
+      "requiresCutout": true
+    },
+    {
+      "id": "gradient-dark-spotlight",
+      "name": "Dark Glow Spotlight",
+      "nameKo": "다크 글로우 스팟라이트",
+      "layout": "gradient-bg",
+      "tone": "dark",
+      "priceStyle": "inline",
+      "tags": [
+        "gradient",
+        "dark",
+        "neon",
+        "spotlight"
+      ],
+      "description": "어두운 배경과 강렬한 네온 방사형 그라디언트(스팟라이트)가 대비되는 고급형",
+      "color": "#E94560",
+      "requiresCutout": true
+    },
+    {
+      "id": "gradient-stroke-typography",
+      "name": "Gradient Stroke Typo",
+      "nameKo": "그라디언트 스트로크 & 타이포",
+      "layout": "gradient-bg",
+      "tone": "minimal",
+      "priceStyle": "inline",
+      "tags": [
+        "gradient",
+        "stroke",
+        "typography",
+        "clean"
+      ],
+      "description": "단색 배경에 그라디언트 테두리 액자틀과 텍스트 클리핑 마스크 효과 적용",
+      "color": "#FF9A9E",
+      "requiresCutout": true
+    }
+  ]
+}

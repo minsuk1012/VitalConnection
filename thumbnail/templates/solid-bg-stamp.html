@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  @font-face { font-family: 'Bebas'; src: url('{{FONTS_DIR}}/BebasNeue-Regular.ttf'); }
+  @font-face { font-family: 'Noto'; src: url('{{FONTS_DIR}}/NotoSansKR.ttf'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px; height: 1080px; overflow: hidden; position: relative;
+    background: var(--bg-color, #FF7A59);
+    border: 30px dashed var(--text-color);
+  }
+
+  /* 스탬프 장식 (톱니바퀴 원형 스탬프) */
+  .stamp {
+    position: absolute; right: 80px; top: -50px; z-index: 5;
+    width: 400px; height: 400px;
+    background: var(--accent-color, #FFE135);
+    /* 톱니바퀴 (zig-zag 뱃지) 구현 */
+    clip-path: polygon(50% 0%, 61% 5%, 72% 0%, 80% 9%, 90% 8%, 95% 18%, 100% 20%, 100% 31%, 95% 39%, 100% 50%, 95% 61%, 100% 69%, 100% 80%, 95% 82%, 90% 92%, 80% 91%, 72% 100%, 61% 95%, 50% 100%, 39% 95%, 28% 100%, 20% 91%, 10% 92%, 5% 82%, 0% 80%, 0% 69%, 5% 61%, 0% 50%, 5% 39%, 0% 31%, 0% 20%, 5% 18%, 10% 8%, 20% 9%, 28% 0%, 39% 5%);
+    display: flex; align-items: center; justify-content: center;
+    transform: rotate(15deg);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .stamp-text {
+    font-family: 'Bebas', 'Noto', sans-serif;
+    font-size: 80px; font-weight: 900; color: var(--text-color);
+    text-align: center; line-height: 1; letter-spacing: 2px;
+    transform: rotate(-15deg);
+  }
+
+  /* 서브 라인 장식 */
+  .marquee {
+    position: absolute; top: 180px; left: -50px; width: 1200px; height: 80px;
+    background: var(--text-color); color: var(--bg-color);
+    font-family: 'Bebas', sans-serif; font-size: 50px; font-weight: bold;
+    line-height: 80px; letter-spacing: 12px;
+    transform: rotate(-5deg); z-index: 2;
+    overflow: hidden; white-space: nowrap; padding-left: 20px;
+  }
+
+  .model-cutout {
+    position: absolute; right: 0; bottom: 0; width: 750px; height: 900px;
+    object-fit: contain; object-position: bottom right; z-index: 10;
+  }
+
+  .text-layer {
+    position: absolute; left: 60px; bottom: 80px; width: 900px; z-index: 20;
+  }
+  .brand {
+    font-family: 'Noto', sans-serif; font-size: 40px; font-weight: bold;
+    color: var(--text-color); opacity: 0.8; margin-bottom: 20px;
+  }
+  .headline {
+    font-family: 'Noto', 'Bebas', sans-serif; font-size: var(--headline-size, 170px);
+    font-weight: 900; color: var(--text-color); line-height: 0.95; letter-spacing: -5px;
+    word-break: keep-all; text-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    -webkit-text-stroke: 4px var(--bg-color); paint-order: stroke fill;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  .price-area {
+    margin-top: 20px; display: {{PRICE_DISPLAY}}}}; background: var(--text-color);
+    display: inline-block; padding: 10px 40px 10px 20px;
+    transform: skew(-10deg);
+  }
+  .price-value {
+    font-family: 'Bebas', 'Noto', sans-serif; font-size: var(--price-size, 140px);
+    font-weight: 900; color: var(--accent-color, #FFE135);
+    display: inline-block; transform: skew(10deg);
+  }
+  .price-unit {
+    font-family: 'Noto', sans-serif; font-size: 50px; color: var(--bg-color);
+    font-weight: bold; margin-left:10px;
+    display: inline-block; transform: skew(10deg);
+  }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <!-- 스탬프 뱃지 -->
+  <div class="stamp" style="display: {{TAGLINE_DISPLAY}}}};">
+    <div class="stamp-text">{{TAGLINE}}</div>
+  </div>
+  
+  <div class="marquee">TRENDING TRENDING TRENDING TRENDING HOT HOT HOT</div>
+
+  <img class="model-cutout" src="{{MODEL_PATH}}">
+
+  <div class="text-layer">
+    <div class="brand">{{BRAND_EN}}</div>
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+    
+    <div class="price-area">
+      <span class="price-value">{{PRICE}}</span><span class="price-unit">{{PRICE_UNIT}}</span>
+    </div>
+  </div>
+</body>
+</html>

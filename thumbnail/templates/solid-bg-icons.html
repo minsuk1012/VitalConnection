@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  @font-face { font-family: 'Bebas'; src: url('{{FONTS_DIR}}/BebasNeue-Regular.ttf'); }
+  @font-face { font-family: 'Noto'; src: url('{{FONTS_DIR}}/NotoSansKR.ttf'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px; height: 1080px; overflow: hidden; position: relative;
+    background: var(--bg-color, #FFE135);
+  }
+
+  /* 도형 아이콘 장식 */
+  .deco { position: absolute; font-family: 'Bebas', sans-serif; opacity: 0.15; color: var(--text-color); z-index: 1; pointer-events: none; }
+  .plus { font-size: 150px; line-height: 1; font-weight: 300; }
+  .circle-outline { width: 100px; height: 100px; border: 8px solid var(--text-color); border-radius: 50%; }
+  .dot-grid {
+    width: 250px; height: 250px;
+    background-image: radial-gradient(var(--text-color) 3px, transparent 4px);
+    background-size: 20px 20px;
+  }
+
+  /* 아이콘 배치 */
+  .p1 { top: 50px; left: 100px; }
+  .p2 { bottom: 150px; right: 50px; font-size: 200px; }
+  .c1 { top: 200px; right: 100px; }
+  .c2 { bottom: 50px; left: 200px; width: 150px; height: 150px; border-width: 12px; }
+  .d1 { top: -50px; right: -50px; transform: rotate(15deg); }
+  .d2 { bottom: -100px; left: -50px; }
+
+  /* 플로팅 박스 강조 */
+  .tag-box {
+    position: absolute; top: 120px; left: -10px;
+    background: var(--text-color); color: var(--bg-color);
+    padding: 15px 40px; font-family: 'Bebas', 'Noto', sans-serif;
+    font-size: 60px; font-weight: 900; z-index: 20;
+    text-transform: uppercase; display: {{TAGLINE_DISPLAY}}
+  }
+
+  .model-cutout {
+    position: absolute; right: 50px; bottom: 0;
+    width: 650px; height: 950px;
+    object-fit: contain; object-position: bottom right; z-index: 10;
+  }
+
+  .text-layer {
+    position: absolute; left: 60px; top: 260px; width: 800px; z-index: 20;
+  }
+  .headline {
+    font-family: 'Noto', 'Bebas', sans-serif; font-size: var(--headline-size, 160px);
+    font-weight: 900; color: var(--text-color); line-height: 0.95; letter-spacing: -4px;
+    word-break: keep-all; text-shadow: 6px 6px 0px rgba(0,0,0,0.1);
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+  .price-area {
+    margin-top: 80px; display: {{PRICE_DISPLAY}}
+  }
+  .price-value {
+    font-family: 'Bebas', 'Noto', sans-serif; font-size: var(--price-size, 150px);
+    font-weight: 900; color: var(--accent-color, #FF3366); letter-spacing: -2px;
+  }
+  .price-unit {
+    font-family: 'Noto', sans-serif; font-size: 60px; color: var(--text-color); font-weight: bold; margin-left:10px;
+  }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <div class="deco dot-grid d1"></div>
+  <div class="deco dot-grid d2"></div>
+  <div class="deco plus p1">+</div>
+  <div class="deco plus p2">+</div>
+  <div class="deco circle-outline c1"></div>
+  <div class="deco circle-outline c2"></div>
+
+  <div class="tag-box">{{TAGLINE}}</div>
+  <img class="model-cutout" src="{{MODEL_PATH}}">
+
+  <div class="text-layer">
+    <div class="headline" id="headline">{{HEADLINE}}</div>
+    <div class="price-area">
+      <span class="price-value">{{PRICE}}</span><span class="price-unit">{{PRICE_UNIT}}</span>
+    </div>
+  </div>
+</body>
+</html>

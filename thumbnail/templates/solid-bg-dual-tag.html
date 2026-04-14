@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px; overflow: hidden; position: relative;
+    background: var(--bg-color);
+  }
+
+  /* 누끼 모델 — 중앙 하단 contain */
+  .model {
+    position: absolute;
+    left: 50%; bottom: 0;
+    transform: translateX(var(--model-offset-x, -10%));
+    width: var(--model-width, 700px);
+    object-fit: contain; object-position: center bottom;
+    opacity: var(--model-opacity);
+    z-index: var(--model-z-index, 1);
+  }
+
+  /* 세로 브랜드명 — 좌측 */
+  .brand-vertical {
+    position: absolute;
+    left: var(--brand-v-left); top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center center;
+    font-family: 'Bebas'; font-size: var(--brand-v-size);
+    color: var(--brand-v-color); letter-spacing: 4px;
+    white-space: nowrap; opacity: 0.75;
+  }
+
+  /* 상단 좌측 태그라인 */
+  .tag-left {
+    position: absolute;
+    left: var(--tag-left-x); top: var(--tag-top);
+    font-family: 'Noto'; font-size: var(--tag-size);
+    color: var(--tag-color); font-weight: 700;
+  }
+
+  /* 상단 우측 태그라인 */
+  .tag-right {
+    position: absolute;
+    right: var(--tag-right-x); top: var(--tag-top);
+    font-family: 'Noto'; font-size: var(--tag-size);
+    color: var(--tag-color); font-weight: 700;
+  }
+
+  /* 메인 헤드라인 — 하단 */
+  .headline {
+    position: absolute;
+    left: var(--headline-left); bottom: var(--headline-bottom);
+    font-family: var(--headline-font, 'Noto'); font-style: var(--headline-style, normal); font-size: var(--headline-size);
+    font-weight: 900; color: var(--headline-color);
+    line-height: 1.0; word-break: keep-all;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 900px);}
+
+  /* 가격 배지 — 우측 원형 */
+  .price-badge {
+    position: absolute;
+    right: var(--badge-right); top: var(--badge-top);
+    width: var(--badge-size); height: var(--badge-size);
+    border-radius: 50%;
+    background: var(--badge-color);
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    display: {{BADGE_DISPLAY}};
+    z-index: var(--badge-z-index, 12);
+  }
+  .badge-value {
+    font-family: 'Bebas'; font-size: calc(var(--badge-size) * 0.32);
+    color: white; letter-spacing: 1px; line-height: 1;
+  }
+  .badge-unit {
+    font-family: 'Noto'; font-size: calc(var(--badge-size) * 0.14);
+    color: white; margin-top: 2px;
+  }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .headline { z-index: var(--text-z-index, 10); }
+  .tag-left { z-index: var(--text-z-index, 10); }
+  .tag-right { z-index: var(--text-z-index, 10); }
+  .brand-vertical { z-index: var(--text-z-index, 10); }
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <img class="model" src="{{MODEL_PATH}}" id="model-img">
+
+  <div class="brand-vertical" id="brand-en">{{BRAND_EN}}</div>
+
+  <div class="tag-left" id="tagline">{{TAGLINE}}</div>
+  <div class="tag-right" id="subheadline">{{SUBHEADLINE}}</div>
+
+  <div class="headline" id="headline">{{HEADLINE}}</div>
+
+  <div class="price-badge">
+    <span class="badge-value" id="price">{{PRICE}}</span>
+    <span class="badge-unit">{{PRICE_UNIT}}</span>
+  </div>
+</body>
+</html>

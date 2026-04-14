@@ -1,0 +1,348 @@
+{
+  "layout": "full-overlay-dark",
+  "vars": {
+    "model-brightness": "0.85",
+    "gradient-start": "35%",
+    "gradient-opacity": "0.75",
+    "logo-left": "28px",
+    "logo-top": "28px",
+    "logo-size": "18px",
+    "sub-left": "28px",
+    "sub-bottom": "310px",
+    "sub-size": "22px",
+    "headline-left": "28px",
+    "headline-bottom": "200px",
+    "headline-size": "84px",
+    "headline-line-height": "1.1",
+    "price-left": "28px",
+    "price-bottom": "64px",
+    "price-size": "104px",
+    "vat-bottom": "44px",
+    "accent-color": "#FF6B9D",
+    "brand-right": "28px",
+    "brand-bottom": "28px",
+    "brand-size": "28px",
+    "headline-font": "Noto",
+    "headline-style": "normal",
+    "headline-letter-spacing": "0px",
+    "headline-rotation": "0deg",
+    "headline-max-width": "700px",
+    "sub-rotation": "0deg",
+    "sub-margin-top": "0px",
+    "model-opacity": "1",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "폰트",
+      "items": [
+        {
+          "var": "headline-font",
+          "label": "헤드라인 폰트",
+          "type": "select",
+          "options": [
+            {
+              "value": "Noto",
+              "label": "Noto Sans KR"
+            },
+            {
+              "value": "Pretendard",
+              "label": "Pretendard Bold"
+            },
+            {
+              "value": "BlackHan",
+              "label": "Black Han Sans"
+            },
+            {
+              "value": "Bebas",
+              "label": "Bebas Neue"
+            },
+            {
+              "value": "Montserrat",
+              "label": "Montserrat"
+            },
+            {
+              "value": "Playfair",
+              "label": "Playfair Display"
+            },
+            {
+              "value": "PlayfairI",
+              "label": "Playfair Italic"
+            },
+            {
+              "value": "NotoSerif",
+              "label": "Noto Serif"
+            },
+            {
+              "value": "Anton",
+              "label": "Anton (영문 임팩트)"
+            },
+            {
+              "value": "Oswald",
+              "label": "Oswald (영문 압축)"
+            },
+            {
+              "value": "Cormorant",
+              "label": "Cormorant (럭셔리 세리프)"
+            },
+            {
+              "value": "NanumGothic",
+              "label": "나눔고딕"
+            },
+            {
+              "value": "GmarketSans",
+              "label": "지마켓 산스 (트렌디)"
+            },
+            {
+              "value": "NanumSquare",
+              "label": "나눔스퀘어 (모던)"
+            },
+            {
+              "value": "NanumRound",
+              "label": "나눔스퀘어라운드 (부드러운)"
+            }
+          ]
+        },
+        {
+          "var": "headline-style",
+          "label": "기울이기",
+          "type": "select",
+          "options": [
+            {
+              "value": "normal",
+              "label": "보통"
+            },
+            {
+              "value": "italic",
+              "label": "이탤릭"
+            }
+          ]
+        },
+        {
+          "var": "headline-letter-spacing",
+          "label": "자간",
+          "type": "range",
+          "min": -4,
+          "max": 20,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "모델",
+      "items": [
+        {
+          "var": "model-brightness",
+          "label": "밝기",
+          "type": "range",
+          "min": 0.3,
+          "max": 1.0,
+          "unit": "",
+          "step": 0.05
+        },
+        {
+          "var": "gradient-start",
+          "label": "그라디언트 시작",
+          "type": "range",
+          "min": 0,
+          "max": 100,
+          "unit": "%"
+        },
+        {
+          "var": "gradient-opacity",
+          "label": "그라디언트 강도",
+          "type": "range",
+          "min": 0.3,
+          "max": 1.0,
+          "unit": "",
+          "step": 0.05
+        },
+        {
+          "var": "model-opacity",
+          "label": "모델 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "헤드라인",
+      "items": [
+        {
+          "var": "headline-left",
+          "label": "좌측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 200,
+          "unit": "px"
+        },
+        {
+          "var": "headline-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": 60,
+          "max": 500,
+          "unit": "px"
+        },
+        {
+          "var": "headline-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 32,
+          "max": 100,
+          "unit": "px"
+        },
+        {
+          "var": "headline-line-height",
+          "label": "줄 간격",
+          "type": "range",
+          "min": 0.8,
+          "max": 1.8,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "서브헤드",
+      "items": [
+        {
+          "var": "sub-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": 100,
+          "max": 600,
+          "unit": "px"
+        },
+        {
+          "var": "sub-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 12,
+          "max": 36,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "가격",
+      "items": [
+        {
+          "var": "price-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": 20,
+          "max": 400,
+          "unit": "px"
+        },
+        {
+          "var": "price-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 40,
+          "max": 140,
+          "unit": "px"
+        },
+        {
+          "var": "accent-color",
+          "label": "가격 색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "브랜드",
+      "items": [
+        {
+          "var": "logo-size",
+          "label": "로고 크기",
+          "type": "range",
+          "min": 12,
+          "max": 32,
+          "unit": "px"
+        },
+        {
+          "var": "brand-size",
+          "label": "우하단 크기",
+          "type": "range",
+          "min": 10,
+          "max": 28,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "서브헤드라인 커스텀",
+      "items": [
+        {
+          "var": "sub-rotation",
+          "label": "서브헤드 회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "sub-bottom",
+          "label": "서브헤드 하단",
+          "type": "range",
+          "min": 0,
+          "max": 900,
+          "unit": "px"
+        },
+        {
+          "var": "sub-left",
+          "label": "서브헤드 좌측",
+          "type": "range",
+          "min": 0,
+          "max": 900,
+          "unit": "px"
+        }
+      ]
+    }
+  ]
+}

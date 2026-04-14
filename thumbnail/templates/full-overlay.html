@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; overflow: hidden; position: relative; }
+
+  .model {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent var(--grad-start), rgba(0,0,0,var(--grad-opacity)) 100%);
+  }
+  /* 상단 태그라인 */
+  .tagline {
+    position: absolute; top: var(--tag-top); left: var(--tag-left);
+    background: rgba(0,0,0,0.45); color: white;
+    font-family: 'Noto'; font-size: var(--tag-size);
+    padding: 6px 16px; border-radius: 20px;
+    display: {{TAGLINE_DISPLAY}}}};
+    rotate: var(--tagline-rotation, 0deg);
+  }
+  /* 헤드라인 */
+  .headline {
+    position: absolute;
+    left: var(--text-left); top: var(--headline-top);
+    font-family: var(--headline-font, 'Noto');
+    font-style: var(--headline-style, normal);
+    font-size: var(--headline-size);
+    font-weight: 900; color: white;
+    line-height: var(--headline-line-height);
+    letter-spacing: var(--headline-letter-spacing);
+    word-break: keep-all; max-width: 700px;
+    rotate: var(--headline-rotation, 0deg);
+    max-width: var(--headline-max-width, 700px);}
+  /* 서브헤드 */
+  .subheadline {
+    position: absolute;
+    left: var(--text-left); top: var(--sub-top);
+    font-family: 'Noto'; font-size: var(--sub-size);
+    color: rgba(255,255,255,0.8); line-height: 1.5;
+    display: {{SUB_DISPLAY}};
+    rotate: var(--sub-rotation, 0deg);
+  }
+  /* 원형 가격 배지 */
+  .price-badge {
+    position: absolute;
+    left: var(--badge-left); bottom: var(--badge-bottom);
+    width: var(--badge-size); height: var(--badge-size);
+    border-radius: 50%;
+    background: var(--badge-color);
+    display: {{BADGE_DISPLAY}};
+    flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .badge-value {
+    font-family: 'Bebas';
+    font-size: calc(var(--badge-size) * 0.28);
+    color: white; letter-spacing: 0.5px; line-height: 1;
+  }
+  .badge-unit {
+    font-family: 'Noto';
+    font-size: calc(var(--badge-size) * 0.12);
+    color: white; margin-top: 3px;
+  }
+  /* 브랜드 */
+  .brand {
+    position: absolute; right: var(--brand-right); bottom: var(--brand-bottom);
+    text-align: right;
+  }
+  .brand-ko {
+    font-family: 'Noto'; font-size: 13px;
+    color: rgba(255,255,255,0.7); display: {{BRAND_KO_DISPLAY}}
+  }
+  .brand-en {
+    font-family: 'Bebas'; font-size: var(--brand-size);
+    color: white; letter-spacing: 2px;
+  }
+
+  /* === 에디터 커스텀 오버라이드 === */
+  .subheadline { rotate: var(--sub-rotation, 0deg); margin-top: var(--sub-margin-top, 0px); }
+  .tagline { rotate: var(--tagline-rotation, 0deg); }
+
+  /* === 에디터 커스텀 오버라이드 ===*/
+  .model { opacity: var(--model-opacity, 1); filter: brightness(var(--model-brightness, 1)); }
+  .headline { z-index: var(--headline-z-index, 5); }
+  .headline { opacity: var(--headline-opacity, 1); }
+</style>
+</head>
+<body>
+  <img class="model" src="{{MODEL_PATH}}" id="model-img">
+  <div class="gradient"></div>
+  <div class="tagline" id="tagline">{{TAGLINE}}</div>
+  <div class="headline" id="headline">{{HEADLINE}}</div>
+  <div class="subheadline" id="subheadline">{{SUBHEADLINE}}</div>
+  <div class="price-badge">
+    <span class="badge-value" id="price">{{PRICE}}</span>
+    <span class="badge-unit">{{PRICE_UNIT}}</span>
+  </div>
+  <div class="brand">
+    <div class="brand-ko" id="brand-ko">{{BRAND_KO}}</div>
+    <div class="brand-en" id="brand-en">{{BRAND_EN}}</div>
+  </div>
+</body>
+</html>

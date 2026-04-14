@@ -1,0 +1,275 @@
+{
+  "layout": "full-overlay",
+  "vars": {
+    "gradient-start": "30%",
+    "gradient-opacity": "0.6",
+    "tagline-top": "24px",
+    "tagline-left": "24px",
+    "headline-left": "24px",
+    "headline-top": "360px",
+    "headline-size": "81px",
+    "brand-right": "24px",
+    "brand-bottom": "28px",
+    "brand-size": "26px",
+    "headline-font": "Noto",
+    "headline-style": "normal",
+    "headline-letter-spacing": "0px",
+    "grad-start": "30%",
+    "grad-opacity": "0.6",
+    "tag-top": "24px",
+    "tag-left": "24px",
+    "tag-size": "14px",
+    "text-left": "24px",
+    "sub-top": "540px",
+    "sub-size": "24px",
+    "badge-left": "24px",
+    "badge-bottom": "80px",
+    "badge-size": "180px",
+    "badge-color": "#FF6B9D",
+    "headline-rotation": "0deg",
+    "headline-max-width": "700px",
+    "sub-rotation": "0deg",
+    "sub-margin-top": "0px",
+    "tagline-rotation": "0deg",
+    "model-opacity": "1",
+    "model-brightness": "1",
+    "headline-z-index": "5",
+    "headline-opacity": "1"
+  },
+  "controls": [
+    {
+      "group": "그라디언트",
+      "items": [
+        {
+          "var": "grad-start",
+          "label": "시작 위치",
+          "type": "range",
+          "min": 0,
+          "max": 100,
+          "unit": "%"
+        },
+        {
+          "var": "grad-opacity",
+          "label": "강도",
+          "type": "range",
+          "min": 0,
+          "max": 1.0,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "헤드라인",
+      "items": [
+        {
+          "var": "text-left",
+          "label": "좌측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 300,
+          "unit": "px"
+        },
+        {
+          "var": "headline-top",
+          "label": "상단 위치",
+          "type": "range",
+          "min": 0,
+          "max": 800,
+          "unit": "px"
+        },
+        {
+          "var": "headline-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 36,
+          "max": 120,
+          "unit": "px"
+        },
+        {
+          "var": "headline-line-height",
+          "label": "줄 간격",
+          "type": "range",
+          "min": 0.8,
+          "max": 1.8,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "서브헤드",
+      "items": [
+        {
+          "var": "sub-top",
+          "label": "상단 위치",
+          "type": "range",
+          "min": 0,
+          "max": 900,
+          "unit": "px"
+        },
+        {
+          "var": "sub-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 14,
+          "max": 48,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "가격 배지",
+      "items": [
+        {
+          "var": "badge-left",
+          "label": "좌측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 800,
+          "unit": "px"
+        },
+        {
+          "var": "badge-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": 0,
+          "max": 800,
+          "unit": "px"
+        },
+        {
+          "var": "badge-size",
+          "label": "크기",
+          "type": "range",
+          "min": 60,
+          "max": 350,
+          "unit": "px"
+        },
+        {
+          "var": "badge-color",
+          "label": "색상",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "group": "브랜드",
+      "items": [
+        {
+          "var": "brand-right",
+          "label": "우측 여백",
+          "type": "range",
+          "min": 0,
+          "max": 300,
+          "unit": "px"
+        },
+        {
+          "var": "brand-bottom",
+          "label": "하단 여백",
+          "type": "range",
+          "min": 0,
+          "max": 200,
+          "unit": "px"
+        },
+        {
+          "var": "brand-size",
+          "label": "폰트 크기",
+          "type": "range",
+          "min": 14,
+          "max": 48,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "group": "헤드라인 커스텀",
+      "items": [
+        {
+          "var": "headline-rotation",
+          "label": "회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        },
+        {
+          "var": "headline-max-width",
+          "label": "최대 너비",
+          "type": "range",
+          "min": 100,
+          "max": 1080,
+          "unit": "px"
+        },
+        {
+          "var": "headline-z-index",
+          "label": "헤드라인 레이어",
+          "type": "range",
+          "min": 0,
+          "max": 20,
+          "unit": ""
+        },
+        {
+          "var": "headline-opacity",
+          "label": "헤드라인 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    },
+    {
+      "group": "서브헤드라인 커스텀",
+      "items": [
+        {
+          "var": "sub-rotation",
+          "label": "서브헤드 회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        }
+      ]
+    },
+    {
+      "group": "태그라인 커스텀",
+      "items": [
+        {
+          "var": "tagline-rotation",
+          "label": "태그라인 회전",
+          "type": "range",
+          "min": -45,
+          "max": 45,
+          "unit": "deg",
+          "step": 1
+        }
+      ]
+    },
+    {
+      "group": "모델",
+      "items": [
+        {
+          "var": "model-opacity",
+          "label": "모델 불투명도",
+          "type": "range",
+          "min": 0,
+          "max": 1,
+          "unit": "",
+          "step": 0.05
+        },
+        {
+          "var": "model-brightness",
+          "label": "모델 밝기",
+          "type": "range",
+          "min": 0.3,
+          "max": 2,
+          "unit": "",
+          "step": 0.05
+        }
+      ]
+    }
+  ]
+}
