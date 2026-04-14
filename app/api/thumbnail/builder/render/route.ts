@@ -8,7 +8,9 @@ import fs from 'fs'
 
 export const dynamic = 'force-dynamic'
 
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+const CHROME =
+  process.env.PUPPETEER_EXECUTABLE_PATH ??
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 export async function POST(req: NextRequest) {
   const authError = await checkAdmin()
