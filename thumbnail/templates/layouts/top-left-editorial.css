@@ -1,0 +1,29 @@
+/* top-left-editorial.css
+   사용 사례: minimal-editorial, overlay-line-bottom 변형
+   좌상단에 액센트 라인 + 초대형 헤드라인 */
+.text-layer {
+  position: absolute;
+  top: 64px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/* 세로 액센트 라인 */
+.text-layer::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 52px;
+  background: var(--accent-color, #FF6B9D);
+  margin-bottom: 6px;
+  border-radius: 2px;
+}
+.brand-ko    { font-size: 20px; }
+.headline    { font-size: 90px; line-height: 1.0; }
+.subheadline { font-size: 28px; margin-top: 4px; }
+.price-block { margin-top: 14px; }
+.price       { font-size: 58px; }
+.price-unit  { font-size: 22px; }
+.brand-en    { font-size: 14px; margin-top: 12px; }
