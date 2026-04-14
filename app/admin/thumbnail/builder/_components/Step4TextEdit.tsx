@@ -2,9 +2,8 @@
 'use client'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { FONT_OPTIONS } from '@/lib/thumbnail'
 import type { BuilderState, Lang, TextContent } from '../_types'
-import { LANG_LABELS } from '../_types'
+import { LANG_LABELS, FONT_OPTIONS } from '../_types'
 
 interface Props {
   state:          BuilderState

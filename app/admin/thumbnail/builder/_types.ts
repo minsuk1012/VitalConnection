@@ -3,6 +3,18 @@ import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 
 export type Lang = 'ko' | 'en' | 'ja' | 'zh'
 
+// fs 없는 순수 상수 — thumbnail.ts(서버 전용)에서 분리
+export const FONT_OPTIONS = [
+  { value: 'Noto',        label: 'Noto Sans KR' },
+  { value: 'Pretendard',  label: 'Pretendard Bold' },
+  { value: 'BlackHan',    label: 'Black Han Sans' },
+  { value: 'Bebas',       label: 'Bebas Neue' },
+  { value: 'Montserrat',  label: 'Montserrat' },
+  { value: 'Playfair',    label: 'Playfair Display' },
+  { value: 'PlayfairI',   label: 'Playfair Display Italic' },
+  { value: 'NotoSerif',   label: 'Noto Serif' },
+] as const
+
 export interface TextContent {
   headline:    string
   subheadline: string
