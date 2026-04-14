@@ -1,10 +1,27 @@
+/**
+ * GET /api/thumbnail/asset/models/dewy_glow/img.webp
+ * GET /api/thumbnail/asset/fonts/BebasNeue-Regular.ttf
+ * GET /api/thumbnail/asset/docs/archetypes.json
+ * thumbnail-gen 디렉토리 내 파일을 HTTP로 서빙
+ */
 import { NextRequest, NextResponse } from 'next/server'
-import { PATHS, THUMBNAIL_BASE } from '@/lib/thumbnail'
-import path from 'path'
 import fs from 'fs'
-import mime from 'mime-types'
+import path from 'path'
+import { PATHS, THUMBNAIL_BASE } from '@/lib/thumbnail'
 
 export const dynamic = 'force-dynamic'
+
+const MIME: Record<string, string> = {
+  '.webp':  'image/webp',
+  '.png':   'image/png',
+  '.jpg':   'image/jpeg',
+  '.jpeg':  'image/jpeg',
+  '.ttf':   'font/ttf',
+  '.otf':   'font/otf',
+  '.ttc':   'font/collection',
+  '.woff2': 'font/woff2',
+  '.json':  'application/json',
+}
 
 const ALLOWED_BASES: Record<string, string> = {
   'models':        PATHS.models,
@@ -16,33 +33,31 @@ const ALLOWED_BASES: Record<string, string> = {
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { slug: string[] } },
+  { params }: { params: Promise<{ slug: string[] }> },
 ) {
-  const [base, ...rest] = params.slug
+  const { slug } = await params
+  const [base, ...rest] = slug
+
   const baseDir = ALLOWED_BASES[base]
-  if (!baseDir) {
-    return NextResponse.json({ error: 'Not allowed' }, { status: 403 })
-  }
+  if (!baseDir) return new NextResponse('Not found', { status: 404 })
 
-  const filePath = path.join(baseDir, ...rest)
-
-  // path traversal guard
+  const filePath = path.resolve(baseDir, ...rest)
+  // 경로 탈출 방지
   if (!filePath.startsWith(baseDir)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return new NextResponse('Forbidden', { status: 403 })
   }
-
   if (!fs.existsSync(filePath)) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return new NextResponse('Not found', { status: 404 })
   }
 
-  const stat = fs.statSync(filePath)
-  if (stat.isDirectory()) {
-    return NextResponse.json({ error: 'Is a directory' }, { status: 400 })
-  }
+  const ext  = path.extname(filePath).toLowerCase()
+  const mime = MIME[ext] ?? 'application/octet-stream'
+  const buf  = fs.readFileSync(filePath)
 
-  const buf = fs.readFileSync(filePath)
-  const mimeType = mime.lookup(filePath) || 'application/octet-stream'
   return new NextResponse(buf, {
-    headers: { 'Content-Type': mimeType },
+    headers: {
+      'Content-Type': mime,
+      'Cache-Control': 'public, max-age=3600',
+    },
   })
 }
