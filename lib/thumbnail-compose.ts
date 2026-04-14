@@ -5,7 +5,7 @@
  */
 import fs from 'fs'
 import path from 'path'
-import { THUMBNAIL_BASE, type TemplateInput } from './thumbnail.js'
+import { THUMBNAIL_BASE, type TemplateInput } from './thumbnail'
 
 export const COMPOSE_PATHS = {
   base:         path.join(THUMBNAIL_BASE, 'templates/base.html'),
