@@ -16,7 +16,7 @@
   display: block;
   width: 5px;
   height: 52px;
-  background: var(--accent-color, #FF6B9D);
+  background: var(--accent-color);
   margin-bottom: 6px;
   border-radius: 2px;
 }
