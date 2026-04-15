@@ -1,0 +1,19 @@
+{
+  "layoutTokenId": "solid-text-left",
+  "effectTokenId": "solid-bg",
+  "fontFamily": "BlackHan",
+  "accentColor": "#B8E8D0",
+  "panelColor": "#E8E5F0",
+  "textColor": "#2B7DB8",
+  "subColor": "#6B35A0",
+  "texts": {
+    "ko": {
+      "headline": "ASCE+",
+      "headlineKo": "엑소좀",
+      "subheadline": "피부탄력, 수분조절, 안티에이징",
+      "price": "25.0만원",
+      "brandKo": "반짝반짝 빛나는 광채피부!",
+      "brandEn": ""
+    }
+  }
+}

@@ -2,6 +2,16 @@
   "version": "1.0",
   "templates": [
     {
+      "id": "sample-asce-exosome",
+      "nameKo": "ASCE+ 엑소좀 (샘플)",
+      "name": "ASCE+ Exosome Sample",
+      "source": "manual",
+      "layoutTokenId": "solid-text-left",
+      "effectTokenId": "solid-bg",
+      "accentColor": "#B8E8D0",
+      "createdAt": "2026-04-15T00:00:00.000Z"
+    },
+    {
       "id": "full-overlay-dark",
       "name": "Dark Overlay",
       "nameKo": "다크 오버레이",
