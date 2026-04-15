@@ -30,7 +30,9 @@ const ALLOWED_BASES: Record<string, string> = {
   'fonts':         PATHS.fonts,
   'docs':          path.join(THUMBNAIL_BASE, 'docs'),
   'references':    path.join(THUMBNAIL_BASE, 'references'),
-  'mixed':         path.join(THUMBNAIL_BASE, 'references-transformed/mixed'),
+  'mixed':             path.join(THUMBNAIL_BASE, 'references-transformed/mixed'),
+  'references-layers': path.join(THUMBNAIL_BASE, 'references-layers'),
+  'generated-tokens':  path.join(THUMBNAIL_BASE, 'templates/generated'),
 }
 
 export async function GET(
