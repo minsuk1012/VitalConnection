@@ -18,6 +18,9 @@ export async function GET(req: NextRequest) {
 
   const baseUrl = `${req.nextUrl.protocol}//${req.nextUrl.host}`
 
+  const elementsParam = s.get('elements')
+  const elements = elementsParam ? JSON.parse(elementsParam) : undefined
+
   try {
     const html = composeHtml(layoutToken, effectToken, {
       headline:    s.get('headline')    ?? undefined,
@@ -28,11 +31,8 @@ export async function GET(req: NextRequest) {
       price:       s.get('price')       ?? undefined,
       model:       s.get('model')       ?? undefined,
       cutout:      s.get('cutout')      ?? undefined,
-      fontFamily:  s.get('fontFamily')  ?? undefined,
-      accentColor: s.get('accentColor') ?? undefined,
       panelColor:  s.get('panelColor')  ?? undefined,
-      textColor:   s.get('textColor')   ?? undefined,
-      subColor:    s.get('subColor')    ?? undefined,
+      elements,
       baseUrl,
     })
     return new NextResponse(html, {
