@@ -29,6 +29,8 @@ const ALLOWED_BASES: Record<string, string> = {
   'models-cutout': PATHS.cutout,
   'fonts':         PATHS.fonts,
   'docs':          path.join(THUMBNAIL_BASE, 'docs'),
+  'references':    path.join(THUMBNAIL_BASE, 'references'),
+  'mixed':         path.join(THUMBNAIL_BASE, 'references-transformed/mixed'),
 }
 
 export async function GET(
