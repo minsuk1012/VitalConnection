@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import type { TemplateConfig as NewTemplateConfig } from './_types'
 import { FlatEditor } from './_components/FlatEditor'
+import { DragCanvas } from './_components/DragCanvas'
 import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 
 // ── 타입 ──
@@ -838,6 +839,23 @@ export default function ThumbnailEditorPage() {
                 <iframe ref={frameRef}
                   style={{ width: 1080, height: 1080, transform: 'scale(0.4444)', transformOrigin: 'top left', border: 'none' }}
                 />
+                {/* 새 포맷: 드래그 핸들 오버레이 */}
+                {newConfig && (
+                  <DragCanvas
+                    elements={newConfig.elements ?? []}
+                    frameRef={frameRef}
+                    canvasSize={480}
+                    sourceSize={1080}
+                    onElementMove={(cssTarget, x, y) => {
+                      const next = (newConfig.elements ?? []).map(el =>
+                        el.cssTarget === cssTarget
+                          ? { ...el, props: { ...el.props, x, y } }
+                          : el
+                      )
+                      setNewConfig(prev => prev ? { ...prev, elements: next } : null)
+                    }}
+                  />
+                )}
               </div>
               <div className="flex items-center gap-2 flex-wrap justify-center">
                 <Badge variant="outline" className="text-[10px] text-gray-400">{selectedId}</Badge>
