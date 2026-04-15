@@ -14,7 +14,7 @@
 
   /* Model layer — 기본: full-bleed cover */
   .model-layer { position: absolute; inset: 0; z-index: 1; }
-  .model-layer img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .model-layer img { width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: brightness(var(--model-brightness, 1)); }
 
   /* Effect layer (model 위, text 아래) */
   .effect-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
