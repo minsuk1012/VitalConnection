@@ -5,48 +5,85 @@ import { useRef, useState, useCallback } from 'react'
 import type { ElementInstance } from '@/lib/thumbnail-element-schema'
 
 interface Props {
-  elements:       ElementInstance[]
-  frameRef:       React.RefObject<HTMLIFrameElement | null>
-  canvasSize:     number          // 실제 표시 크기(px) e.g. 480
-  sourceSize:     number          // 원본 크기 e.g. 1080
-  onElementMove:  (cssTarget: string, x: number, y: number) => void
+  elements:      ElementInstance[]
+  frameRef:      React.RefObject<HTMLIFrameElement | null>
+  canvasSize:    number   // 실제 표시 크기(px) e.g. 480
+  sourceSize:    number   // 원본 크기 e.g. 1080
+  onElementMove: (cssTarget: string, x: number, y: number) => void
 }
 
-const SCALE_COLORS: Record<string, string> = {
+// 스냅 임계값 (source 좌표 기준, px)
+const SNAP_THRESHOLD = 8
+
+const ELEMENT_COLORS: Record<string, string> = {
   'brand-ko':    '#6366f1',
   'headline':    '#2563eb',
   'headline-ko': '#7c3aed',
   'subheadline': '#059669',
   'price':       '#db2777',
 }
+const DEFAULT_COLOR = '#6b7280'
 
 function getColor(cssTarget: string) {
-  return SCALE_COLORS[cssTarget] ?? '#6b7280'
+  return ELEMENT_COLORS[cssTarget] ?? DEFAULT_COLOR
+}
+
+interface GuideLines {
+  x: number | null  // 세로선 (x축 정렬, source 좌표)
+  y: number | null  // 가로선 (y축 정렬, source 좌표)
 }
 
 export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onElementMove }: Props) {
   const scale = canvasSize / sourceSize
 
   const draggingRef = useRef<{
-    cssTarget: string
+    cssTarget:   string
     startMouseX: number
     startMouseY: number
-    startX: number
-    startY: number
+    startX:      number
+    startY:      number
   } | null>(null)
 
-  const [activeTarget, setActiveTarget] = useState<string | null>(null)
+  const [activeTarget,    setActiveTarget]    = useState<string | null>(null)
+  const [localPositions,  setLocalPositions]  = useState<Record<string, { x: number; y: number }>>({})
+  const [guides,          setGuides]          = useState<GuideLines>({ x: null, y: null })
 
-  // 요소별 현재 위치 (드래그 중 낙관적 업데이트용)
-  const [localPositions, setLocalPositions] = useState<Record<string, { x: number; y: number }>>({})
-
-  const getPos = (el: ElementInstance) => {
+  const getPos = useCallback((el: ElementInstance) => {
     const local = localPositions[el.cssTarget]
     return {
       x: local?.x ?? (el.props.x as number ?? 0),
       y: local?.y ?? (el.props.y as number ?? 0),
     }
-  }
+  }, [localPositions])
+
+  /** 현재 드래그 중인 요소를 제외한 나머지 요소들의 x/y 목록 */
+  const getOtherPositions = useCallback((activeCssTarget: string) => {
+    return elements
+      .filter(el => el.cssTarget !== activeCssTarget && el.props.x !== undefined)
+      .map(el => getPos(el))
+  }, [elements, getPos])
+
+  /** 스냅 검사: rawX/rawY에 가장 가까운 가이드가 있으면 스냅, 없으면 그대로 */
+  const computeSnap = useCallback((rawX: number, rawY: number, activeCssTarget: string) => {
+    const others = getOtherPositions(activeCssTarget)
+    let snappedX = rawX
+    let snappedY = rawY
+    let guideX: number | null = null
+    let guideY: number | null = null
+
+    for (const other of others) {
+      if (guideX === null && Math.abs(rawX - other.x) <= SNAP_THRESHOLD) {
+        snappedX = other.x
+        guideX   = other.x
+      }
+      if (guideY === null && Math.abs(rawY - other.y) <= SNAP_THRESHOLD) {
+        snappedY = other.y
+        guideY   = other.y
+      }
+    }
+
+    return { snappedX, snappedY, guideX, guideY }
+  }, [getOtherPositions])
 
   const handleMouseDown = useCallback((e: React.MouseEvent, el: ElementInstance) => {
     e.preventDefault()
@@ -60,60 +97,89 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
       startY:      pos.y,
     }
     setActiveTarget(el.cssTarget)
-  }, [localPositions])
+    setGuides({ x: null, y: null })
+  }, [getPos])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const d = draggingRef.current
     if (!d) return
 
-    const dx = (e.clientX - d.startMouseX) / scale
-    const dy = (e.clientY - d.startMouseY) / scale
-    const newX = Math.round(Math.max(0, Math.min(sourceSize, d.startX + dx)))
-    const newY = Math.round(Math.max(0, Math.min(sourceSize, d.startY + dy)))
+    const rawX = Math.round(Math.max(0, Math.min(sourceSize, d.startX + (e.clientX - d.startMouseX) / scale)))
+    const rawY = Math.round(Math.max(0, Math.min(sourceSize, d.startY + (e.clientY - d.startMouseY) / scale)))
 
-    // iframe CSS 변수 즉시 주입 (reload 없이)
+    const { snappedX, snappedY, guideX, guideY } = computeSnap(rawX, rawY, d.cssTarget)
+
+    // iframe CSS 변수 즉시 주입
     try {
-      const iframeDoc = frameRef.current?.contentDocument
-      if (iframeDoc) {
-        iframeDoc.documentElement.style.setProperty(`--${d.cssTarget}-x`, `${newX}px`)
-        iframeDoc.documentElement.style.setProperty(`--${d.cssTarget}-y`, `${newY}px`)
+      const root = frameRef.current?.contentDocument?.documentElement
+      if (root) {
+        root.style.setProperty(`--${d.cssTarget}-x`, `${snappedX}px`)
+        root.style.setProperty(`--${d.cssTarget}-y`, `${snappedY}px`)
       }
-    } catch { /* cross-origin 등 무시 */ }
+    } catch { /* cross-origin 무시 */ }
 
-    // 핸들 위치 낙관적 업데이트
-    setLocalPositions(prev => ({ ...prev, [d.cssTarget]: { x: newX, y: newY } }))
-  }, [scale, sourceSize, frameRef])
+    setLocalPositions(prev => ({ ...prev, [d.cssTarget]: { x: snappedX, y: snappedY } }))
+    setGuides({ x: guideX, y: guideY })
+  }, [scale, sourceSize, frameRef, computeSnap])
 
   const handleMouseUp = useCallback(() => {
     const d = draggingRef.current
     if (!d) return
     const local = localPositions[d.cssTarget]
-    if (local) {
-      onElementMove(d.cssTarget, local.x, local.y)
-    }
+    if (local) onElementMove(d.cssTarget, local.x, local.y)
     draggingRef.current = null
     setActiveTarget(null)
+    setGuides({ x: null, y: null })
   }, [localPositions, onElementMove])
 
-  // 위치가 있는 요소만 렌더
   const positionedEls = elements.filter(el =>
     el.props.x !== undefined && el.props.y !== undefined
   )
-
   if (positionedEls.length === 0) return null
 
   return (
     <div
       className="absolute inset-0 z-10"
-      style={{ cursor: activeTarget ? 'grabbing' : 'default' }}
+      style={{ cursor: activeTarget ? 'grabbing' : 'default', userSelect: 'none' }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* ── 정렬 가이드선 ── */}
+      {guides.x !== null && (
+        <div style={{
+          position:   'absolute',
+          left:       guides.x * scale,
+          top:        0,
+          width:      1,
+          height:     '100%',
+          background: '#3b82f6',
+          opacity:    0.8,
+          pointerEvents: 'none',
+          zIndex:     30,
+          boxShadow:  '0 0 3px rgba(59,130,246,0.6)',
+        }} />
+      )}
+      {guides.y !== null && (
+        <div style={{
+          position:   'absolute',
+          left:       0,
+          top:        guides.y * scale,
+          width:      '100%',
+          height:     1,
+          background: '#3b82f6',
+          opacity:    0.8,
+          pointerEvents: 'none',
+          zIndex:     30,
+          boxShadow:  '0 0 3px rgba(59,130,246,0.6)',
+        }} />
+      )}
+
+      {/* ── 드래그 핸들 ── */}
       {positionedEls.map(el => {
         const { x, y } = getPos(el)
         const isActive = activeTarget === el.cssTarget
-        const color = getColor(el.cssTarget)
+        const color    = getColor(el.cssTarget)
 
         return (
           <div
@@ -127,37 +193,36 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
             }}
             onMouseDown={e => handleMouseDown(e, el)}
           >
-            {/* 드래그 핸들 점 */}
-            <div
-              style={{
-                width:        8,
-                height:       8,
-                borderRadius: '50%',
-                background:   color,
-                cursor:       'grab',
-                border:       `2px solid white`,
-                boxShadow:    isActive
-                  ? `0 0 0 2px ${color}, 0 2px 8px rgba(0,0,0,0.3)`
-                  : `0 1px 3px rgba(0,0,0,0.3)`,
-              }}
-            />
-            {/* 호버/활성 시 라벨 */}
+            {/* 핸들 점 */}
+            <div style={{
+              width:        8,
+              height:       8,
+              borderRadius: '50%',
+              background:   color,
+              cursor:       'grab',
+              border:       '2px solid white',
+              boxShadow:    isActive
+                ? `0 0 0 2px ${color}, 0 2px 8px rgba(0,0,0,0.3)`
+                : '0 1px 3px rgba(0,0,0,0.3)',
+            }} />
+
+            {/* 드래그 중 라벨 + 좌표 */}
             {isActive && (
               <div style={{
-                position:   'absolute',
-                top:        12,
-                left:       0,
-                background: color,
-                color:      'white',
-                fontSize:   9,
-                fontWeight: 600,
-                padding:    '1px 5px',
-                borderRadius: 3,
-                whiteSpace: 'nowrap',
+                position:      'absolute',
+                top:           12,
+                left:          0,
+                background:    color,
+                color:         'white',
+                fontSize:      9,
+                fontWeight:    600,
+                padding:       '2px 6px',
+                borderRadius:  3,
+                whiteSpace:    'nowrap',
                 pointerEvents: 'none',
-                boxShadow:  '0 1px 4px rgba(0,0,0,0.2)',
+                boxShadow:     '0 1px 4px rgba(0,0,0,0.25)',
               }}>
-                {el.label} ({Math.round(x)}, {Math.round(y)})
+                {el.label}  {Math.round(x)}, {Math.round(y)}
               </div>
             )}
           </div>
