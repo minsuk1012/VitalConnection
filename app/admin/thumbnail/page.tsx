@@ -9,9 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import type { TemplateConfig as NewTemplateConfig, DraftResult } from './_types'
+import type { TemplateConfig as NewTemplateConfig } from './_types'
 import { FlatEditor } from './_components/FlatEditor'
-import { DraftModal } from './_components/DraftModal'
 import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 
 // ── 타입 ──
@@ -26,7 +25,7 @@ interface TemplateEntry {
   color: string
   description: string
   requiresCutout?: boolean
-  source?: 'llm-text' | 'llm-image' | 'builder' | 'manual' | 'legacy'
+  source?: 'builder' | 'manual' | 'legacy'
   accentColor?: string
   createdAt?: string
 }
@@ -154,7 +153,6 @@ export default function ThumbnailEditorPage() {
   const [templateName,    setTemplateName]   = useState('')
   const [flatSaving,      setFlatSaving]     = useState(false)
   const [flatTranslating, setFlatTranslating] = useState(false)
-  const [showDraftModal,  setShowDraftModal] = useState(false)
 
   // ── 번역 상태 ──
   const [lang, setLang] = useState<Lang>('ko')
@@ -445,24 +443,6 @@ export default function ThumbnailEditorPage() {
     }
   }
 
-  // ── LLM 초안 적용 ──
-
-  const applyDraft = (draft: DraftResult) => {
-    const { templateNameKo, reason: _reason, ...config } = draft
-    setNewConfig({
-      layoutTokenId: config.layoutTokenId,
-      effectTokenId: config.effectTokenId,
-      fontFamily:    config.fontFamily,
-      accentColor:   config.accentColor,
-      panelColor:    config.panelColor,
-      texts:         config.texts,
-    })
-    setTemplateName(templateNameKo)
-    setSaveStatus(`✨ "${templateNameKo}" 초안 생성 완료`)
-    setTimeout(() => setSaveStatus(''), 3000)
-    // selectedId는 유지 — 우측 앱 컨텍스트 패널이 사라지지 않도록
-  }
-
   // ── Legacy 변환 ──
 
   const convertLegacy = () => {
@@ -575,10 +555,6 @@ export default function ThumbnailEditorPage() {
 
         <div className="ml-auto flex items-center gap-2">
           {saveStatus && <span className="text-xs text-emerald-600 font-medium">{saveStatus}</span>}
-          <Button variant="outline" size="sm" onClick={() => setShowDraftModal(true)}
-            className="text-xs h-7 gap-1.5">
-            ✨ LLM 초안 생성
-          </Button>
           <Button variant="outline" size="sm" onClick={saveConfig}
             className="text-xs h-7">
             Config 저장
@@ -587,11 +563,6 @@ export default function ThumbnailEditorPage() {
             render={<Link href="/admin/thumbnail/gallery" />}
             className="text-xs h-7 gap-1.5">
             <ImageIcon className="w-3 h-3" />갤러리
-          </Button>
-          <Button size="sm" nativeButton={false}
-            render={<Link href="/admin/thumbnail/builder" />}
-            className="text-xs h-7 gap-1.5 bg-gray-900 text-white hover:bg-gray-700">
-            + 새 썸네일 만들기
           </Button>
           <Button size="sm" onClick={renderThumbnail} disabled={rendering || !selectedId}
             className="text-xs h-7 gap-1.5">
@@ -917,12 +888,6 @@ export default function ThumbnailEditorPage() {
         </div>
       )}
 
-      {showDraftModal && (
-        <DraftModal
-          onClose={() => setShowDraftModal(false)}
-          onApply={applyDraft}
-        />
-      )}
     </div>
   )
 }

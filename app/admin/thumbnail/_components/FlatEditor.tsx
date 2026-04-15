@@ -4,9 +4,8 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
-import type { TemplateConfig, TextContent } from '../_types'
-import type { Lang } from '@/app/admin/thumbnail/builder/_types'
-import { FONT_OPTIONS, LANG_LABELS } from '@/app/admin/thumbnail/builder/_types'
+import type { TemplateConfig, TextContent, Lang } from '../_types'
+import { FONT_OPTIONS, LANG_LABELS } from '../_types'
 
 interface Props {
   layouts:              LayoutToken[]

@@ -1,17 +1,43 @@
 // app/admin/thumbnail/_types.ts
-import type { TextContent } from '@/app/admin/thumbnail/builder/_types'
 
-export type { TextContent }
+export type Lang = 'ko' | 'en' | 'ja' | 'zh'
 
-/** 새 포맷 템플릿 설정 (BuilderState 기반) */
+export const LANG_LABELS: Record<Lang, { flag: string; label: string }> = {
+  ko: { flag: '🇰🇷', label: 'KO' },
+  en: { flag: '🇺🇸', label: 'EN' },
+  ja: { flag: '🇯🇵', label: 'JA' },
+  zh: { flag: '🇨🇳', label: 'ZH' },
+}
+
+export const FONT_OPTIONS = [
+  { value: 'Noto',        label: 'Noto Sans KR' },
+  { value: 'Pretendard',  label: 'Pretendard Bold' },
+  { value: 'BlackHan',    label: 'Black Han Sans' },
+  { value: 'Bebas',       label: 'Bebas Neue' },
+  { value: 'Montserrat',  label: 'Montserrat' },
+  { value: 'Playfair',    label: 'Playfair Display' },
+  { value: 'PlayfairI',   label: 'Playfair Display Italic' },
+  { value: 'NotoSerif',   label: 'Noto Serif' },
+] as const
+
+export interface TextContent {
+  headline:    string
+  headlineKo:  string
+  subheadline: string
+  price:       string
+  brandEn:     string
+  brandKo:     string
+}
+
+/** 새 포맷 템플릿 설정 */
 export interface TemplateConfig {
-  layoutTokenId: string   // 'bottom-text-stack'
-  effectTokenId: string   // 'overlay-dark'
-  fontFamily:    string   // 'BlackHan'
-  accentColor:   string   // '#FF6B9D'  — 포인트 색 / 태그박스 배경
-  panelColor:    string   // '#1A1A2E'  — 배경색
-  textColor?:    string   // '#2B7DB8'  — 헤드라인(영문) 색
-  subColor?:     string   // '#6B35A0'  — 헤드라인(한글) / 서브 색
+  layoutTokenId: string
+  effectTokenId: string
+  fontFamily:    string
+  accentColor:   string
+  panelColor:    string
+  textColor?:    string
+  subColor?:     string
   texts: {
     ko:   TextContent
     en?:  TextContent
@@ -20,17 +46,16 @@ export interface TemplateConfig {
   }
 }
 
-/** 템플릿 레지스트리 엔트리 (신규 + legacy 공용) */
+/** 템플릿 레지스트리 엔트리 */
 export interface TemplateEntry {
   id:           string
   nameKo:       string
   name:         string
-  source:       'llm-text' | 'llm-image' | 'builder' | 'manual' | 'legacy'
-  layoutTokenId?: string   // 신규 전용
-  effectTokenId?: string   // 신규 전용
+  source:       'builder' | 'manual' | 'legacy'
+  layoutTokenId?: string
+  effectTokenId?: string
   accentColor:  string
   createdAt:    string
-  // legacy 호환 필드
   layout?:          string
   tone?:            string
   priceStyle?:      string
@@ -38,18 +63,4 @@ export interface TemplateEntry {
   description?:     string
   color?:           string
   requiresCutout?:  boolean
-}
-
-/** LLM 초안 응답 (draft API 공통 출력) */
-export interface DraftResult {
-  layoutTokenId:  string
-  effectTokenId:  string
-  fontFamily:     string
-  accentColor:    string
-  panelColor:     string
-  templateNameKo: string
-  reason:         string
-  texts: {
-    ko: TextContent
-  }
 }
