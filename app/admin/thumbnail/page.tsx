@@ -20,11 +20,11 @@ interface TemplateEntry {
   id: string
   nameKo: string
   name: string
-  layout: string
-  tone: string
-  priceStyle: string
-  color: string
-  description: string
+  layout?: string
+  tone?: string
+  priceStyle?: string
+  color?: string
+  description?: string
   requiresCutout?: boolean
   source?: 'builder' | 'manual' | 'legacy'
   accentColor?: string
@@ -155,6 +155,7 @@ export default function ThumbnailEditorPage() {
   const [flatSaving,      setFlatSaving]     = useState(false)
   const [flatTranslating, setFlatTranslating] = useState(false)
   const [selectedTarget,  setSelectedTarget]  = useState<string | null>(null)
+  const [panelLevel,      setPanelLevel]      = useState<'browser' | 'editing'>('browser')
 
   // ── 번역 상태 ──
   const [lang, setLang] = useState<Lang>('ko')
@@ -175,6 +176,51 @@ export default function ThumbnailEditorPage() {
 
   // 현재 선택된 템플릿의 모델 모드 (누끼 vs 일반)
   const [useCutoutMode, setUseCutoutMode] = useState(false)
+
+  useEffect(() => {
+    if (!newConfig) return
+    const layout = layouts.find(l => l.id === newConfig.layoutTokenId)
+    if (layout) setUseCutoutMode(layout.requiresCutout ?? false)
+  }, [newConfig, layouts])
+
+  const buildLegacyPreviewUrl = useCallback((targetLang: Lang) => {
+    if (!selectedId) return ''
+    const t = targetLang === 'ko' ? {} : (translations[targetLang] ?? {}) as Record<string, string>
+    const c = targetLang === 'ko'
+      ? content
+      : {
+          ...content,
+          headline: t.headline ?? content.headline,
+          sub:      t.sub      ?? content.sub,
+          tagline:  t.tagline  ?? content.tagline,
+        }
+    const params: Record<string, string> = { layout: selectedId, ...c }
+    if (useCutoutMode && c.model) params.cutout = c.model
+    if (useCutoutMode && params.model) delete params.model
+
+    return `/api/thumbnail/preview?${new URLSearchParams(params)}`
+  }, [selectedId, content, translations, useCutoutMode])
+
+  const buildNewPreviewUrl = useCallback((targetLang: Lang) => {
+    if (!selectedId || !newConfig) return ''
+    const texts = newConfig.texts[targetLang] ?? newConfig.texts.ko
+    const params = new URLSearchParams({
+      layoutToken: newConfig.layoutTokenId,
+      effectToken: newConfig.effectTokenId,
+      panelColor: newConfig.panelColor,
+      elements: JSON.stringify(newConfig.elements),
+      headline: texts.headline ?? '',
+      headlineKo: texts.headlineKo ?? '',
+      sub: texts.subheadline ?? '',
+      brandEn: texts.brandEn ?? '',
+      brandKo: texts.brandKo ?? '',
+      price: texts.price ?? '',
+    })
+    if (content.model) params.set('model', content.model)
+    if (useCutoutMode && content.model) params.set('cutout', content.model)
+
+    return `/api/thumbnail/builder/preview?${params.toString()}`
+  }, [selectedId, newConfig, content.model, useCutoutMode])
 
   // ── 초기 로드 ──
 
@@ -230,34 +276,18 @@ export default function ThumbnailEditorPage() {
   }, [templates])
 
   // iframe 전체 리로드 — 템플릿 변경 / 모델 이미지 변경 시에만
-  // 특정 언어 기준으로 URL 빌드
-  const buildUrl = useCallback((targetLang: Lang) => {
-    if (!selectedId) return ''
-    const t = targetLang === 'ko' ? {} : (translations[targetLang] ?? {}) as Record<string, string>
-    const c = targetLang === 'ko' ? content : {
-      ...content,
-      headline: t.headline ?? content.headline,
-      sub:      t.sub      ?? content.sub,
-      tagline:  t.tagline  ?? content.tagline,
-    }
-    const params: Record<string, string> = { layout: selectedId, ...c }
-    if (useCutoutMode && c.model) params.cutout = c.model
-    if (useCutoutMode && params.model) delete params.model
-
-    return `/api/thumbnail/preview?${new URLSearchParams(params)}`
-  }, [selectedId, content, translations, useCutoutMode])
-
-  // buildUrl ref — 항상 최신 참조 유지
-  const buildUrlRef = useRef(buildUrl)
-  useEffect(() => { buildUrlRef.current = buildUrl }, [buildUrl])
+  const buildUrlRef = useRef(buildLegacyPreviewUrl)
+  useEffect(() => { buildUrlRef.current = buildLegacyPreviewUrl }, [buildLegacyPreviewUrl])
 
   // 현재 언어 기준 리로드 (template/model 변경 시)
   const reloadPreview = useCallback(() => {
-    const url = buildUrl(lang)
+    const previewLang = newConfig ? flatLang : lang
+    const url = newConfig
+      ? buildNewPreviewUrl(previewLang)
+      : buildLegacyPreviewUrl(previewLang)
     if (url) setIframeSrc(url)
-  // selectedId / content.model / useCutoutMode 변경 시에만 자동 실행
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, content.model, useCutoutMode])
+  // selectedId / content.model / useCutoutMode / flatLang 변경 시 자동 실행
+  }, [newConfig, flatLang, lang, buildNewPreviewUrl, buildLegacyPreviewUrl])
 
   useEffect(() => { reloadPreview() }, [reloadPreview])
 
@@ -358,7 +388,12 @@ export default function ThumbnailEditorPage() {
       // 현재 언어가 번역 대상이면 iframe full reload (번역 데이터가 새로 들어왔으므로)
       if (lang !== 'ko' && data[lang]) {
         const t = data[lang] as Record<string, string>
-        const c = { ...content, headline: t.headline ?? content.headline, sub: t.sub ?? content.sub, tagline: t.tagline ?? content.tagline }
+        const c = {
+          ...content,
+          headline: t.headline ?? content.headline,
+          sub: t.sub ?? content.sub,
+          tagline: t.tagline ?? content.tagline,
+        }
         const params: Record<string, string> = { layout: selectedId!, ...c }
         if (useCutoutMode && c.model) params.cutout = c.model
         if (useCutoutMode && params.model) delete params.model
@@ -370,26 +405,6 @@ export default function ThumbnailEditorPage() {
       setTranslating(false)
     }
   }
-
-  // ── 신규 포맷 미리보기 URL ──
-
-  useEffect(() => {
-    if (!newConfig) return
-    const texts  = newConfig.texts[flatLang] ?? newConfig.texts.ko
-    const params = new URLSearchParams({
-      layoutToken: newConfig.layoutTokenId,
-      effectToken: newConfig.effectTokenId,
-      panelColor:  newConfig.panelColor,
-      elements:    JSON.stringify(newConfig.elements),
-      headline:    texts.headline    ?? '',
-      sub:         texts.subheadline ?? '',
-      price:       texts.price       ?? '',
-      brandKo:     texts.brandKo     ?? '',
-      brandEn:     texts.brandEn     ?? '',
-      ...(texts.headlineKo ? { headlineKo: texts.headlineKo } : {}),
-    })
-    setIframeSrc(`/api/thumbnail/builder/preview?${params}`)
-  }, [newConfig, flatLang])
 
   // ── 신규 포맷 저장 ──
 
@@ -412,10 +427,10 @@ export default function ThumbnailEditorPage() {
           body: JSON.stringify({ ...newConfig, nameKo: templateName || '새 템플릿', source: 'manual' }),
         })
         const { id } = await res.json()
-        const reg = await fetch('/api/thumbnail/registry').then(r => r.json())
-        setTemplates(reg.templates ?? [])
         setSelectedId(id)
       }
+      const reg = await fetch('/api/thumbnail/registry').then(r => r.json())
+      setTemplates(reg.templates ?? [])
       setSaveStatus('저장됨')
       setTimeout(() => setSaveStatus(''), 2000)
     } finally {
@@ -483,16 +498,38 @@ export default function ThumbnailEditorPage() {
     if (!selectedId) return
     setRendering(true)
     try {
+      const renderLang = newConfig ? flatLang : lang
+      const body = newConfig
+        ? {
+            layoutTokenId: newConfig.layoutTokenId,
+            effectTokenId: newConfig.effectTokenId,
+            panelColor: newConfig.panelColor,
+            elements: newConfig.elements,
+            headline: newConfig.texts[renderLang]?.headline ?? newConfig.texts.ko.headline ?? '',
+            headlineKo: newConfig.texts[renderLang]?.headlineKo ?? newConfig.texts.ko.headlineKo ?? '',
+            subheadline: newConfig.texts[renderLang]?.subheadline ?? newConfig.texts.ko.subheadline ?? '',
+            brandEn: newConfig.texts[renderLang]?.brandEn ?? newConfig.texts.ko.brandEn ?? '',
+            brandKo: newConfig.texts[renderLang]?.brandKo ?? newConfig.texts.ko.brandKo ?? '',
+            price: newConfig.texts[renderLang]?.price ?? newConfig.texts.ko.price ?? '',
+            model: content.model,
+            ...(useCutoutMode && content.model ? { cutout: content.model } : {}),
+          }
+        : {
+            layout: selectedId,
+            ...activeContent,
+            model: content.model,
+            ...(useCutoutMode && content.model ? { cutout: content.model } : {}),
+          }
       const res = await fetch('/api/thumbnail/render', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ layout: selectedId, ...activeContent }),
+        body: JSON.stringify(body),
       })
       if (!res.ok) throw new Error(await res.text())
       const blob = await res.blob()
       const url  = URL.createObjectURL(blob)
       const a    = document.createElement('a')
       a.href = url
-      a.download = `${selectedId}-${lang}-${Date.now()}.webp`
+      a.download = `${selectedId}-${renderLang}-${Date.now()}.webp`
       a.click()
       URL.revokeObjectURL(url)
     } catch (e) {
@@ -543,6 +580,20 @@ export default function ThumbnailEditorPage() {
     return map
   }, [config])
 
+  const previewLang = newConfig ? flatLang : lang
+  const previewTexts = newConfig
+    ? (newConfig.texts[previewLang] ?? newConfig.texts.ko)
+    : null
+  const appContextThumbnailUrl = newConfig
+    ? buildNewPreviewUrl(previewLang)
+    : buildLegacyPreviewUrl(previewLang)
+  const appContextHeadline = newConfig ? (previewTexts?.headline ?? '') : activeContent.headline
+  const appContextBrandName = newConfig
+    ? (previewTexts?.brandKo || previewTexts?.brandEn || '')
+    : (content.brandKo || content.brandEn)
+  const appContextPrice = newConfig ? (previewTexts?.price ?? '') : content.price
+  const appContextPriceUnit = newConfig ? '' : content.priceUnit
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-gray-900 overflow-hidden">
 
@@ -577,261 +628,284 @@ export default function ThumbnailEditorPage() {
 
       <div className="flex flex-1 overflow-hidden">
 
-        {/* ── 왼쪽: 템플릿 브라우저 ── */}
-        <aside className="w-56 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
-          <div className="p-2 border-b border-gray-100 flex flex-col gap-2">
-            <Input 
-              placeholder="템플릿 이름 검색..." 
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="h-8 text-xs bg-gray-50 focus-visible:ring-1"
-            />
-            <div className="flex flex-wrap gap-1">
-              {LAYOUT_FILTERS.map(f => (
-                <button key={f.key} onClick={() => setLayoutFilter(f.key)}
+        {/* ── 왼쪽: 단일 슬라이딩 패널 (L1 브라우저 + L2 편집) ── */}
+        <aside className="w-72 flex-shrink-0 border-r border-gray-200 bg-white overflow-hidden relative">
+
+          {/* ── L1: 템플릿 브라우저 ── */}
+          <div className="absolute inset-0 flex flex-col transition-transform duration-150 ease-in-out"
+            style={{ transform: panelLevel === 'browser' ? 'translateX(0)' : 'translateX(-100%)' }}>
+
+            <div className="p-2 border-b border-gray-100 flex flex-col gap-2 shrink-0">
+              <Input
+                placeholder="템플릿 이름 검색..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="h-8 text-xs bg-gray-50 focus-visible:ring-1"
+              />
+              <div className="flex flex-wrap gap-1">
+                {LAYOUT_FILTERS.map(f => (
+                  <button key={f.key} onClick={() => setLayoutFilter(f.key)}
+                    className={cn(
+                      'text-[10px] px-2 py-0.5 rounded-md border transition-colors',
+                      layoutFilter === f.key
+                        ? 'bg-blue-600 border-blue-600 text-white'
+                        : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
+                    )}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              {filtered.map(t => (
+                <button key={t.id}
+                  onClick={() => { selectTemplate(t.id); setPanelLevel('editing') }}
                   className={cn(
-                    'text-[10px] px-2 py-0.5 rounded-md border transition-colors',
-                    layoutFilter === f.key
-                      ? 'bg-blue-600 border-blue-600 text-white'
-                      : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
+                    'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md border text-left transition-colors',
+                    selectedId === t.id
+                      ? 'bg-blue-50 border-blue-300 text-blue-700'
+                      : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50 hover:border-gray-200'
                   )}>
-                  {f.label}
+                  <div className="w-6 h-6 rounded flex-shrink-0 border border-gray-200 shadow-sm"
+                    style={{ background: t.color ?? t.accentColor ?? '#e5e7eb' }} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium truncate">{t.nameKo}</div>
+                    <div className="text-[10px] text-gray-400 truncate">{t.layout}</div>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {filtered.map(t => (
-              <button key={t.id} onClick={() => selectTemplate(t.id)}
-                className={cn(
-                  'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md border text-left transition-colors',
-                  selectedId === t.id
-                    ? 'bg-blue-50 border-blue-300 text-blue-700'
-                    : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50 hover:border-gray-200'
-                )}>
-                <div className="w-6 h-6 rounded flex-shrink-0 border border-gray-200 shadow-sm"
-                  style={{ background: t.color }} />
-                <div className="min-w-0">
-                  <div className="text-xs font-medium truncate">{t.nameKo}</div>
-                  <div className="text-[10px] text-gray-400 truncate">{t.layout}</div>
+          {/* ── L2: 편집 패널 ── */}
+          <div className="absolute inset-0 transition-transform duration-150 ease-in-out"
+            style={{ transform: panelLevel === 'editing' ? 'translateX(0)' : 'translateX(100%)' }}>
+            {newConfig !== null ? (
+              <FlatEditor
+                layouts={layouts}
+                effects={effects}
+                config={newConfig}
+                templateName={templateName}
+                lang={flatLang}
+                onLangChange={setFlatLang}
+                onConfigChange={patch => setNewConfig(prev => prev ? { ...prev, ...patch } : null)}
+                onTemplateNameChange={setTemplateName}
+                onSave={saveFlatConfig}
+                onTranslate={translateFlatContent}
+                saving={flatSaving}
+                translating={flatTranslating}
+                selectedTarget={selectedTarget}
+                onSelectTarget={setSelectedTarget}
+                onBack={() => { setPanelLevel('browser'); setSelectedTarget(null) }}
+              />
+            ) : (
+              <>
+                {/* Legacy 컨트롤 — 뒤로가기 헤더만 추가 */}
+                <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 shrink-0">
+                  <button
+                    onClick={() => setPanelLevel('browser')}
+                    className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-700 transition-colors">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    템플릿
+                  </button>
                 </div>
-              </button>
-            ))}
-          </div>
-        </aside>
+                {/* 기존 legacy 컨트롤 내용 */}
+                <div className="flex-1 overflow-y-auto">
 
-        {/* ── 가운데: 통합 사이드바 ── */}
-        <aside className="w-72 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
-        {newConfig !== null ? (
-          <FlatEditor
-            layouts={layouts}
-            effects={effects}
-            config={newConfig}
-            templateName={templateName}
-            lang={flatLang}
-            onLangChange={setFlatLang}
-            onConfigChange={patch => setNewConfig(prev => prev ? { ...prev, ...patch } : null)}
-            onTemplateNameChange={setTemplateName}
-            onSave={saveFlatConfig}
-            onTranslate={translateFlatContent}
-            saving={flatSaving}
-            translating={flatTranslating}
-            selectedTarget={selectedTarget}
-            onSelectTarget={setSelectedTarget}
-          />
-        ) : (<>
+                  {/* 언어 탭 */}
+                  <div className="px-3 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {(Object.keys(LANG_LABELS) as Lang[]).map(l => (
+                        <button key={l} onClick={() => setLang(l)}
+                          className={cn('text-[10px] font-semibold px-2.5 py-1 rounded border transition-colors',
+                            lang === l ? 'bg-blue-600 border-blue-600 text-white'
+                              : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400')}>
+                          {LANG_LABELS[l]}
+                        </button>
+                      ))}
+                      {lang === 'ko' ? (
+                        <button onClick={translateContent} disabled={translating}
+                          className={cn('ml-auto text-[10px] font-semibold px-2.5 py-1 rounded border transition-colors',
+                            translating ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-emerald-500 border-emerald-500 text-white hover:bg-emerald-600')}>
+                          {translating ? '번역 중...' : '번역하기 →'}
+                        </button>
+                      ) : (
+                        <span className={cn('ml-auto text-[10px] px-1.5 py-0.5 rounded',
+                          translations[lang] ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 bg-gray-50')}>
+                          {translations[lang] ? '번역됨' : '미번역'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-          {/* 언어 탭 */}
-          <div className="px-3 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
-            <div className="flex items-center gap-1 flex-wrap">
-              {(Object.keys(LANG_LABELS) as Lang[]).map(l => (
-                <button key={l} onClick={() => setLang(l)}
-                  className={cn('text-[10px] font-semibold px-2.5 py-1 rounded border transition-colors',
-                    lang === l ? 'bg-blue-600 border-blue-600 text-white'
-                      : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400')}>
-                  {LANG_LABELS[l]}
-                </button>
-              ))}
-              {lang === 'ko' ? (
-                <button onClick={translateContent} disabled={translating}
-                  className={cn('ml-auto text-[10px] font-semibold px-2.5 py-1 rounded border transition-colors',
-                    translating ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-emerald-500 border-emerald-500 text-white hover:bg-emerald-600')}>
-                  {translating ? '번역 중...' : '번역하기 →'}
-                </button>
-              ) : (
-                <span className={cn('ml-auto text-[10px] px-1.5 py-0.5 rounded',
-                  translations[lang] ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 bg-gray-50')}>
-                  {translations[lang] ? '번역됨' : '미번역'}
-                </span>
-              )}
-            </div>
-          </div>
+                  {/* 통합 섹션 */}
+                  <div className="flex-1 overflow-y-auto">
 
-          {/* 통합 섹션 */}
-          <div className="flex-1 overflow-y-auto">
-
-            {/* 모델 */}
-            <SectionPanel title="모델">
-              <div className="space-y-1.5">
-                {useCutoutMode && (
-                  <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium">누끼</span>
-                )}
-                {/* 폴더 필터 */}
-                <div className="flex flex-wrap gap-1">
-                  <button onClick={() => setModelFolderFilter('all')}
-                    className={cn('text-[10px] px-2 py-0.5 rounded border transition-colors',
-                      modelFolderFilter === 'all' ? 'bg-gray-700 border-gray-700 text-white'
-                        : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400')}>전체</button>
-                  {Object.keys(modelGroups).map(g => (
-                    <button key={g} onClick={() => setModelFolderFilter(g)}
-                      className={cn('text-[10px] px-2 py-0.5 rounded border transition-colors',
-                        modelFolderFilter === g ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400')}>{g}</button>
-                  ))}
-                </div>
-                {/* 이미지 그리드 */}
-                <div className="max-h-44 overflow-y-auto space-y-2 pr-0.5">
-                  {Object.entries(modelGroups)
-                    .filter(([g]) => modelFolderFilter === 'all' || g === modelFolderFilter)
-                    .map(([group, files]) => (
-                      <div key={group}>
-                        {modelFolderFilter === 'all' && (
-                          <div className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider px-0.5 mb-1">{group}</div>
+                    {/* 모델 */}
+                    <SectionPanel title="모델">
+                      <div className="space-y-1.5">
+                        {useCutoutMode && (
+                          <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium">누끼</span>
                         )}
-                        <div className="grid grid-cols-4 gap-1">
-                          {files.map(f => {
-                            const assetDir = useCutoutMode ? 'models-cutout' : 'models'
-                            const imgUrl = `/api/thumbnail/asset/${assetDir}/${f.split('/').map(encodeURIComponent).join('/')}`
-                            const isSelected = content.model === f
-                            return (
-                              <button key={f} title={f.split('/').pop()}
-                                onClick={() => setContent(c => ({ ...c, model: f }))}
-                                className={cn('relative aspect-square rounded-md overflow-hidden border-2 transition-all',
-                                  isSelected ? 'border-blue-500 ring-1 ring-blue-300' : 'border-transparent hover:border-gray-300')}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={imgUrl} alt={f.split('/').pop()} className="w-full h-full object-cover" />
-                                {isSelected && <div className="absolute inset-0 bg-blue-500/10" />}
-                              </button>
-                            )
-                          })}
+                        <div className="flex flex-wrap gap-1">
+                          <button onClick={() => setModelFolderFilter('all')}
+                            className={cn('text-[10px] px-2 py-0.5 rounded border transition-colors',
+                              modelFolderFilter === 'all' ? 'bg-gray-700 border-gray-700 text-white'
+                                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400')}>전체</button>
+                          {Object.keys(modelGroups).map(g => (
+                            <button key={g} onClick={() => setModelFolderFilter(g)}
+                              className={cn('text-[10px] px-2 py-0.5 rounded border transition-colors',
+                                modelFolderFilter === g ? 'bg-blue-600 border-blue-600 text-white'
+                                  : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400')}>{g}</button>
+                          ))}
+                        </div>
+                        <div className="max-h-44 overflow-y-auto space-y-2 pr-0.5">
+                          {Object.entries(modelGroups)
+                            .filter(([g]) => modelFolderFilter === 'all' || g === modelFolderFilter)
+                            .map(([group, files]) => (
+                              <div key={group}>
+                                {modelFolderFilter === 'all' && (
+                                  <div className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider px-0.5 mb-1">{group}</div>
+                                )}
+                                <div className="grid grid-cols-4 gap-1">
+                                  {files.map(f => {
+                                    const assetDir = useCutoutMode ? 'models-cutout' : 'models'
+                                    const imgUrl = `/api/thumbnail/asset/${assetDir}/${f.split('/').map(encodeURIComponent).join('/')}`
+                                    const isSelected = content.model === f
+                                    return (
+                                      <button key={f} title={f.split('/').pop()}
+                                        onClick={() => setContent(c => ({ ...c, model: f }))}
+                                        className={cn('relative aspect-square rounded-md overflow-hidden border-2 transition-all',
+                                          isSelected ? 'border-blue-500 ring-1 ring-blue-300' : 'border-transparent hover:border-gray-300')}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={imgUrl} alt={f.split('/').pop()} className="w-full h-full object-cover" />
+                                        {isSelected && <div className="absolute inset-0 bg-blue-500/10" />}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            ))}
                         </div>
                       </div>
-                    ))}
+                      {(controlsBySection.model ?? []).map(item => (
+                        <ControlItemRow key={item.var} item={item}
+                          value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                          onChange={v => setVar(item.var, v)} />
+                      ))}
+                    </SectionPanel>
+
+                    {/* 헤드라인 */}
+                    <SectionPanel title="헤드라인">
+                      {(() => {
+                        const isKo = lang === 'ko'
+                        const value = isKo ? content.headline : (translations[lang]?.headline ?? '')
+                        return (
+                          <Input value={value} placeholder="헤드라인"
+                            onChange={e => isKo ? setContentField('headline', e.target.value) : setTranslationField('headline', e.target.value)}
+                            className="h-7 text-xs" />
+                        )
+                      })()}
+                      {(controlsBySection.headline ?? []).map(item => (
+                        <ControlItemRow key={item.var} item={item}
+                          value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                          onChange={v => setVar(item.var, v)} />
+                      ))}
+                    </SectionPanel>
+
+                    {/* 서브헤드라인 */}
+                    <SectionPanel title="서브헤드라인" defaultOpen={false}>
+                      {(() => {
+                        const isKo = lang === 'ko'
+                        const value = isKo ? content.sub : (translations[lang]?.sub ?? '')
+                        return (
+                          <Input value={value} placeholder="서브헤드라인"
+                            onChange={e => isKo ? setContentField('sub', e.target.value) : setTranslationField('sub', e.target.value)}
+                            className="h-7 text-xs" />
+                        )
+                      })()}
+                      {(controlsBySection.sub ?? []).map(item => (
+                        <ControlItemRow key={item.var} item={item}
+                          value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                          onChange={v => setVar(item.var, v)} />
+                      ))}
+                    </SectionPanel>
+
+                    {/* 태그라인 */}
+                    <SectionPanel title="태그라인" defaultOpen={false}>
+                      {(() => {
+                        const isKo = lang === 'ko'
+                        const value = isKo ? content.tagline : (translations[lang]?.tagline ?? '')
+                        return (
+                          <Input value={value} placeholder="태그라인"
+                            onChange={e => isKo ? setContentField('tagline', e.target.value) : setTranslationField('tagline', e.target.value)}
+                            className="h-7 text-xs" />
+                        )
+                      })()}
+                      {(controlsBySection.tagline ?? []).map(item => (
+                        <ControlItemRow key={item.var} item={item}
+                          value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                          onChange={v => setVar(item.var, v)} />
+                      ))}
+                    </SectionPanel>
+
+                    {/* 가격 */}
+                    <SectionPanel title="가격" defaultOpen={false}>
+                      <div className="flex gap-2">
+                        <Input value={content.price} placeholder="가격"
+                          onChange={e => setContentField('price', e.target.value)}
+                          className="h-7 text-xs flex-1" />
+                        <Input value={content.priceUnit} placeholder="단위"
+                          onChange={e => setContentField('priceUnit', e.target.value)}
+                          className="h-7 text-xs w-16" />
+                      </div>
+                      {(controlsBySection.price ?? []).map(item => (
+                        <ControlItemRow key={item.var} item={item}
+                          value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                          onChange={v => setVar(item.var, v)} />
+                      ))}
+                    </SectionPanel>
+
+                    {/* 브랜드 */}
+                    <SectionPanel title="브랜드" defaultOpen={false}>
+                      <Input value={content.brandEn} placeholder="병원명 (영문)"
+                        onChange={e => setContentField('brandEn', e.target.value)}
+                        className="h-7 text-xs" />
+                      <Input value={content.brandKo} placeholder="병원명 (한글)"
+                        onChange={e => setContentField('brandKo', e.target.value)}
+                        className="h-7 text-xs" />
+                      {(controlsBySection.brand ?? []).map(item => (
+                        <ControlItemRow key={item.var} item={item}
+                          value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                          onChange={v => setVar(item.var, v)} />
+                      ))}
+                    </SectionPanel>
+
+                    {/* 배경 & 스타일 */}
+                    <SectionPanel title="배경 & 스타일" defaultOpen={false}>
+                      {config ? (
+                        (controlsBySection.style ?? []).map(item => (
+                          <ControlItemRow key={item.var} item={item}
+                            value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
+                            onChange={v => setVar(item.var, v)} />
+                        ))
+                      ) : (
+                        <div className="space-y-2">
+                          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
+                        </div>
+                      )}
+                    </SectionPanel>
+
+                  </div>
                 </div>
-              </div>
-              {/* model-* style controls */}
-              {(controlsBySection.model ?? []).map(item => (
-                <ControlItemRow key={item.var} item={item}
-                  value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                  onChange={v => setVar(item.var, v)} />
-              ))}
-            </SectionPanel>
-
-            {/* 헤드라인 */}
-            <SectionPanel title="헤드라인">
-              {(() => {
-                const isKo = lang === 'ko'
-                const value = isKo ? content.headline : (translations[lang]?.headline ?? '')
-                return (
-                  <Input value={value} placeholder="헤드라인"
-                    onChange={e => isKo ? setContentField('headline', e.target.value) : setTranslationField('headline', e.target.value)}
-                    className="h-7 text-xs" />
-                )
-              })()}
-              {(controlsBySection.headline ?? []).map(item => (
-                <ControlItemRow key={item.var} item={item}
-                  value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                  onChange={v => setVar(item.var, v)} />
-              ))}
-            </SectionPanel>
-
-            {/* 서브헤드라인 */}
-            <SectionPanel title="서브헤드라인" defaultOpen={false}>
-              {(() => {
-                const isKo = lang === 'ko'
-                const value = isKo ? content.sub : (translations[lang]?.sub ?? '')
-                return (
-                  <Input value={value} placeholder="서브헤드라인"
-                    onChange={e => isKo ? setContentField('sub', e.target.value) : setTranslationField('sub', e.target.value)}
-                    className="h-7 text-xs" />
-                )
-              })()}
-              {(controlsBySection.sub ?? []).map(item => (
-                <ControlItemRow key={item.var} item={item}
-                  value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                  onChange={v => setVar(item.var, v)} />
-              ))}
-            </SectionPanel>
-
-            {/* 태그라인 */}
-            <SectionPanel title="태그라인" defaultOpen={false}>
-              {(() => {
-                const isKo = lang === 'ko'
-                const value = isKo ? content.tagline : (translations[lang]?.tagline ?? '')
-                return (
-                  <Input value={value} placeholder="태그라인"
-                    onChange={e => isKo ? setContentField('tagline', e.target.value) : setTranslationField('tagline', e.target.value)}
-                    className="h-7 text-xs" />
-                )
-              })()}
-              {(controlsBySection.tagline ?? []).map(item => (
-                <ControlItemRow key={item.var} item={item}
-                  value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                  onChange={v => setVar(item.var, v)} />
-              ))}
-            </SectionPanel>
-
-            {/* 가격 */}
-            <SectionPanel title="가격" defaultOpen={false}>
-              <div className="flex gap-2">
-                <Input value={content.price} placeholder="가격"
-                  onChange={e => setContentField('price', e.target.value)}
-                  className="h-7 text-xs flex-1" />
-                <Input value={content.priceUnit} placeholder="단위"
-                  onChange={e => setContentField('priceUnit', e.target.value)}
-                  className="h-7 text-xs w-16" />
-              </div>
-              {(controlsBySection.price ?? []).map(item => (
-                <ControlItemRow key={item.var} item={item}
-                  value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                  onChange={v => setVar(item.var, v)} />
-              ))}
-            </SectionPanel>
-
-            {/* 브랜드 */}
-            <SectionPanel title="브랜드" defaultOpen={false}>
-              <Input value={content.brandEn} placeholder="병원명 (영문)"
-                onChange={e => setContentField('brandEn', e.target.value)}
-                className="h-7 text-xs" />
-              <Input value={content.brandKo} placeholder="병원명 (한글)"
-                onChange={e => setContentField('brandKo', e.target.value)}
-                className="h-7 text-xs" />
-              {(controlsBySection.brand ?? []).map(item => (
-                <ControlItemRow key={item.var} item={item}
-                  value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                  onChange={v => setVar(item.var, v)} />
-              ))}
-            </SectionPanel>
-
-            {/* 배경 & 스타일 */}
-            <SectionPanel title="배경 & 스타일" defaultOpen={false}>
-              {config ? (
-                (controlsBySection.style ?? []).map(item => (
-                  <ControlItemRow key={item.var} item={item}
-                    value={varOverrides[item.var] ?? config?.vars[item.var] ?? ''}
-                    onChange={v => setVar(item.var, v)} />
-                ))
-              ) : (
-                <div className="space-y-2">
-                  {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
-                </div>
-              )}
-            </SectionPanel>
-
+              </>
+            )}
           </div>
-        </>)}
+
         </aside>
 
         {/* ── 중앙: 썸네일 미리보기 ── */}
@@ -893,11 +967,11 @@ export default function ThumbnailEditorPage() {
           {selectedId ? (
             <div className="p-3">
               <AppContextPreview
-                thumbnailUrl={buildUrl(lang)}
-                headline={activeContent.headline}
-                brandName={content.brandKo || content.brandEn}
-                price={content.price}
-                priceUnit={content.priceUnit}
+                thumbnailUrl={appContextThumbnailUrl}
+                headline={appContextHeadline}
+                brandName={appContextBrandName}
+                price={appContextPrice}
+                priceUnit={appContextPriceUnit}
               />
             </div>
           ) : (
@@ -954,9 +1028,7 @@ function ThumbnailFrame({ src, width, height }: { src: string; width: number; he
 }
 
 function AppContextPreview({ thumbnailUrl, headline, brandName, price, priceUnit }: AppContextPreviewProps) {
-  const displayPrice = price
-    ? `₩${Number(price).toLocaleString()}${priceUnit ? ` ${priceUnit}` : ''}`
-    : null
+  const displayPrice = formatPriceLabel(price, priceUnit)
 
   return (
     <div className="flex flex-col gap-3 w-full">
@@ -1035,4 +1107,16 @@ function AppContextPreview({ thumbnailUrl, headline, brandName, price, priceUnit
 
     </div>
   )
+}
+
+function formatPriceLabel(price: string, priceUnit: string) {
+  const trimmed = price.trim()
+  if (!trimmed) return null
+  if (!/^[\d.,-]+$/.test(trimmed)) return trimmed
+
+  const numeric = Number(trimmed.replace(/,/g, ''))
+  if (!Number.isFinite(numeric)) return trimmed
+
+  const unit = priceUnit.trim()
+  return `₩${numeric.toLocaleString()}${unit ? ` ${unit}` : ''}`
 }
