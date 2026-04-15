@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     effectTokenId,
     headline, headlineKo, subheadline, brandEn, brandKo, price, priceUnit,
     model, cutout,
-    fontFamily, accentColor, panelColor,
+    fontFamily, accentColor, panelColor, textColor, subColor,
     sessionId,
     lang,
   } = await req.json()
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   try {
     const html = composeHtml(layoutTokenId, effectTokenId, {
       headline, headlineKo, subheadline, brandEn, brandKo, price, priceUnit,
-      model, cutout, baseUrl, fontFamily, accentColor, panelColor,
+      model, cutout, baseUrl, fontFamily, accentColor, panelColor, textColor, subColor,
     })
 
     const tmpFile = path.join(os.tmpdir(), `builder-${Date.now()}.html`)

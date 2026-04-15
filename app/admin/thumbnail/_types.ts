@@ -8,8 +8,10 @@ export interface TemplateConfig {
   layoutTokenId: string   // 'bottom-text-stack'
   effectTokenId: string   // 'overlay-dark'
   fontFamily:    string   // 'BlackHan'
-  accentColor:   string   // '#FF6B9D'
-  panelColor:    string   // '#1A1A2E'
+  accentColor:   string   // '#FF6B9D'  — 포인트 색 / 태그박스 배경
+  panelColor:    string   // '#1A1A2E'  — 배경색
+  textColor?:    string   // '#2B7DB8'  — 헤드라인(영문) 색
+  subColor?:     string   // '#6B35A0'  — 헤드라인(한글) / 서브 색
   texts: {
     ko:   TextContent
     en?:  TextContent

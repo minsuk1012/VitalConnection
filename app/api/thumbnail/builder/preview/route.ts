@@ -31,6 +31,8 @@ export async function GET(req: NextRequest) {
       fontFamily:  s.get('fontFamily')  ?? undefined,
       accentColor: s.get('accentColor') ?? undefined,
       panelColor:  s.get('panelColor')  ?? undefined,
+      textColor:   s.get('textColor')   ?? undefined,
+      subColor:    s.get('subColor')    ?? undefined,
       baseUrl,
     })
     return new NextResponse(html, {

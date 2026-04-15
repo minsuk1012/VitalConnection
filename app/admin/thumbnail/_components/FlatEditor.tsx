@@ -175,6 +175,20 @@ export function FlatEditor({
               className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
             <span className="text-[10px] text-gray-400">{config.panelColor}</span>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">헤드1색</span>
+            <input type="color" value={config.textColor ?? '#2B7DB8'}
+              onChange={e => onConfigChange({ textColor: e.target.value })}
+              className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
+            <span className="text-[10px] text-gray-400">{config.textColor ?? '기본'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">헤드2색</span>
+            <input type="color" value={config.subColor ?? '#6B35A0'}
+              onChange={e => onConfigChange({ subColor: e.target.value })}
+              className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
+            <span className="text-[10px] text-gray-400">{config.subColor ?? '기본'}</span>
+          </div>
         </div>
       </Section>
 

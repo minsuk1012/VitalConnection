@@ -374,17 +374,21 @@ export default function ThumbnailEditorPage() {
 
   useEffect(() => {
     if (!newConfig) return
+    const texts  = newConfig.texts[flatLang] ?? newConfig.texts.ko
     const params = new URLSearchParams({
       layoutToken: newConfig.layoutTokenId,
       effectToken: newConfig.effectTokenId,
       fontFamily:  newConfig.fontFamily,
       accentColor: newConfig.accentColor,
       panelColor:  newConfig.panelColor,
-      headline:    newConfig.texts[flatLang]?.headline    ?? newConfig.texts.ko.headline,
-      sub:         newConfig.texts[flatLang]?.subheadline ?? newConfig.texts.ko.subheadline,
-      price:       newConfig.texts[flatLang]?.price       ?? newConfig.texts.ko.price,
-      brandKo:     newConfig.texts[flatLang]?.brandKo     ?? newConfig.texts.ko.brandKo,
-      brandEn:     newConfig.texts[flatLang]?.brandEn     ?? newConfig.texts.ko.brandEn,
+      ...(newConfig.textColor ? { textColor:  newConfig.textColor  } : {}),
+      ...(newConfig.subColor  ? { subColor:   newConfig.subColor   } : {}),
+      headline:    texts.headline,
+      headlineKo:  texts.headlineKo,
+      sub:         texts.subheadline,
+      price:       texts.price,
+      brandKo:     texts.brandKo,
+      brandEn:     texts.brandEn,
     })
     setIframeSrc(`/api/thumbnail/builder/preview?${params}`)
   }, [newConfig, flatLang])
