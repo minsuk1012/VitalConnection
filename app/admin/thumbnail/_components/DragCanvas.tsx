@@ -18,6 +18,22 @@ interface Props {
 // 스냅 임계값 (source 좌표 기준, px)
 const SNAP_THRESHOLD = 8
 
+// 리사이즈 핸들 정의
+const RESIZE_HANDLES: Array<{
+  id:      string
+  style:   React.CSSProperties
+  isHoriz: boolean  // true면 가로(width) 조절 핸들
+}> = [
+  { id: 'nw', isHoriz: true,  style: { top: -4,     left: -4,                               cursor: 'nw-resize' } },
+  { id: 'n',  isHoriz: false, style: { top: -4,     left: '50%', transform: 'translateX(-50%)', cursor: 'n-resize'  } },
+  { id: 'ne', isHoriz: true,  style: { top: -4,     right: -4,                              cursor: 'ne-resize' } },
+  { id: 'e',  isHoriz: true,  style: { top: '50%',  right: -4,   transform: 'translateY(-50%)', cursor: 'e-resize'  } },
+  { id: 'se', isHoriz: true,  style: { bottom: -4,  right: -4,                              cursor: 'se-resize' } },
+  { id: 's',  isHoriz: false, style: { bottom: -4,  left: '50%', transform: 'translateX(-50%)', cursor: 's-resize'  } },
+  { id: 'sw', isHoriz: true,  style: { bottom: -4,  left: -4,                               cursor: 'sw-resize' } },
+  { id: 'w',  isHoriz: true,  style: { top: '50%',  left: -4,    transform: 'translateY(-50%)', cursor: 'w-resize'  } },
+]
+
 const ELEMENT_COLORS: Record<string, string> = {
   'brand-ko':    '#6366f1',
   'headline':    '#2563eb',
@@ -45,6 +61,13 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
     startMouseY: number
     startX:      number
     startY:      number
+  } | null>(null)
+
+  const resizingRef = useRef<{
+    cssTarget:   string
+    isWest:      boolean
+    startMouseX: number
+    startW:      number
   } | null>(null)
 
   const [activeTarget,    setActiveTarget]    = useState<string | null>(null)
@@ -122,7 +145,37 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
     setGuides({ x: null, y: null })
   }, [getPos, onSelectTarget])
 
+  const handleResizeMouseDown = useCallback((
+    e: React.MouseEvent,
+    handle: { id: string; isHoriz: boolean },
+    cssTarget: string,
+    startW: number,
+  ) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!handle.isHoriz) return  // 상하 핸들은 무시 (height auto)
+    const isWest = handle.id === 'w' || handle.id === 'nw' || handle.id === 'sw'
+    resizingRef.current = { cssTarget, isWest, startMouseX: e.clientX, startW }
+  }, [])
+
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // 리사이즈 중
+    const r = resizingRef.current
+    if (r) {
+      const sign = r.isWest ? -1 : 1
+      const newW = Math.max(50, Math.round(r.startW + sign * (e.clientX - r.startMouseX) / scale))
+      try {
+        const root = frameRef.current?.contentDocument?.documentElement
+        if (root) root.style.setProperty(`--${r.cssTarget}-max-width`, `${newW}px`)
+      } catch {}
+      setLocalRects(prev => {
+        const curr = prev[r.cssTarget]
+        if (!curr) return prev
+        return { ...prev, [r.cssTarget]: { ...curr, w: newW } }
+      })
+      return
+    }
+
     const d = draggingRef.current
     if (!d) return
 
@@ -145,6 +198,13 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
   }, [scale, sourceSize, frameRef, computeSnap])
 
   const handleMouseUp = useCallback(() => {
+    const r = resizingRef.current
+    if (r) {
+      const rect = localRects[r.cssTarget]
+      if (rect) onElementResize(r.cssTarget, rect.w)
+      resizingRef.current = null
+      return
+    }
     const d = draggingRef.current
     if (!d) return
     const local = localPositions[d.cssTarget]
@@ -152,7 +212,7 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
     draggingRef.current = null
     setActiveTarget(null)
     setGuides({ x: null, y: null })
-  }, [localPositions, onElementMove])
+  }, [localPositions, localRects, onElementMove, onElementResize])
 
   const positionedEls = elements.filter(el =>
     el.props.x !== undefined && el.props.y !== undefined
@@ -233,6 +293,26 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
             }}>
               {sel.label}  ({Math.round(rect.x)}, {Math.round(rect.y)})  {Math.round(rect.w)}×{Math.round(rect.h)}
             </div>
+
+            {/* 8개 리사이즈 핸들 */}
+            {RESIZE_HANDLES.map(handle => (
+              <div
+                key={handle.id}
+                style={{
+                  position:      'absolute',
+                  width:         7,
+                  height:        7,
+                  background:    'white',
+                  border:        `1.5px solid ${color}`,
+                  borderRadius:  1,
+                  pointerEvents: 'all',
+                  zIndex:        30,
+                  opacity:       handle.isHoriz ? 1 : 0.4,
+                  ...handle.style,
+                }}
+                onMouseDown={e => handleResizeMouseDown(e, handle, selectedTarget!, rect.w)}
+              />
+            ))}
           </div>
         )
       })()}
