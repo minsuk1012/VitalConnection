@@ -45,9 +45,7 @@ thumbnail/templates/generated/{category}/img-*.json
 ## Step 1: 변형 생성 (`transform-references.ts`)
 
 ### 모델
-`gemini-2.0-flash-preview-image-generation` (이미지 입력 + 이미지 출력 지원)
-
-> ⚠️ `gemini-3.1-flash-image-preview`는 텍스트 프롬프트 전용. 이미지 입력을 받아 이미지를 편집/생성하려면 이미지 입력을 지원하는 모델을 사용해야 함.
+`gemini-3.1-flash-image-preview` — 이미지 입력 + 이미지 출력 모두 지원 (편집 포함)
 
 ### 카테고리별 프롬프트 전략
 
@@ -252,7 +250,7 @@ thumbnail/
 
 ## 기술 제약 및 주의사항
 
-1. **모델 선택**: 이미지 입력 + 이미지 출력이 동시에 필요하므로 모델 지원 여부 확인 필요. 현재 `gemini-3.1-flash-image-preview`는 텍스트 → 이미지 전용. 이미지 편집은 `gemini-2.0-flash-preview-image-generation` 또는 동급 모델 사용.
+1. **모델**: `gemini-3.1-flash-image-preview` 단일 모델로 전 파이프라인 통일. 이미지 입력(레퍼런스) + 이미지 출력(변형/분리) 모두 지원.
 2. **API 비용**: 이미지 입력 + 이미지 출력은 텍스트 대비 토큰 비용 높음. 배치 처리 시 카테고리당 순차 실행.
 3. **레이어 분리 한계**: Gemini가 완벽한 인페인팅을 보장하지 않음. 텍스트 제거 후 배경이 어색할 수 있음 — 이 경우 스타일 레이어는 "참고용"으로만 활용하고 실제 템플릿 렌더링은 기존 HTML 템플릿 엔진으로 처리.
 4. **`raw/` 폴더 제외**: 원본 사진만 있어 텍스트/스타일 분리 파이프라인 대상 아님.
