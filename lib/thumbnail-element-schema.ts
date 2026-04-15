@@ -23,6 +23,9 @@ export const FONT_OPTIONS = [
 
 /** 모든 prop의 컨트롤 정의 */
 export const PROP_META: Record<string, ControlDef> = {
+  // 위치 (드래그앤드랍으로 제어)
+  x: { type: 'range', label: 'X 위치', min: 0, max: 1080, step: 1, unit: 'px' },
+  y: { type: 'range', label: 'Y 위치', min: 0, max: 1080, step: 1, unit: 'px' },
   // 공통
   opacity:       { type: 'range',  label: '불투명도',  min: 0,    max: 1,    step: 0.05, unit: '' },
   zIndex:        { type: 'range',  label: '레이어',    min: 0,    max: 20,   step: 1,    unit: '' },

@@ -1,68 +1,75 @@
 /* solid-text-left.css
-   사용 사례: 이미지 없는 단색 배경 + 좌측 텍스트
-   ASCE+엑소좀 스타일: 2색 대형 헤드라인 + 민트 태그박스 + 대형 가격 */
+   모델 없는 단색 배경 + 절대 좌표 텍스트 배치
+   elements[].props.x/y 로 각 요소 위치 제어 → 드래그앤드랍 지원 */
 
-/* 모델 레이어 숨김 (텍스트 전용 레이아웃) */
+/* 모델 레이어 숨김 */
 .model-layer { display: none; }
 
-.text-layer {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 80px 72px;
-  gap: 0;
-}
+/* text-layer: 절대 좌표 기준 */
+.text-layer { position: relative; }
 
-/* tagline — "반짝반짝 빛나는 광채피부!" */
+/* brand-ko (태그라인) */
 .brand-ko {
-  font-size: 22px;
+  position: absolute;
+  left:      var(--brand-ko-x, 72px);
+  top:       var(--brand-ko-y, 200px);
+  font-size: var(--brand-ko-font-size, 22px);
   font-family: var(--brand-ko-font-family, var(--headline-font, 'Pretendard'));
-  color: var(--brand-ko-color, var(--text-color, #333333));
+  color:     var(--brand-ko-color, var(--text-color, #333333));
   font-weight: 400;
-  margin-bottom: 20px;
   opacity: 0.75;
+  max-width: var(--brand-ko-max-width, 900px);
 }
 
-/* 영문 헤드라인 — "ASCE+" */
+/* 영문 헤드라인 */
 .headline {
-  font-size: var(--headline-font-size, 140px);
-  line-height: var(--headline-line-height, 1.0);
-  color: var(--headline-color, var(--text-color, #2B7DB8));
-  font-family: var(--headline-font-family, var(--headline-font, 'BlackHan'));
+  position: absolute;
+  left:           var(--headline-x, 72px);
+  top:            var(--headline-y, 380px);
+  font-size:      var(--headline-font-size, 140px);
+  line-height:    var(--headline-line-height, 1.0);
+  color:          var(--headline-color, var(--text-color, #2B7DB8));
+  font-family:    var(--headline-font-family, var(--headline-font, 'BlackHan'));
   letter-spacing: var(--headline-letter-spacing, -2px);
-  max-width: var(--headline-max-width, 900px);
+  max-width:      var(--headline-max-width, 900px);
 }
 
-/* 한글 헤드라인 — "엑소좀" */
+/* 한글 헤드라인 */
 .headline-ko {
-  font-size: var(--headline-ko-font-size, 136px);
-  line-height: var(--headline-ko-line-height, 1.0);
-  color: var(--headline-ko-color, var(--sub-color, #6B35A0));
-  font-family: var(--headline-ko-font-family, var(--headline-font, 'BlackHan'));
+  position: absolute;
+  left:           var(--headline-ko-x, 72px);
+  top:            var(--headline-ko-y, 540px);
+  font-size:      var(--headline-ko-font-size, 136px);
+  line-height:    var(--headline-ko-line-height, 1.0);
+  color:          var(--headline-ko-color, var(--sub-color, #6B35A0));
+  font-family:    var(--headline-ko-font-family, var(--headline-font, 'BlackHan'));
   letter-spacing: var(--headline-ko-letter-spacing, -2px);
-  max-width: var(--headline-ko-max-width, 900px);
-  margin-bottom: 28px;
+  max-width:      var(--headline-ko-max-width, 900px);
 }
 
-/* 태그 박스 — "피부탄력, 수분조절, 안티에이징" */
+/* 서브카피 (태그 박스) */
 .subheadline {
-  font-size: var(--subheadline-font-size, 22px);
+  position: absolute;
+  left:       var(--subheadline-x, 72px);
+  top:        var(--subheadline-y, 710px);
+  font-size:  var(--subheadline-font-size, 22px);
   font-weight: 400;
-  color: var(--subheadline-color, #333333);
+  color:      var(--subheadline-color, #333333);
   background: var(--subheadline-bg-color, var(--accent-color, #B8E8D0));
   display: inline-block;
   padding: 6px 16px;
   border-radius: 4px;
-  margin-bottom: 56px;
-  align-self: flex-start;
+  max-width: var(--subheadline-max-width, 900px);
 }
 
 /* 가격 */
-.price-block { margin-top: 0; }
+.price-block {
+  position: absolute;
+  left: var(--price-x, 72px);
+  top:  var(--price-y, 840px);
+}
 .price      { font-size: var(--price-font-size, 118px); line-height: 1.0; color: var(--price-color, var(--accent-color, #FF6B9D)); }
-.price-unit { font-size: var(--price-unit-size, 52px); color: var(--price-unit-color, var(--sub-color, rgba(255,255,255,0.8))); }
+.price-unit { font-size: var(--price-unit-size, 52px);  color: var(--price-unit-color, var(--sub-color, rgba(0,0,0,0.6))); }
 
-/* brand-en 숨김 (이 레이아웃에서 미사용) */
-.brand-en   { display: none; }
+/* brand-en 숨김 */
+.brand-en { display: none; }

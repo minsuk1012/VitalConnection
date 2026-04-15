@@ -14,24 +14,6 @@
     border: 30px dashed var(--text-color);
   }
 
-  /* 스탬프 장식 (톱니바퀴 원형 스탬프) */
-  .stamp {
-    position: absolute; right: 80px; top: -50px; z-index: 5;
-    width: 400px; height: 400px;
-    background: var(--accent-color, #FFE135);
-    /* 톱니바퀴 (zig-zag 뱃지) 구현 */
-    clip-path: polygon(50% 0%, 61% 5%, 72% 0%, 80% 9%, 90% 8%, 95% 18%, 100% 20%, 100% 31%, 95% 39%, 100% 50%, 95% 61%, 100% 69%, 100% 80%, 95% 82%, 90% 92%, 80% 91%, 72% 100%, 61% 95%, 50% 100%, 39% 95%, 28% 100%, 20% 91%, 10% 92%, 5% 82%, 0% 80%, 0% 69%, 5% 61%, 0% 50%, 5% 39%, 0% 31%, 0% 20%, 5% 18%, 10% 8%, 20% 9%, 28% 0%, 39% 5%);
-    display: flex; align-items: center; justify-content: center;
-    transform: rotate(15deg);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
-  .stamp-text {
-    font-family: 'Bebas', 'Noto', sans-serif;
-    font-size: 80px; font-weight: 900; color: var(--text-color);
-    text-align: center; line-height: 1; letter-spacing: 2px;
-    transform: rotate(-15deg);
-  }
-
   /* 서브 라인 장식 */
   .marquee {
     position: absolute; top: 180px; left: -50px; width: 1200px; height: 80px;
@@ -83,11 +65,6 @@
 </style>
 </head>
 <body>
-  <!-- 스탬프 뱃지 -->
-  <div class="stamp" style="display: {{TAGLINE_DISPLAY}}}};">
-    <div class="stamp-text">{{TAGLINE}}</div>
-  </div>
-  
   <div class="marquee">TRENDING TRENDING TRENDING TRENDING HOT HOT HOT</div>
 
   <img class="model-cutout" src="{{MODEL_PATH}}">

@@ -200,24 +200,6 @@
       "createdAt": "2025-01-01T00:00:00.000Z"
     },
     {
-      "id": "diagonal-split",
-      "name": "Diagonal Split",
-      "nameKo": "대각선 분할",
-      "layout": "diagonal",
-      "tone": "dark",
-      "priceStyle": "none",
-      "tags": [
-        "diagonal",
-        "premium",
-        "dark"
-      ],
-      "description": "대각선 어두운 패널 + 영문 헤드라인",
-      "color": "#2c1a0e",
-      "source": "legacy",
-      "accentColor": "#2c1a0e",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    },
-    {
       "id": "solid-bg-stacked",
       "name": "Solid BG Stacked",
       "nameKo": "단색 배경 스택",
@@ -329,44 +311,6 @@
       "color": "#8B1A1A",
       "source": "legacy",
       "accentColor": "#8B1A1A",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "text-only-minimal",
-      "name": "Text Only Minimal",
-      "nameKo": "텍스트 전용 미니멀",
-      "layout": "text-only",
-      "tone": "minimal",
-      "priceStyle": "inline",
-      "tags": [
-        "text-only",
-        "minimal",
-        "hashtag",
-        "clean"
-      ],
-      "description": "인물 없음, 단색 배경 + 해시태그 + 헤드라인 + 가격 (루미에의원 스타일)",
-      "color": "#8B6914",
-      "source": "legacy",
-      "accentColor": "#8B6914",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "text-only-bold",
-      "name": "Text Only Bold",
-      "nameKo": "텍스트 전용 임팩트",
-      "layout": "text-only",
-      "tone": "dark",
-      "priceStyle": "inline",
-      "tags": [
-        "text-only",
-        "bold",
-        "dark",
-        "impact"
-      ],
-      "description": "인물 없음, 다크 배경 + 초대형 헤드라인 + 초대형 가격",
-      "color": "#0A0A0A",
-      "source": "legacy",
-      "accentColor": "#0A0A0A",
       "createdAt": "2025-01-01T00:00:00.000Z"
     },
     {
@@ -630,46 +574,6 @@
       "requiresCutout": true,
       "source": "legacy",
       "accentColor": "#FFCDE1",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "gradient-glassmorphism",
-      "name": "Glassmorphism",
-      "nameKo": "글래스모피즘 그라디언트",
-      "layout": "gradient-bg",
-      "tone": "premium",
-      "priceStyle": "inline",
-      "tags": [
-        "gradient",
-        "glassmorphism",
-        "blur",
-        "card"
-      ],
-      "description": "화려한 그라디언트 풀 배경 위에 반투명 유리 질감의 텍스트 카드",
-      "color": "#A1C4FD",
-      "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#A1C4FD",
-      "createdAt": "2025-01-01T00:00:00.000Z"
-    },
-    {
-      "id": "gradient-dark-spotlight",
-      "name": "Dark Glow Spotlight",
-      "nameKo": "다크 글로우 스팟라이트",
-      "layout": "gradient-bg",
-      "tone": "dark",
-      "priceStyle": "inline",
-      "tags": [
-        "gradient",
-        "dark",
-        "neon",
-        "spotlight"
-      ],
-      "description": "어두운 배경과 강렬한 네온 방사형 그라디언트(스팟라이트)가 대비되는 고급형",
-      "color": "#E94560",
-      "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#E94560",
       "createdAt": "2025-01-01T00:00:00.000Z"
     },
     {
