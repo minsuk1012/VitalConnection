@@ -33,3 +33,8 @@ qa-data/
 *storybook.log
 storybook-static
 .worktrees/
+
+# Thumbnail pipeline generated assets
+thumbnail/references-transformed/
+thumbnail/references-layers/
+thumbnail/templates/generated/
