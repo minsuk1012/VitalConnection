@@ -1,5 +1,7 @@
 /**
- * 레퍼런스 이미지를 Gemini로 변형하여 오리지널 자산 생성
+ * 레퍼런스 이미지 → Gemini 3.1 2-step 변형
+ * Step 1: 이미지 → 레이아웃 분석 (gemini-3.1-flash-image-preview, TEXT 출력)
+ * Step 2: 레이아웃 서술 → 새 이미지 생성 (gemini-3.1-flash-image-preview, IMAGE 출력)
  *
  * Run: npm run thumbnail:transform
  * Run (카테고리): npm run thumbnail:transform -- --cat=overlay
@@ -17,12 +19,10 @@ config({ path: path.resolve(__dirname, '../../.env.local') });
 config({ path: path.resolve(__dirname, '../../.env') });
 
 import { GoogleGenAI } from '@google/genai';
-import prompts from './category-prompts.json' with { type: 'json' };
+import categoryPrompts from './category-prompts.json' with { type: 'json' };
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY가 .env.local에 없습니다');
-
-const genai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 const MODEL = 'gemini-3.1-flash-image-preview';
 const MAX_RETRIES = 3;
@@ -33,10 +33,6 @@ const OUT_DIR = path.join(__dirname, '../../thumbnail/references-transformed');
 
 const CATEGORIES = ['overlay', 'a_text', 'nukki', 'overlay_effect'] as const;
 type Category = typeof CATEGORIES[number];
-
-function buildPrompt(category: Category): string {
-  return `${prompts.common}\n\n${prompts[category]}`;
-}
 
 function getMimeType(filePath: string): string {
   const ext = path.extname(filePath).toLowerCase();
@@ -53,48 +49,98 @@ function getOutputPath(category: string, index: number): string {
   return path.join(outDir, `img-${padded}.webp`);
 }
 
+/**
+ * Step 1: 레퍼런스 이미지 → 레이아웃 서술 (텍스트 출력)
+ * base64를 함수 스코프에 가두어 Step 2 요청에 오염되지 않도록 분리
+ */
+async function analyzeLayout(refPath: string, category: Category): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+  const imageBuffer = fs.readFileSync(refPath);
+  const base64 = imageBuffer.toString('base64');
+  const mimeType = getMimeType(refPath);
+
+  const categoryHint = categoryPrompts[category];
+
+  const response = await ai.models.generateContent({
+    model: MODEL,
+    contents: [{ parts: [
+      { inlineData: { mimeType, data: base64 } },
+      { text: `Analyze this Korean beauty clinic thumbnail layout in 6 bullet points max. Be concise and specific:
+- Text elements: exact position (top/bottom-left/right), size (large/medium/small), color, number of lines
+- Model/person: position, framing, pose direction (if present)
+- Background: type (photo/solid/gradient), main colors
+- Overlay: type and approximate opacity (if present)
+- Decorative elements: shapes, lines, badges (if present)
+- Overall style: ${categoryHint}` }
+    ]}],
+    config: { responseModalities: ['TEXT'], maxOutputTokens: 400 }
+  });
+
+  return response.text ?? '';
+}
+
+/**
+ * Step 2: 레이아웃 서술 → 새 이미지 생성 (이미지 출력)
+ * 별도 GoogleGenAI 인스턴스 사용, 이미지 데이터 없이 순수 텍스트 프롬프트만
+ */
+async function generateFromLayout(layoutDesc: string, category: Category): Promise<Buffer> {
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+  const prompt = `Create a Korean beauty clinic SNS thumbnail (1:1 square format).
+
+Layout specification:
+${layoutDesc}
+
+Critical rules:
+- Use a completely original Korean beauty model (different person, not copied from any source)
+- Replace ALL text with placeholder labels in the exact same positions and sizes: [HEADLINE], [SUBTEXT], [PRICE], [BRAND]
+- Maintain the exact layout composition described above
+- Apply Korean beauty clinic professional aesthetic
+- ${categoryPrompts[category]}
+- Output must be 100% original creative work`;
+
+  const response = await ai.models.generateContent({
+    model: MODEL,
+    contents: [{ parts: [{ text: prompt }] }],
+    config: { responseModalities: ['IMAGE'] }
+  });
+
+  const parts = response.candidates?.[0]?.content?.parts ?? [];
+  const imagePart = parts.find((p: any) => p.inlineData);
+  if (!imagePart) throw new Error('이미지 응답 없음');
+
+  return Buffer.from(imagePart.inlineData.data, 'base64');
+}
+
 async function transformImage(
   refPath: string,
   outPath: string,
-  prompt: string
+  category: Category
 ): Promise<boolean> {
   if (fs.existsSync(outPath)) {
     console.log(`  ⏭  이미 존재: ${path.basename(outPath)}`);
     return false;
   }
 
-  console.log(`  🎨 변형 중: ${path.basename(refPath)} → ${path.basename(outPath)}`);
+  console.log(`  🔍 분석: ${path.basename(refPath)}`);
   const startMs = Date.now();
 
-  const imageBuffer = fs.readFileSync(refPath);
-  const base64Image = imageBuffer.toString('base64');
-  const mimeType = getMimeType(refPath);
-
   let lastError: Error | null = null;
+
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const response = await genai.models.generateContent({
-        model: MODEL,
-        contents: [{
-          parts: [
-            { inlineData: { mimeType, data: base64Image } },
-            { text: prompt }
-          ]
-        }],
-        config: { responseModalities: ['IMAGE'] }
-      });
+      // Step 1: 레이아웃 분석 (이미지 데이터는 이 함수 스코프에서만 사용)
+      const layoutDesc = await analyzeLayout(refPath, category);
+      if (!layoutDesc) throw new Error('레이아웃 분석 결과 없음');
 
-      const parts = response.candidates?.[0]?.content?.parts ?? [];
-      const imagePart = parts.find((p: any) => p.inlineData);
+      console.log(`  🎨 생성: ${path.basename(outPath)}`);
 
-      if (!imagePart) {
-        console.warn(`  ⚠️  이미지 응답 없음: ${path.basename(refPath)}`);
-        return false;
-      }
+      // Step 2: 레이아웃 서술 → 이미지 생성 (이미지 데이터 오염 없음)
+      const imageBuffer = await generateFromLayout(layoutDesc, category);
 
-      const buffer = Buffer.from(imagePart.inlineData.data, 'base64');
       const sharp = (await import('sharp')).default;
-      await sharp(buffer)
+      await sharp(imageBuffer)
         .resize(1080, 1080, { fit: 'cover' })
         .webp({ quality: 90 })
         .toFile(outPath);
@@ -141,8 +187,7 @@ async function main() {
       process.exit(1);
     }
     const outPath = getOutputPath(category, 0);
-    const prompt = buildPrompt(category as Category);
-    await transformImage(refPath, outPath, prompt);
+    await transformImage(refPath, outPath, category as Category);
     return;
   }
 
@@ -157,13 +202,11 @@ async function main() {
     }
 
     const targets = isTest ? [images[0]] : images;
-    const prompt = buildPrompt(category);
-
     console.log(`\n[${category}] ${targets.length}장 처리`);
 
     for (let i = 0; i < targets.length; i++) {
       const outPath = getOutputPath(category, i);
-      const did = await transformImage(targets[i], outPath, prompt);
+      const did = await transformImage(targets[i], outPath, category);
       if (did) generated++;
     }
   }
