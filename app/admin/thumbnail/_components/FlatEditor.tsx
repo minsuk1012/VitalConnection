@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button'
 import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 import type { TemplateConfig, TextContent, Lang } from '../_types'
 import { LANG_LABELS } from '../_types'
-import { ELEMENT_TYPES, PROP_META } from '@/lib/thumbnail-element-schema'
-import type { ControlDef } from '@/lib/thumbnail-element-schema'
+import { ElementControls } from './ElementControls'
 
 interface Props {
   layouts:              LayoutToken[]
@@ -26,6 +25,7 @@ interface Props {
   onConvertLegacy?:     () => void
   selectedTarget?:      string | null
   onSelectTarget?:      (t: string | null) => void
+  onBack:               () => void
 }
 
 const LANGS = ['ko', 'en', 'ja', 'zh'] as Lang[]
@@ -48,61 +48,12 @@ function Section({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
-function PropControl({ prop, value, onChange }: {
-  prop: string
-  value: string | number | undefined
-  onChange: (v: string | number) => void
-}) {
-  const meta: ControlDef | undefined = PROP_META[prop]
-  if (!meta) return null
-
-  const strVal = String(value ?? '')
-
-  if (meta.type === 'color') return (
-    <div className="flex items-center gap-2">
-      <span className="text-[10px] text-gray-400 flex-1">{meta.label}</span>
-      <input type="color"
-        value={strVal.startsWith('#') ? strVal : '#ffffff'}
-        onChange={e => onChange(e.target.value)}
-        className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0.5"
-      />
-      <span className="text-[10px] text-gray-400 font-mono w-16 truncate">{strVal}</span>
-    </div>
-  )
-
-  if (meta.type === 'select') return (
-    <div className="flex items-center gap-2">
-      <span className="text-[10px] text-gray-400 flex-1">{meta.label}</span>
-      <select value={strVal}
-        onChange={e => onChange(e.target.value)}
-        className="text-xs border border-gray-200 rounded px-1.5 h-6 bg-white flex-shrink-0 max-w-[120px]">
-        {meta.options?.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-    </div>
-  )
-
-  // range
-  const numVal = parseFloat(strVal) || (meta.min ?? 0)
-  return (
-    <div className="space-y-0.5">
-      <div className="flex justify-between">
-        <span className="text-[10px] text-gray-400">{meta.label}</span>
-        <span className="text-[10px] text-blue-500 font-mono">{numVal}{meta.unit}</span>
-      </div>
-      <input type="range" min={meta.min} max={meta.max} step={meta.step ?? 1}
-        value={numVal}
-        onChange={e => onChange(parseFloat(e.target.value))}
-        className="w-full h-1 accent-blue-500 cursor-pointer"
-      />
-    </div>
-  )
-}
-
 export function FlatEditor({
   layouts, effects, config, templateName, lang, onLangChange,
   onConfigChange, onTemplateNameChange, onSave, onTranslate,
   saving, translating, isLegacy, onConvertLegacy,
   selectedTarget, onSelectTarget,
+  onBack,
 }: Props) {
   if (!config) {
     return (
@@ -131,162 +82,188 @@ export function FlatEditor({
     onConfigChange({ elements: next })
   }
 
-  return (
-    <div className="flex flex-col h-full overflow-y-auto">
-      {/* Legacy 배너 */}
-      {isLegacy && (
-        <div className="bg-amber-50 border-b border-amber-200 px-3 py-2 flex items-center gap-2 flex-shrink-0">
-          <span className="text-xs text-amber-700">⚠️ 구형 포맷 템플릿입니다.</span>
-          <button onClick={onConvertLegacy}
-            className="text-xs text-amber-800 underline font-medium ml-auto">
-            새 포맷으로 변환
-          </button>
-        </div>
-      )}
+  // 선택된 요소 인덱스
+  const selectedIdx = selectedTarget
+    ? config.elements.findIndex(el => el.cssTarget === selectedTarget)
+    : -1
+  const selectedElement = selectedIdx >= 0 ? config.elements[selectedIdx] : null
 
-      {/* 언어 탭 */}
-      <div className="flex items-center border-b border-gray-100 px-2 pt-2 pb-1 gap-1 flex-shrink-0">
-        {LANGS.map(l => {
-          const { flag, label } = LANG_LABELS[l]
-          return (
-            <button key={l} onClick={() => onLangChange(l)}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                lang === l ? 'bg-white shadow-sm font-medium' : 'text-gray-400 hover:text-gray-600'
-              }`}>
-              {flag} {label}
+  function handlePropChange(prop: string, value: string | number) {
+    if (selectedIdx < 0) return
+    updateElementProp(selectedIdx, prop, value)
+  }
+
+  return (
+    <div className="relative h-full overflow-hidden">
+
+      {/* ── L2: 편집 패널 본문 ── */}
+      <div className="absolute inset-0 flex flex-col overflow-hidden transition-transform duration-150 ease-in-out"
+        style={{ transform: selectedTarget ? 'translateX(-100%)' : 'translateX(0)' }}>
+
+        {/* Legacy 배너 */}
+        {isLegacy && (
+          <div className="bg-amber-50 border-b border-amber-200 px-3 py-2 flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-amber-700">⚠️ 구형 포맷 템플릿입니다.</span>
+            <button onClick={onConvertLegacy}
+              className="text-xs text-amber-800 underline font-medium ml-auto">
+              새 포맷으로 변환
             </button>
-          )
-        })}
-        {lang !== 'ko' && (
-          <Button variant="ghost" size="sm" onClick={onTranslate} disabled={translating}
-            className="ml-auto text-xs h-6 text-blue-600 hover:text-blue-700 px-2">
-            {translating ? '번역 중...' : '번역'}
-          </Button>
+          </div>
+        )}
+
+        {/* 뒤로가기 헤더 */}
+        <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 shrink-0">
+          <button onClick={onBack}
+            className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-700 transition-colors shrink-0">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            템플릿
+          </button>
+          <span className="text-xs font-semibold text-gray-800 truncate flex-1">{config.texts.ko.headline || '편집 중'}</span>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+
+          {/* 언어 탭 */}
+          <div className="flex items-center border-b border-gray-100 px-2 pt-2 pb-1 gap-1 flex-shrink-0">
+            {LANGS.map(l => {
+              const { flag, label } = LANG_LABELS[l]
+              return (
+                <button key={l} onClick={() => onLangChange(l)}
+                  className={`px-2 py-1 text-xs rounded transition-colors ${
+                    lang === l ? 'bg-white shadow-sm font-medium' : 'text-gray-400 hover:text-gray-600'
+                  }`}>
+                  {flag} {label}
+                </button>
+              )
+            })}
+            {lang !== 'ko' && (
+              <Button variant="ghost" size="sm" onClick={onTranslate} disabled={translating}
+                className="ml-auto text-xs h-6 text-blue-600 hover:text-blue-700 px-2">
+                {translating ? '번역 중...' : '번역'}
+              </Button>
+            )}
+          </div>
+
+          {/* 레이아웃 */}
+          <Section label="레이아웃">
+            <div className="grid grid-cols-2 gap-1.5">
+              {layouts.map(l => (
+                <button key={l.id} onClick={() => onConfigChange({ layoutTokenId: l.id })}
+                  className={`text-left p-2 rounded border text-xs transition-colors ${
+                    config.layoutTokenId === l.id
+                      ? 'border-gray-900 bg-gray-900 text-white'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}>
+                  <div className="font-medium mb-0.5">{l.name}</div>
+                  <div className="opacity-60 text-[10px] line-clamp-2">{l.description}</div>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          {/* 이펙트 */}
+          <Section label="이펙트">
+            <div className="grid grid-cols-2 gap-1.5">
+              {compatibleEffects.map(e => (
+                <button key={e.id} onClick={() => onConfigChange({ effectTokenId: e.id })}
+                  className={`text-left p-2 rounded border text-xs transition-colors ${
+                    config.effectTokenId === e.id
+                      ? 'border-gray-900 bg-gray-900 text-white'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}>
+                  <div className="font-medium mb-0.5">{e.name}</div>
+                  <div className="opacity-60 text-[10px]">{e.description}</div>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          {/* 배경색 */}
+          <Section label="배경">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-gray-400 flex-1">배경색</span>
+              <input type="color"
+                value={config.panelColor}
+                onChange={e => onConfigChange({ panelColor: e.target.value })}
+                className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0.5"
+              />
+              <span className="text-[10px] text-gray-400 font-mono">{config.panelColor}</span>
+            </div>
+          </Section>
+
+          {/* 요소 목록 — 네비게이션 행 */}
+          <div className="border-b border-gray-100 px-3 pt-2.5 pb-1">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">요소 스타일</p>
+          </div>
+          {config.elements.map(el => {
+            const ELEMENT_COLORS_MAP: Record<string, string> = {
+              'brand-ko': '#6366f1', 'headline': '#2563eb',
+              'headline-ko': '#7c3aed', 'subheadline': '#059669', 'price': '#db2777',
+            }
+            const color    = ELEMENT_COLORS_MAP[el.cssTarget] ?? '#6b7280'
+            const hintSize = el.props.fontSize ? `${el.props.fontSize}px` : ''
+            return (
+              <button key={el.cssTarget}
+                onClick={() => onSelectTarget?.(el.cssTarget)}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-50 group">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+                <span className="text-xs text-gray-700 flex-1 text-left">{el.label}</span>
+                {hintSize && <span className="text-[10px] text-gray-300 group-hover:text-gray-400 font-mono">{hintSize}</span>}
+                <svg className="w-3 h-3 text-gray-300 group-hover:text-gray-500 transition-colors shrink-0"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )
+          })}
+
+          {/* 텍스트 */}
+          <Section label="텍스트">
+            <div className="space-y-1.5">
+              {TEXT_FIELDS.map(field => (
+                <div key={field.key}>
+                  <label className="text-[10px] text-gray-400 block mb-0.5">{field.label}</label>
+                  <Input
+                    value={currentTexts?.[field.key] ?? ''}
+                    onChange={e => updateText(field.key, e.target.value)}
+                    placeholder={field.placeholder}
+                    className="h-7 text-xs"
+                  />
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* 저장 */}
+          <div className="p-3 border-t border-gray-100 flex items-center gap-2 flex-shrink-0">
+            <Input
+              value={templateName}
+              onChange={e => onTemplateNameChange(e.target.value)}
+              placeholder="템플릿 이름"
+              className="h-7 text-xs flex-1"
+            />
+            <Button size="sm" onClick={onSave} disabled={saving}
+              className="text-xs h-7 shrink-0">
+              {saving ? '저장 중...' : '저장'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── L3: 요소 컨트롤 ── */}
+      <div className="absolute inset-0 transition-transform duration-150 ease-in-out"
+        style={{ transform: selectedTarget ? 'translateX(0)' : 'translateX(100%)' }}>
+        {selectedElement && (
+          <ElementControls
+            element={selectedElement}
+            onBack={() => onSelectTarget?.(null)}
+            onPropChange={handlePropChange}
+          />
         )}
       </div>
 
-      {/* 레이아웃 */}
-      <Section label="레이아웃">
-        <div className="grid grid-cols-2 gap-1.5">
-          {layouts.map(l => (
-            <button key={l.id} onClick={() => onConfigChange({ layoutTokenId: l.id })}
-              className={`text-left p-2 rounded border text-xs transition-colors ${
-                config.layoutTokenId === l.id
-                  ? 'border-gray-900 bg-gray-900 text-white'
-                  : 'border-gray-200 hover:border-gray-400'
-              }`}>
-              <div className="font-medium mb-0.5">{l.name}</div>
-              <div className="opacity-60 text-[10px] line-clamp-2">{l.description}</div>
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      {/* 이펙트 */}
-      <Section label="이펙트">
-        <div className="grid grid-cols-2 gap-1.5">
-          {compatibleEffects.map(e => (
-            <button key={e.id} onClick={() => onConfigChange({ effectTokenId: e.id })}
-              className={`text-left p-2 rounded border text-xs transition-colors ${
-                config.effectTokenId === e.id
-                  ? 'border-gray-900 bg-gray-900 text-white'
-                  : 'border-gray-200 hover:border-gray-400'
-              }`}>
-              <div className="font-medium mb-0.5">{e.name}</div>
-              <div className="opacity-60 text-[10px]">{e.description}</div>
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      {/* 배경색 */}
-      <Section label="배경">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-400 flex-1">배경색</span>
-          <input type="color"
-            value={config.panelColor}
-            onChange={e => onConfigChange({ panelColor: e.target.value })}
-            className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0.5"
-          />
-          <span className="text-[10px] text-gray-400 font-mono">{config.panelColor}</span>
-        </div>
-      </Section>
-
-      {/* 요소별 컨트롤 — 아코디언 */}
-      {config.elements.map((el, idx) => {
-        const schema = ELEMENT_TYPES[el.type]
-        if (!schema) return null
-        const ELEMENT_COLORS: Record<string, string> = {
-          'brand-ko': '#6366f1', 'headline': '#2563eb',
-          'headline-ko': '#7c3aed', 'subheadline': '#059669', 'price': '#db2777',
-        }
-        const color  = ELEMENT_COLORS[el.cssTarget] ?? '#6b7280'
-        const isOpen = selectedTarget === el.cssTarget
-
-        return (
-          <div key={el.cssTarget}
-            className={`border-b border-gray-100 transition-colors ${isOpen ? 'bg-gray-50' : ''}`}>
-
-            {/* 헤더 — 클릭으로 선택/토글 */}
-            <button
-              onClick={() => onSelectTarget?.(isOpen ? null : el.cssTarget)}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-50 transition-colors">
-              <span className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ background: color }} />
-              <span className="text-xs font-medium text-gray-700 flex-1">{el.label}</span>
-              <svg className={`w-3 h-3 text-gray-400 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* 컨트롤 — 열렸을 때만 */}
-            {isOpen && (
-              <div className="px-3 pb-3 space-y-2">
-                {schema.props.map(prop => (
-                  <PropControl
-                    key={prop}
-                    prop={prop}
-                    value={el.props[prop]}
-                    onChange={val => updateElementProp(idx, prop, val)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      })}
-
-      {/* 텍스트 */}
-      <Section label="텍스트">
-        <div className="space-y-1.5">
-          {TEXT_FIELDS.map(field => (
-            <div key={field.key}>
-              <label className="text-[10px] text-gray-400 block mb-0.5">{field.label}</label>
-              <Input
-                value={currentTexts?.[field.key] ?? ''}
-                onChange={e => updateText(field.key, e.target.value)}
-                placeholder={field.placeholder}
-                className="h-7 text-xs"
-              />
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* 저장 */}
-      <div className="p-3 border-t border-gray-100 flex items-center gap-2 flex-shrink-0 mt-auto">
-        <Input
-          value={templateName}
-          onChange={e => onTemplateNameChange(e.target.value)}
-          placeholder="템플릿 이름"
-          className="h-7 text-xs flex-1"
-        />
-        <Button size="sm" onClick={onSave} disabled={saving}
-          className="text-xs h-7 shrink-0">
-          {saving ? '저장 중...' : '저장'}
-        </Button>
-      </div>
     </div>
   )
 }
