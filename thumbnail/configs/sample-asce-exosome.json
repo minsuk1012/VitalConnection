@@ -1,11 +1,33 @@
 {
   "layoutTokenId": "solid-text-left",
   "effectTokenId": "solid-bg",
-  "fontFamily": "BlackHan",
-  "accentColor": "#B8E8D0",
   "panelColor": "#E8E5F0",
-  "textColor": "#2B7DB8",
-  "subColor": "#6B35A0",
+  "elements": [
+    {
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인 (영문)",
+      "props": { "fontSize": 140, "color": "#2B7DB8", "fontFamily": "BlackHan", "lineHeight": 1.0, "letterSpacing": -2 }
+    },
+    {
+      "type": "text",
+      "cssTarget": "headline-ko",
+      "label": "헤드라인 (한글)",
+      "props": { "fontSize": 136, "color": "#6B35A0", "lineHeight": 1.0, "letterSpacing": -2 }
+    },
+    {
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": { "fontSize": 22, "bgColor": "#B8E8D0" }
+    },
+    {
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": { "fontSize": 118, "color": "#FF6B9D" }
+    }
+  ],
   "texts": {
     "ko": {
       "headline": "ASCE+",
