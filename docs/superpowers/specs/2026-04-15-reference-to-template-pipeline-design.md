@@ -47,6 +47,49 @@ thumbnail/templates/generated/{category}/img-*.json
 ### 모델
 `gemini-3.1-flash-image-preview` — 이미지 입력 + 이미지 출력 모두 지원 (편집 포함)
 
+> **`editImage` 메서드와 구분:**  
+> `ai.models.editImage()`는 Imagen 3 (`imagen-3.0-capability-001`) 전용이라 사용하지 않음.  
+> 우리는 `ai.models.generateContent()`에 `inlineData` + `responseModalities: ['IMAGE']` 조합을 사용.
+
+### API 호출 패턴
+
+```typescript
+import fs from 'fs';
+import { GoogleGenAI } from '@google/genai';
+
+const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+// 레퍼런스 이미지 읽기
+const imageBuffer = fs.readFileSync(refImagePath);
+const base64Image = imageBuffer.toString('base64');
+const mimeType = refImagePath.endsWith('.png') ? 'image/png' : 'image/jpeg';
+
+const response = await genai.models.generateContent({
+  model: 'gemini-3.1-flash-image-preview',
+  contents: [{
+    parts: [
+      {
+        inlineData: { mimeType, data: base64Image }   // 이미지 입력
+      },
+      {
+        text: categoryPrompt   // 변형 지시 프롬프트
+      }
+    ]
+  }],
+  config: {
+    responseModalities: ['IMAGE'],   // 이미지 출력
+  }
+});
+
+// 이미지 추출 (기존 generate-models.ts 패턴과 동일)
+const parts = response.candidates?.[0]?.content?.parts ?? [];
+const imagePart = parts.find((p: any) => p.inlineData);
+if (imagePart) {
+  const buffer = Buffer.from(imagePart.inlineData.data, 'base64');
+  // Sharp으로 WebP 저장
+}
+```
+
 ### 카테고리별 프롬프트 전략
 
 **공통 지침 (모든 카테고리):**
