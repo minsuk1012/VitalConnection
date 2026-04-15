@@ -383,12 +383,12 @@ export default function ThumbnailEditorPage() {
       panelColor:  newConfig.panelColor,
       ...(newConfig.textColor ? { textColor:  newConfig.textColor  } : {}),
       ...(newConfig.subColor  ? { subColor:   newConfig.subColor   } : {}),
-      headline:    texts.headline,
-      headlineKo:  texts.headlineKo,
-      sub:         texts.subheadline,
-      price:       texts.price,
-      brandKo:     texts.brandKo,
-      brandEn:     texts.brandEn,
+      headline:    texts.headline    ?? '',
+      sub:         texts.subheadline ?? '',
+      price:       texts.price       ?? '',
+      brandKo:     texts.brandKo     ?? '',
+      brandEn:     texts.brandEn     ?? '',
+      ...(texts.headlineKo ? { headlineKo: texts.headlineKo } : {}),
     })
     setIframeSrc(`/api/thumbnail/builder/preview?${params}`)
   }, [newConfig, flatLang])
