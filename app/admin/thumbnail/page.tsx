@@ -154,6 +154,7 @@ export default function ThumbnailEditorPage() {
   const [templateName,    setTemplateName]   = useState('')
   const [flatSaving,      setFlatSaving]     = useState(false)
   const [flatTranslating, setFlatTranslating] = useState(false)
+  const [selectedTarget,  setSelectedTarget]  = useState<string | null>(null)
 
   // ── 번역 상태 ──
   const [lang, setLang] = useState<Lang>('ko')
@@ -204,6 +205,7 @@ export default function ThumbnailEditorPage() {
 
   const selectTemplate = useCallback(async (id: string, tpls: TemplateEntry[] = templates) => {
     setSelectedId(id)
+    setSelectedTarget(null)
     setVarOverrides({})
     
     // 템플릿별 기본 설정 반영
@@ -635,6 +637,8 @@ export default function ThumbnailEditorPage() {
             onTranslate={translateFlatContent}
             saving={flatSaving}
             translating={flatTranslating}
+            selectedTarget={selectedTarget}
+            onSelectTarget={setSelectedTarget}
           />
         ) : (<>
 
@@ -850,6 +854,16 @@ export default function ThumbnailEditorPage() {
                       const next = (newConfig.elements ?? []).map(el =>
                         el.cssTarget === cssTarget
                           ? { ...el, props: { ...el.props, x, y } }
+                          : el
+                      )
+                      setNewConfig(prev => prev ? { ...prev, elements: next } : null)
+                    }}
+                    selectedTarget={selectedTarget}
+                    onSelectTarget={setSelectedTarget}
+                    onElementResize={(cssTarget, maxWidth) => {
+                      const next = (newConfig.elements ?? []).map(el =>
+                        el.cssTarget === cssTarget
+                          ? { ...el, props: { ...el.props, maxWidth } }
                           : el
                       )
                       setNewConfig(prev => prev ? { ...prev, elements: next } : null)
