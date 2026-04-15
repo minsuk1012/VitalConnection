@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 import type { TemplateConfig, TextContent, Lang } from '../_types'
-import { FONT_OPTIONS, LANG_LABELS } from '../_types'
+import { LANG_LABELS } from '../_types'
+import { ELEMENT_TYPES, PROP_META } from '@/lib/thumbnail-element-schema'
+import type { ControlDef } from '@/lib/thumbnail-element-schema'
 
 interface Props {
   layouts:              LayoutToken[]
@@ -26,8 +28,6 @@ interface Props {
 
 const LANGS = ['ko', 'en', 'ja', 'zh'] as Lang[]
 
-const ACCENT_COLORS = ['#FF6B9D', '#FFD700', '#00D4AA', '#FF4757', '#7B68EE', '#FF8C00']
-
 const TEXT_FIELDS: { key: keyof TextContent; label: string; placeholder: string }[] = [
   { key: 'headline',    label: '헤드라인 (영문/상단)', placeholder: 'ASCE+' },
   { key: 'headlineKo',  label: '헤드라인 (한글/하단)', placeholder: '엑소좀' },
@@ -42,6 +42,56 @@ function Section({ label, children }: { label: string; children: React.ReactNode
     <div className="border-b border-gray-100 px-3 py-2.5">
       <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">{label}</p>
       {children}
+    </div>
+  )
+}
+
+function PropControl({ prop, value, onChange }: {
+  prop: string
+  value: string | number | undefined
+  onChange: (v: string | number) => void
+}) {
+  const meta: ControlDef | undefined = PROP_META[prop]
+  if (!meta) return null
+
+  const strVal = String(value ?? '')
+
+  if (meta.type === 'color') return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] text-gray-400 flex-1">{meta.label}</span>
+      <input type="color"
+        value={strVal.startsWith('#') ? strVal : '#ffffff'}
+        onChange={e => onChange(e.target.value)}
+        className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0.5"
+      />
+      <span className="text-[10px] text-gray-400 font-mono w-16 truncate">{strVal}</span>
+    </div>
+  )
+
+  if (meta.type === 'select') return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] text-gray-400 flex-1">{meta.label}</span>
+      <select value={strVal}
+        onChange={e => onChange(e.target.value)}
+        className="text-xs border border-gray-200 rounded px-1.5 h-6 bg-white flex-shrink-0 max-w-[120px]">
+        {meta.options?.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  )
+
+  // range
+  const numVal = parseFloat(strVal) || (meta.min ?? 0)
+  return (
+    <div className="space-y-0.5">
+      <div className="flex justify-between">
+        <span className="text-[10px] text-gray-400">{meta.label}</span>
+        <span className="text-[10px] text-blue-500 font-mono">{numVal}{meta.unit}</span>
+      </div>
+      <input type="range" min={meta.min} max={meta.max} step={meta.step ?? 1}
+        value={numVal}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        className="w-full h-1 accent-blue-500 cursor-pointer"
+      />
     </div>
   )
 }
@@ -69,6 +119,13 @@ export function FlatEditor({
   function updateText(key: keyof TextContent, value: string) {
     const prev = config.texts[lang] ?? { headline: '', headlineKo: '', subheadline: '', price: '', brandKo: '', brandEn: '' }
     onConfigChange({ texts: { ...config.texts, [lang]: { ...prev, [key]: value } } })
+  }
+
+  function updateElementProp(idx: number, prop: string, value: string | number) {
+    const next = config.elements.map((el, i) =>
+      i === idx ? { ...el, props: { ...el.props, [prop]: value } } : el
+    )
+    onConfigChange({ elements: next })
   }
 
   return (
@@ -139,57 +196,38 @@ export function FlatEditor({
         </div>
       </Section>
 
-      {/* 스타일 */}
-      <Section label="스타일">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">폰트</span>
-            <select value={config.fontFamily}
-              onChange={e => onConfigChange({ fontFamily: e.target.value })}
-              className="text-xs border border-gray-200 rounded px-2 h-7 flex-1 bg-white">
-              {FONT_OPTIONS.map(f => (
-                <option key={f.value} value={f.value}>{f.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">포인트</span>
-            <div className="flex items-center gap-1 flex-wrap">
-              {ACCENT_COLORS.map(c => (
-                <button key={c} onClick={() => onConfigChange({ accentColor: c })}
-                  style={{ backgroundColor: c }}
-                  className={`w-5 h-5 rounded-full border-2 transition-transform ${
-                    config.accentColor === c ? 'border-gray-800 scale-110' : 'border-transparent'
-                  }`} />
-              ))}
-              <input type="color" value={config.accentColor}
-                onChange={e => onConfigChange({ accentColor: e.target.value })}
-                className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">패널색</span>
-            <input type="color" value={config.panelColor}
-              onChange={e => onConfigChange({ panelColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
-            <span className="text-[10px] text-gray-400">{config.panelColor}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">헤드1색</span>
-            <input type="color" value={config.textColor ?? '#2B7DB8'}
-              onChange={e => onConfigChange({ textColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
-            <span className="text-[10px] text-gray-400">{config.textColor ?? '기본'}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-gray-400 w-14 flex-shrink-0">헤드2색</span>
-            <input type="color" value={config.subColor ?? '#6B35A0'}
-              onChange={e => onConfigChange({ subColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer border border-gray-200" />
-            <span className="text-[10px] text-gray-400">{config.subColor ?? '기본'}</span>
-          </div>
+      {/* 배경색 */}
+      <Section label="배경">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-gray-400 flex-1">배경색</span>
+          <input type="color"
+            value={config.panelColor}
+            onChange={e => onConfigChange({ panelColor: e.target.value })}
+            className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0.5"
+          />
+          <span className="text-[10px] text-gray-400 font-mono">{config.panelColor}</span>
         </div>
       </Section>
+
+      {/* 요소별 컨트롤 */}
+      {config.elements.map((el, idx) => {
+        const schema = ELEMENT_TYPES[el.type]
+        if (!schema) return null
+        return (
+          <Section key={el.cssTarget} label={el.label}>
+            <div className="space-y-2">
+              {schema.props.map(prop => (
+                <PropControl
+                  key={prop}
+                  prop={prop}
+                  value={el.props[prop]}
+                  onChange={val => updateElementProp(idx, prop, val)}
+                />
+              ))}
+            </div>
+          </Section>
+        )
+      })}
 
       {/* 텍스트 */}
       <Section label="텍스트">
