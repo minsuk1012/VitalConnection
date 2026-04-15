@@ -1,4 +1,5 @@
 // app/admin/thumbnail/_types.ts
+export type { ElementInstance } from '@/lib/thumbnail-element-schema'
 
 export type Lang = 'ko' | 'en' | 'ja' | 'zh'
 
@@ -9,16 +10,7 @@ export const LANG_LABELS: Record<Lang, { flag: string; label: string }> = {
   zh: { flag: '🇨🇳', label: 'ZH' },
 }
 
-export const FONT_OPTIONS = [
-  { value: 'Noto',        label: 'Noto Sans KR' },
-  { value: 'Pretendard',  label: 'Pretendard Bold' },
-  { value: 'BlackHan',    label: 'Black Han Sans' },
-  { value: 'Bebas',       label: 'Bebas Neue' },
-  { value: 'Montserrat',  label: 'Montserrat' },
-  { value: 'Playfair',    label: 'Playfair Display' },
-  { value: 'PlayfairI',   label: 'Playfair Display Italic' },
-  { value: 'NotoSerif',   label: 'Noto Serif' },
-] as const
+export { FONT_OPTIONS } from '@/lib/thumbnail-element-schema'
 
 export interface TextContent {
   headline:    string
@@ -29,15 +21,12 @@ export interface TextContent {
   brandKo:     string
 }
 
-/** 새 포맷 템플릿 설정 */
+/** 신규 토큰 포맷 템플릿 설정 */
 export interface TemplateConfig {
   layoutTokenId: string
   effectTokenId: string
-  fontFamily:    string
-  accentColor:   string
   panelColor:    string
-  textColor?:    string
-  subColor?:     string
+  elements:      import('@/lib/thumbnail-element-schema').ElementInstance[]
   texts: {
     ko:   TextContent
     en?:  TextContent
@@ -48,19 +37,19 @@ export interface TemplateConfig {
 
 /** 템플릿 레지스트리 엔트리 */
 export interface TemplateEntry {
-  id:           string
-  nameKo:       string
-  name:         string
-  source:       'builder' | 'manual' | 'legacy'
+  id:             string
+  nameKo:         string
+  name:           string
+  source:         'builder' | 'manual' | 'legacy'
   layoutTokenId?: string
   effectTokenId?: string
-  accentColor:  string
-  createdAt:    string
-  layout?:          string
-  tone?:            string
-  priceStyle?:      string
-  tags?:            string[]
-  description?:     string
-  color?:           string
-  requiresCutout?:  boolean
+  accentColor:    string
+  createdAt:      string
+  layout?:        string
+  tone?:          string
+  priceStyle?:    string
+  tags?:          string[]
+  description?:   string
+  color?:         string
+  requiresCutout?: boolean
 }
