@@ -12,6 +12,10 @@
     "thumbnail:cutout": "tsx scripts/thumbnail/remove-background.ts",
     "thumbnail:cutout:test": "tsx scripts/thumbnail/remove-background.ts --test",
     "thumbnail:batch": "tsx scripts/thumbnail/batch.ts",
+    "thumbnail:transform": "tsx scripts/thumbnail/transform-references.ts",
+    "thumbnail:transform:test": "tsx scripts/thumbnail/transform-references.ts --test",
+    "thumbnail:split": "tsx scripts/thumbnail/split-layers.ts",
+    "thumbnail:split:test": "tsx scripts/thumbnail/split-layers.ts --test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
