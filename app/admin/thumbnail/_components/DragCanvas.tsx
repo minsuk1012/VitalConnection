@@ -334,6 +334,7 @@ export function DragCanvas({ elements, frameRef, canvasSize, sourceSize, onEleme
               zIndex:    isActive ? 20 : 10,
             }}
             onMouseDown={e => handleMouseDown(e, el)}
+            onClick={e => e.stopPropagation()}
           >
             {/* 핸들 점 */}
             <div style={{
