@@ -376,11 +376,8 @@ export default function ThumbnailEditorPage() {
     const params = new URLSearchParams({
       layoutToken: newConfig.layoutTokenId,
       effectToken: newConfig.effectTokenId,
-      fontFamily:  newConfig.fontFamily,
-      accentColor: newConfig.accentColor,
       panelColor:  newConfig.panelColor,
-      ...(newConfig.textColor ? { textColor:  newConfig.textColor  } : {}),
-      ...(newConfig.subColor  ? { subColor:   newConfig.subColor   } : {}),
+      elements:    JSON.stringify(newConfig.elements),
       headline:    texts.headline    ?? '',
       sub:         texts.subheadline ?? '',
       price:       texts.price       ?? '',
@@ -449,9 +446,13 @@ export default function ThumbnailEditorPage() {
     setNewConfig({
       layoutTokenId: layouts[0]?.id ?? 'bottom-text-stack',
       effectTokenId: effects[0]?.id ?? 'overlay-dark',
-      fontFamily:    'BlackHan',
-      accentColor:   '#FF6B9D',
       panelColor:    '#1A1A2E',
+      elements: [
+        { type: 'text',  cssTarget: 'headline',    label: '헤드라인',    props: { fontSize: 84,  color: '#ffffff', fontFamily: 'BlackHan' } },
+        { type: 'text',  cssTarget: 'subheadline', label: '서브카피',    props: { fontSize: 30,  color: 'rgba(255,255,255,0.85)' } },
+        { type: 'price', cssTarget: 'price',       label: '가격',        props: { fontSize: 70,  color: '#FF6B9D' } },
+        { type: 'image', cssTarget: 'model',       label: '모델',        props: { brightness: 0.85 } },
+      ],
       texts: { ko: { headline: '', headlineKo: '', subheadline: '', price: '', brandKo: '', brandEn: '' } },
     })
     const tmpl = templates.find(t => t.id === selectedId)
@@ -508,8 +509,6 @@ export default function ThumbnailEditorPage() {
     { key: 'gradient-bg', label: '그라디언트' },
     { key: 'bottom-banner', label: '배너' },
     { key: 'frame', label: '프레임' },
-    { key: 'text-only', label: '텍스트' },
-    { key: 'diagonal', label: '대각선' },
   ]
   const filtered = templates.filter(t => {
     const matchLayout = layoutFilter === 'all' || t.layout === layoutFilter
