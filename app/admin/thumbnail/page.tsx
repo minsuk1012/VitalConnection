@@ -454,7 +454,9 @@ export default function ThumbnailEditorPage() {
       texts:         config.texts,
     })
     setTemplateName(templateNameKo)
-    setSelectedId(null)
+    setSaveStatus(`✨ "${templateNameKo}" 초안 생성 완료`)
+    setTimeout(() => setSaveStatus(''), 3000)
+    // selectedId는 유지 — 우측 앱 컨텍스트 패널이 사라지지 않도록
   }
 
   // ── Legacy 변환 ──
