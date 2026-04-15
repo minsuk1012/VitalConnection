@@ -9,6 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import type { TemplateConfig as NewTemplateConfig, DraftResult } from './_types'
+import { FlatEditor } from './_components/FlatEditor'
+import { DraftModal } from './_components/DraftModal'
+import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 
 // ── 타입 ──
 
@@ -22,6 +26,9 @@ interface TemplateEntry {
   color: string
   description: string
   requiresCutout?: boolean
+  source?: 'llm-text' | 'llm-image' | 'builder' | 'manual' | 'legacy'
+  accentColor?: string
+  createdAt?: string
 }
 
 interface ControlItem {
@@ -139,6 +146,16 @@ export default function ThumbnailEditorPage() {
   const frameRef = useRef<HTMLIFrameElement>(null)
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
+  // ── 신규: BuilderState 기반 템플릿 편집 ──
+  const [layouts,         setLayouts]        = useState<LayoutToken[]>([])
+  const [effects,         setEffects]        = useState<EffectToken[]>([])
+  const [newConfig,       setNewConfig]      = useState<NewTemplateConfig | null>(null)
+  const [flatLang,        setFlatLang]       = useState<Lang>('ko')
+  const [templateName,    setTemplateName]   = useState('')
+  const [flatSaving,      setFlatSaving]     = useState(false)
+  const [flatTranslating, setFlatTranslating] = useState(false)
+  const [showDraftModal,  setShowDraftModal] = useState(false)
+
   // ── 번역 상태 ──
   const [lang, setLang] = useState<Lang>('ko')
   const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({})
@@ -170,6 +187,9 @@ export default function ThumbnailEditorPage() {
           selectTemplate(d.templates[0].id, d.templates)
         }
       })
+    fetch('/api/thumbnail/builder/tokens')
+      .then(r => r.json())
+      .then(d => { setLayouts(d.layouts ?? []); setEffects(d.effects ?? []) })
     Promise.all([
       fetch('/api/thumbnail/models?type=models').then(r => r.json()),
       fetch('/api/thumbnail/models?type=cutout').then(r => r.json()),
@@ -192,7 +212,20 @@ export default function ThumbnailEditorPage() {
     setUseCutoutMode(req)
 
     const res = await fetch(`/api/thumbnail/config/${id}`)
-    if (res.ok) setConfig(await res.json())
+    if (res.ok) {
+      const data = await res.json()
+      if ('layoutTokenId' in data) {
+        // 신규 포맷
+        setNewConfig(data as NewTemplateConfig)
+        const tmpl = tpls.find(t => t.id === id)
+        setTemplateName(tmpl?.nameKo ?? '')
+        setConfig(null)
+      } else {
+        // legacy 포맷 (기존 동작 유지)
+        setConfig(data)
+        setNewConfig(null)
+      }
+    }
   }, [templates])
 
   // iframe 전체 리로드 — 템플릿 변경 / 모델 이미지 변경 시에만
@@ -337,6 +370,108 @@ export default function ThumbnailEditorPage() {
     }
   }
 
+  // ── 신규 포맷 미리보기 URL ──
+
+  useEffect(() => {
+    if (!newConfig) return
+    const params = new URLSearchParams({
+      layoutToken: newConfig.layoutTokenId,
+      effectToken: newConfig.effectTokenId,
+      fontFamily:  newConfig.fontFamily,
+      accentColor: newConfig.accentColor,
+      panelColor:  newConfig.panelColor,
+      headline:    newConfig.texts[flatLang]?.headline    ?? newConfig.texts.ko.headline,
+      sub:         newConfig.texts[flatLang]?.subheadline ?? newConfig.texts.ko.subheadline,
+      price:       newConfig.texts[flatLang]?.price       ?? newConfig.texts.ko.price,
+      brandKo:     newConfig.texts[flatLang]?.brandKo     ?? newConfig.texts.ko.brandKo,
+      brandEn:     newConfig.texts[flatLang]?.brandEn     ?? newConfig.texts.ko.brandEn,
+    })
+    setIframeSrc(`/api/thumbnail/builder/preview?${params}`)
+  }, [newConfig, flatLang])
+
+  // ── 신규 포맷 저장 ──
+
+  const saveFlatConfig = async () => {
+    if (!newConfig) return
+    setFlatSaving(true)
+    try {
+      const tmpl = templates.find(t => t.id === selectedId)
+      const isExistingNew = tmpl && tmpl.source !== 'legacy'
+      if (isExistingNew && selectedId) {
+        await fetch(`/api/thumbnail/templates/${selectedId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...newConfig, nameKo: templateName }),
+        })
+      } else {
+        const res = await fetch('/api/thumbnail/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...newConfig, nameKo: templateName || '새 템플릿', source: 'manual' }),
+        })
+        const { id } = await res.json()
+        const reg = await fetch('/api/thumbnail/registry').then(r => r.json())
+        setTemplates(reg.templates ?? [])
+        setSelectedId(id)
+      }
+      setSaveStatus('저장됨')
+      setTimeout(() => setSaveStatus(''), 2000)
+    } finally {
+      setFlatSaving(false)
+    }
+  }
+
+  // ── 신규 포맷 번역 ──
+
+  const translateFlatContent = async () => {
+    if (!newConfig || flatLang === 'ko') return
+    setFlatTranslating(true)
+    try {
+      const res = await fetch('/api/thumbnail/builder/generate-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ko: newConfig.texts.ko, targetLang: flatLang }),
+      })
+      const translated = await res.json()
+      setNewConfig(prev => prev ? {
+        ...prev, texts: { ...prev.texts, [flatLang]: translated },
+      } : null)
+    } finally {
+      setFlatTranslating(false)
+    }
+  }
+
+  // ── LLM 초안 적용 ──
+
+  const applyDraft = (draft: DraftResult) => {
+    const { templateNameKo, reason: _reason, ...config } = draft
+    setNewConfig({
+      layoutTokenId: config.layoutTokenId,
+      effectTokenId: config.effectTokenId,
+      fontFamily:    config.fontFamily,
+      accentColor:   config.accentColor,
+      panelColor:    config.panelColor,
+      texts:         config.texts,
+    })
+    setTemplateName(templateNameKo)
+    setSelectedId(null)
+  }
+
+  // ── Legacy 변환 ──
+
+  const convertLegacy = () => {
+    setNewConfig({
+      layoutTokenId: layouts[0]?.id ?? 'bottom-text-stack',
+      effectTokenId: effects[0]?.id ?? 'overlay-dark',
+      fontFamily:    'BlackHan',
+      accentColor:   '#FF6B9D',
+      panelColor:    '#1A1A2E',
+      texts: { ko: { headline: '', subheadline: '', price: '', brandKo: '', brandEn: '' } },
+    })
+    const tmpl = templates.find(t => t.id === selectedId)
+    setTemplateName(tmpl?.nameKo ?? '변환된 템플릿')
+  }
+
   // ── Config 저장 ──
 
   const saveConfig = async () => {
@@ -425,7 +560,7 @@ export default function ThumbnailEditorPage() {
 
       {/* ── 상단 툴바 ── */}
       <header className="flex items-center gap-3 px-4 py-2.5 bg-white border-b border-gray-200 flex-shrink-0">
-        <Button variant="ghost" size="sm" render={<Link href="/admin" />}
+        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/admin" />}
           className="text-gray-500 hover:text-gray-900 gap-1.5">
           <ArrowLeft className="w-3.5 h-3.5" />Admin
         </Button>
@@ -434,16 +569,20 @@ export default function ThumbnailEditorPage() {
 
         <div className="ml-auto flex items-center gap-2">
           {saveStatus && <span className="text-xs text-emerald-600 font-medium">{saveStatus}</span>}
+          <Button variant="outline" size="sm" onClick={() => setShowDraftModal(true)}
+            className="text-xs h-7 gap-1.5">
+            ✨ LLM 초안 생성
+          </Button>
           <Button variant="outline" size="sm" onClick={saveConfig}
             className="text-xs h-7">
             Config 저장
           </Button>
-          <Button variant="outline" size="sm"
+          <Button variant="outline" size="sm" nativeButton={false}
             render={<Link href="/admin/thumbnail/gallery" />}
             className="text-xs h-7 gap-1.5">
             <ImageIcon className="w-3 h-3" />갤러리
           </Button>
-          <Button size="sm"
+          <Button size="sm" nativeButton={false}
             render={<Link href="/admin/thumbnail/builder" />}
             className="text-xs h-7 gap-1.5 bg-gray-900 text-white hover:bg-gray-700">
             + 새 썸네일 만들기
@@ -505,6 +644,22 @@ export default function ThumbnailEditorPage() {
 
         {/* ── 가운데: 통합 사이드바 ── */}
         <aside className="w-72 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-hidden">
+        {newConfig !== null ? (
+          <FlatEditor
+            layouts={layouts}
+            effects={effects}
+            config={newConfig}
+            templateName={templateName}
+            lang={flatLang}
+            onLangChange={setFlatLang}
+            onConfigChange={patch => setNewConfig(prev => prev ? { ...prev, ...patch } : null)}
+            onTemplateNameChange={setTemplateName}
+            onSave={saveFlatConfig}
+            onTranslate={translateFlatContent}
+            saving={flatSaving}
+            translating={flatTranslating}
+          />
+        ) : (<>
 
           {/* 언어 탭 */}
           <div className="px-3 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
@@ -695,6 +850,7 @@ export default function ThumbnailEditorPage() {
             </SectionPanel>
 
           </div>
+        </>)}
         </aside>
 
         {/* ── 중앙: 썸네일 미리보기 ── */}
@@ -743,6 +899,24 @@ export default function ThumbnailEditorPage() {
           )}
         </aside>
       </div>
+
+      {/* Legacy 변환 배너 — newConfig=null이고 legacy 템플릿 선택된 경우 */}
+      {newConfig === null && selectedId && templates.find(t => t.id === selectedId)?.source === 'legacy' && layouts.length > 0 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 shadow-lg flex items-center gap-3">
+          <span className="text-xs text-amber-700">⚠️ 구형 포맷 템플릿입니다.</span>
+          <button onClick={convertLegacy}
+            className="text-xs text-amber-900 underline font-medium">
+            새 포맷으로 변환
+          </button>
+        </div>
+      )}
+
+      {showDraftModal && (
+        <DraftModal
+          onClose={() => setShowDraftModal(false)}
+          onApply={applyDraft}
+        />
+      )}
     </div>
   )
 }
