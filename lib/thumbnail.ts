@@ -58,6 +58,7 @@ export function saveConfig(id: string, data: object) {
 
 export interface TemplateInput {
   headline?:      string
+  headlineKo?:    string   // 한글 헤드라인 (2색 헤드라인 레이아웃용) — var(--sub-color)
   subheadline?:   string
   brandEn?:       string
   brandKo?:       string

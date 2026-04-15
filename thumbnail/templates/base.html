@@ -25,6 +25,7 @@
   /* Text element 기본값 — layout CSS가 override */
   .brand-ko    { font-size: 22px; font-family: var(--headline-font,'Pretendard'); color: var(--sub-color,rgba(255,255,255,0.7)); }
   .headline    { font-size: 76px; font-weight: 900; font-family: var(--headline-font,'BlackHan'); color: var(--text-color,#fff); line-height: 1.05; word-break: keep-all; }
+  .headline-ko { font-size: 76px; font-weight: 900; font-family: var(--headline-font,'BlackHan'); color: var(--sub-color,#6B35A0); line-height: 1.05; word-break: keep-all; }
   .subheadline { font-size: 30px; color: var(--sub-color,rgba(255,255,255,0.85)); line-height: 1.4; word-break: keep-all; }
   .price-block { display: flex; align-items: baseline; gap: 6px; }
   .price       { font-size: 64px; font-weight: 900; font-family: var(--headline-font,'BlackHan'); color: var(--accent-color,#FF6B9D); }
@@ -53,6 +54,7 @@
   <div class="text-layer">
     <span class="brand-ko" style="display:{{BRAND_KO_DISPLAY}}">{{BRAND_KO}}</span>
     <h1 class="headline">{{HEADLINE}}</h1>
+    <h2 class="headline-ko" style="display:{{HEADLINE_KO_DISPLAY}}">{{HEADLINE_KO}}</h2>
     <p class="subheadline" style="display:{{SUB_DISPLAY}}">{{SUBHEADLINE}}</p>
     <div class="price-block" style="display:{{PRICE_DISPLAY}}">
       <span class="price">{{PRICE}}</span>

@@ -110,10 +110,10 @@ export default function BuilderPage() {
         <span className="text-[12px] font-semibold text-gray-700">새 썸네일 만들기</span>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-w-0">
         <StepSidebar activeStep={step} onStepClick={setStep} state={state} />
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden min-w-0">
           {step === 'image'  && <Step1ImageSelect {...stepProps} onNext={() => setStep('layout')} />}
           {step === 'layout' && <Step2LayoutSuggest {...stepProps} layouts={layouts} onAnalyze={handleAnalyze} analyzing={analyzing} onNext={() => setStep('effect')} onPrev={() => setStep('image')} />}
           {step === 'effect' && <Step3EffectSelect {...stepProps} effects={effects} layouts={layouts} onNext={() => setStep('text')} onPrev={() => setStep('layout')} />}

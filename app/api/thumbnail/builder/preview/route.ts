@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
   try {
     const html = composeHtml(layoutToken, effectToken, {
       headline:    s.get('headline')    ?? undefined,
+      headlineKo:  s.get('headlineKo')  ?? undefined,
       subheadline: s.get('sub')         ?? undefined,
       brandEn:     s.get('brandEn')     ?? undefined,
       brandKo:     s.get('brandKo')     ?? undefined,

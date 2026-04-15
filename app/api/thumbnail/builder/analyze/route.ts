@@ -8,6 +8,13 @@ import path from 'path'
 
 export const dynamic = 'force-dynamic'
 
+const MIME_BY_EXT: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+}
+
 export async function POST(req: NextRequest) {
   const authError = await checkAdmin()
   if (authError) return authError
@@ -16,7 +23,11 @@ export async function POST(req: NextRequest) {
   if (!apiKey) return NextResponse.json({ error: 'GEMINI API 키 없음' }, { status: 500 })
 
   const { imageType, selectedImageFile, layouts } = await req.json()
-  if (!selectedImageFile || !layouts?.length) {
+  const candidateLayouts = (layouts ?? []).filter((l: { requiresCutout?: boolean }) =>
+    imageType === 'cutout' ? true : !l.requiresCutout
+  )
+
+  if (!selectedImageFile || !candidateLayouts.length) {
     return NextResponse.json({ error: 'selectedImageFile, layouts 필수' }, { status: 400 })
   }
 
@@ -27,16 +38,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `파일 없음: ${imgPath}` }, { status: 404 })
   }
   const imgData  = fs.readFileSync(imgPath).toString('base64')
-  const mimeType = imgFile.endsWith('.png') ? 'image/png' : 'image/jpeg'
+  const mimeType = MIME_BY_EXT[path.extname(imgFile).toLowerCase()]
+  if (!mimeType) {
+    return NextResponse.json({ error: `지원하지 않는 이미지 형식: ${imgFile}` }, { status: 400 })
+  }
 
-  const layoutList = layouts.map((l: { id: string; name: string; description: string }) =>
-    `- id: "${l.id}", 이름: "${l.name}", 설명: "${l.description}"`
+  const layoutList = candidateLayouts.map((l: { id: string; name: string; description: string; requiresCutout?: boolean }) =>
+    `- id: "${l.id}", 이름: "${l.name}", 설명: "${l.description}"${l.requiresCutout ? ', 누끼 전용' : ''}`
   ).join('\n')
+
+  const imageModeNote =
+    imageType === 'cutout'
+      ? '선택된 이미지는 누끼 이미지입니다. 누끼 전용 레이아웃도 허용하세요.'
+      : '선택된 이미지는 전체 이미지입니다. 누끼 전용 레이아웃은 제외하세요.'
 
   const prompt = `당신은 K-Beauty 뷰티 시술 광고 썸네일 디자인 전문가입니다.
 아래 이미지를 분석하여 주어진 레이아웃 토큰 목록 중 가장 잘 어울리는 3개를 추천하세요.
 
 분석 기준:
+- ${imageModeNote}
 - 모델의 시선 방향과 여백 위치
 - 피사체 구도 (상반신/전신/클로즈업)
 - 이미지 전체 밝기와 색감 (어둡다면 overlay, 밝다면 split/solid)
@@ -89,7 +109,7 @@ BlackHan (임팩트 고딕), Pretendard (모던 고딕), Playfair (세리프 럭
     if (!text) return NextResponse.json({ error: 'AI 응답 없음' }, { status: 500 })
 
     const data = JSON.parse(text)
-    const validIds = new Set(layouts.map((l: { id: string }) => l.id))
+    const validIds = new Set(candidateLayouts.map((l: { id: string }) => l.id))
     data.suggestions = data.suggestions.filter((s: { layoutTokenId: string }) => validIds.has(s.layoutTokenId))
 
     return NextResponse.json(data)

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { {{CSS_VARS}} }
+  {{FONT_FACES}}
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px; height: 1080px;
+    overflow: hidden;
+    background: var(--bg-color, #7272be);
+    font-family: 'Noto', sans-serif;
+  }
+
+  /* ── 상단 줄 (좌/우) ── */
+  .string {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: var(--string-height, 158px);
+    background: var(--card-color, #b4b8e0);
+    z-index: 2;
+    transform: translateX(-50%);
+  }
+  .string-left  { left: var(--ring-left-x, 215px); }
+  .string-right { left: var(--ring-right-x, 865px); }
+
+  /* ── 링 구멍 ── */
+  .ring {
+    position: absolute;
+    top: var(--ring-top, 144px);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg-color, #7272be);
+    border: 3px solid var(--card-color, #b4b8e0);
+    z-index: 5;
+    transform: translateX(-50%);
+  }
+  .ring-left  { left: var(--ring-left-x, 215px); }
+  .ring-right { left: var(--ring-right-x, 865px); }
+
+  /* ── 메인 카드 ── */
+  .card {
+    position: absolute;
+    top: var(--card-top, 155px);
+    left: var(--card-margin, 108px);
+    right: var(--card-margin, 108px);
+    bottom: var(--card-bottom, 48px);
+    background: var(--card-color, #b4b8e0);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--card-radius, 22px);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--card-gap, 28px);
+    padding: 48px 60px;
+  }
+
+  /* ── 브랜드명 ── */
+  .brand-name {
+    font-family: var(--headline-font, 'Noto'), sans-serif;
+    font-size: var(--brand-size, 48px);
+    font-weight: 700;
+    color: var(--text-color, #535893);
+    letter-spacing: 5px;
+    text-align: center;
+  }
+
+  /* ── 서비스 배지 ── */
+  .service-badge {
+    border: 2px solid var(--badge-border-color, rgba(83, 88, 147, 0.5));
+    border-radius: 50px;
+    padding: 13px 36px;
+    font-family: 'Noto', sans-serif;
+    font-size: var(--badge-size, 21px);
+    color: var(--text-color, #535893);
+    letter-spacing: 1px;
+    text-align: center;
+    display: {{SUB_DISPLAY}};
+  }
+
+  /* ── 모델 이미지 프레임 ── */
+  .model-frame {
+    width: var(--photo-size, 456px);
+    height: var(--photo-size, 456px);
+    border: 3px solid var(--badge-border-color, rgba(83, 88, 147, 0.4));
+    border-radius: var(--photo-radius, 14px);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-color, #7272be);
+  }
+  .model-frame img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  /* ── 하단 헤드라인 ── */
+  .headline-text {
+    font-family: 'Noto', sans-serif;
+    font-size: var(--headline-size, 28px);
+    font-weight: 500;
+    color: var(--text-color, #535893);
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  /* ── 브랜드 핸들 / 소셜 ── */
+  .brand-handle {
+    font-family: 'Noto', sans-serif;
+    font-size: var(--handle-size, 20px);
+    color: var(--handle-color, rgba(83, 88, 147, 0.65));
+    letter-spacing: 2px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <!-- 상단 줄 -->
+  <div class="string string-left"></div>
+  <div class="string string-right"></div>
+
+  <!-- 링 구멍 -->
+  <div class="ring ring-left"></div>
+  <div class="ring ring-right"></div>
+
+  <!-- 메인 카드 -->
+  <div class="card">
+    <div class="brand-name">{{BRAND_KO}}</div>
+    <div class="service-badge">{{SUBHEADLINE}}</div>
+    <div class="model-frame">
+      <img src="{{MODEL_PATH}}" alt="" onerror="this.style.display='none'">
+    </div>
+    <div class="headline-text">{{HEADLINE}}</div>
+    <div class="brand-handle">{{BRAND_EN}}</div>
+  </div>
+</body>
+</html>

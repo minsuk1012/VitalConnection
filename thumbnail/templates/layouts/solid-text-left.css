@@ -1,0 +1,64 @@
+/* solid-text-left.css
+   사용 사례: 이미지 없는 단색 배경 + 좌측 텍스트
+   ASCE+엑소좀 스타일: 2색 대형 헤드라인 + 민트 태그박스 + 대형 가격 */
+
+/* 모델 레이어 숨김 (텍스트 전용 레이아웃) */
+.model-layer { display: none; }
+
+.text-layer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 72px;
+  gap: 0;
+}
+
+/* tagline — "반짝반짝 빛나는 광채피부!" */
+.brand-ko {
+  font-size: 22px;
+  font-family: var(--headline-font, 'Pretendard');
+  color: var(--text-color, #333333);
+  font-weight: 400;
+  margin-bottom: 20px;
+  opacity: 0.75;
+}
+
+/* 영문 헤드라인 — "ASCE+" */
+.headline {
+  font-size: 140px;
+  line-height: 1.0;
+  color: var(--text-color, #2B7DB8);
+  letter-spacing: -2px;
+}
+
+/* 한글 헤드라인 — "엑소좀" */
+.headline-ko {
+  font-size: 136px;
+  line-height: 1.0;
+  color: var(--sub-color, #6B35A0);
+  letter-spacing: -2px;
+  margin-bottom: 28px;
+}
+
+/* 태그 박스 — "피부탄력, 수분조절, 안티에이징" */
+.subheadline {
+  font-size: 22px;
+  font-weight: 400;
+  color: #333333;
+  background: var(--accent-color, #B8E8D0);
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 4px;
+  margin-bottom: 56px;
+  align-self: flex-start;
+}
+
+/* 가격 */
+.price-block { margin-top: 0; }
+.price      { font-size: 118px; line-height: 1.0; }
+.price-unit { font-size: 52px; }
+
+/* brand-en 숨김 (이 레이아웃에서 미사용) */
+.brand-en   { display: none; }

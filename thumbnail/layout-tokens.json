@@ -34,5 +34,12 @@
     "description": "좌상단에 액센트 라인 + 초대형 헤드라인. 오버레이 효과와 조합.",
     "cssFile": "layouts/top-left-editorial.css",
     "compatibleEffects": ["overlay-dark", "overlay-gradient"]
+  },
+  {
+    "id": "solid-text-left",
+    "name": "단색 배경 2색 헤드라인",
+    "description": "이미지 없는 단색 배경. 영문+한글 2색 대형 헤드라인, 태그박스, 가격 강조. ASCE+엑소좀 스타일.",
+    "cssFile": "layouts/solid-text-left.css",
+    "compatibleEffects": ["solid-bg"]
   }
 ]

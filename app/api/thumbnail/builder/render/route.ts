@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const {
     layoutTokenId,
     effectTokenId,
-    headline, subheadline, brandEn, brandKo, price, priceUnit,
+    headline, headlineKo, subheadline, brandEn, brandKo, price, priceUnit,
     model, cutout,
     fontFamily, accentColor, panelColor,
     sessionId,
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const html = composeHtml(layoutTokenId, effectTokenId, {
-      headline, subheadline, brandEn, brandKo, price, priceUnit,
+      headline, headlineKo, subheadline, brandEn, brandKo, price, priceUnit,
       model, cutout, baseUrl, fontFamily, accentColor, panelColor,
     })
 

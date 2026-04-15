@@ -681,6 +681,20 @@
       "source": "legacy",
       "accentColor": "#FF9A9E",
       "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "notebook-diary",
+      "name": "Notebook Diary",
+      "nameKo": "다이어리 카드",
+      "layout": "frame",
+      "tone": "soft",
+      "priceStyle": "none",
+      "tags": ["notebook", "card", "soft", "blue", "centered", "diary"],
+      "description": "다이어리 카드가 줄에 매달린 형태 + 서비스 배지 + 사진 프레임 (Canva 라라나뷰티 스타일)",
+      "color": "#7272be",
+      "source": "legacy",
+      "accentColor": "#7272be",
+      "createdAt": "2026-04-15T00:00:00.000Z"
     }
   ]
 }

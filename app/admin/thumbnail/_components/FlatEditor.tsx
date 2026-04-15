@@ -30,11 +30,12 @@ const LANGS = ['ko', 'en', 'ja', 'zh'] as Lang[]
 const ACCENT_COLORS = ['#FF6B9D', '#FFD700', '#00D4AA', '#FF4757', '#7B68EE', '#FF8C00']
 
 const TEXT_FIELDS: { key: keyof TextContent; label: string; placeholder: string }[] = [
-  { key: 'headline',    label: '헤드라인',      placeholder: '시술명' },
-  { key: 'subheadline', label: '서브 카피',     placeholder: '부연 설명' },
-  { key: 'price',       label: '가격',          placeholder: '3.9만원' },
-  { key: 'brandKo',     label: '병원명 (한글)', placeholder: 'OO피부과' },
-  { key: 'brandEn',     label: '병원명 (영문)', placeholder: 'OO CLINIC' },
+  { key: 'headline',    label: '헤드라인 (영문/상단)', placeholder: 'ASCE+' },
+  { key: 'headlineKo',  label: '헤드라인 (한글/하단)', placeholder: '엑소좀' },
+  { key: 'subheadline', label: '서브 카피',             placeholder: '부연 설명' },
+  { key: 'price',       label: '가격',                  placeholder: '3.9만원' },
+  { key: 'brandKo',     label: '병원명 (한글)',          placeholder: 'OO피부과' },
+  { key: 'brandEn',     label: '병원명 (영문)',          placeholder: 'OO CLINIC' },
 ]
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
@@ -67,7 +68,7 @@ export function FlatEditor({
   const currentTexts = config.texts[lang] ?? config.texts.ko
 
   function updateText(key: keyof TextContent, value: string) {
-    const prev = config.texts[lang] ?? { headline: '', subheadline: '', price: '', brandKo: '', brandEn: '' }
+    const prev = config.texts[lang] ?? { headline: '', headlineKo: '', subheadline: '', price: '', brandKo: '', brandEn: '' }
     onConfigChange({ texts: { ...config.texts, [lang]: { ...prev, [key]: value } } })
   }
 

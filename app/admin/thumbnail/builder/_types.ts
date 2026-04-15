@@ -17,6 +17,7 @@ export const FONT_OPTIONS = [
 
 export interface TextContent {
   headline:    string
+  headlineKo:  string   // 한글 헤드라인 (2색 레이아웃용)
   subheadline: string
   price:       string
   brandEn:     string
@@ -55,7 +56,7 @@ export interface BuilderState {
 }
 
 export const DEFAULT_TEXT: TextContent = {
-  headline: '', subheadline: '', price: '', brandEn: '', brandKo: '',
+  headline: '', headlineKo: '', subheadline: '', price: '', brandEn: '', brandKo: '',
 }
 
 export const INITIAL_STATE: BuilderState = {

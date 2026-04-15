@@ -1,0 +1,4 @@
+model = "gpt-5.4-mini"
+model_reasoning_effort = "xhigh"
+[projects."/Users/choiminsuk/Desktop/beautypass_marketing/vitalconnection"]
+trust_level = "trusted"

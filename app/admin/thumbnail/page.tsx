@@ -468,7 +468,7 @@ export default function ThumbnailEditorPage() {
       fontFamily:    'BlackHan',
       accentColor:   '#FF6B9D',
       panelColor:    '#1A1A2E',
-      texts: { ko: { headline: '', subheadline: '', price: '', brandKo: '', brandEn: '' } },
+      texts: { ko: { headline: '', headlineKo: '', subheadline: '', price: '', brandKo: '', brandEn: '' } },
     })
     const tmpl = templates.find(t => t.id === selectedId)
     setTemplateName(tmpl?.nameKo ?? '변환된 템플릿')
