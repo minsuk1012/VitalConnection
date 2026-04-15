@@ -6,6 +6,7 @@
 import fs from 'fs'
 import path from 'path'
 import { THUMBNAIL_BASE, type TemplateInput } from './thumbnail'
+import { elementsToCssVars, type ElementInstance } from './thumbnail-element-schema'
 
 export const COMPOSE_PATHS = {
   base:         path.join(THUMBNAIL_BASE, 'templates/base.html'),
@@ -40,10 +41,14 @@ export function getEffectTokens(): EffectToken[] {
   return JSON.parse(fs.readFileSync(COMPOSE_PATHS.effectTokens, 'utf-8'))
 }
 
+export interface ComposeInput extends TemplateInput {
+  elements?: ElementInstance[]
+}
+
 export function composeHtml(
   layoutTokenId: string,
   effectTokenId: string,
-  input: TemplateInput,
+  input: ComposeInput,
 ): string {
   if (!fs.existsSync(COMPOSE_PATHS.base)) {
     throw new Error('base.html 없음: thumbnail/templates/base.html')
@@ -90,13 +95,23 @@ export function composeHtml(
     .replace(/\{\{PRICE_DISPLAY\}\}/g,      hasPrice           ? 'flex'  : 'none')
 }
 
-function buildCssVars(input: TemplateInput): string {
+function buildCssVars(input: ComposeInput): string {
   const vars: string[] = []
+
+  // panelColor는 body 배경 수준 변수
+  if (input.panelColor) vars.push(`--panel-color: ${input.panelColor}`)
+
+  // 하위 호환: 기존 단일 var 필드 (마이그레이션 완료 전까지)
   if (input.fontFamily)  vars.push(`--headline-font: '${input.fontFamily}'`)
   if (input.accentColor) vars.push(`--accent-color: ${input.accentColor}`)
-  if (input.panelColor)  vars.push(`--panel-color: ${input.panelColor}`)
   if (input.textColor)   vars.push(`--text-color: ${input.textColor}`)
   if (input.subColor)    vars.push(`--sub-color: ${input.subColor}`)
+
+  // 신규: elements 배열에서 CSS var 생성
+  if (input.elements?.length) {
+    vars.push(elementsToCssVars(input.elements))
+  }
+
   return vars.join('; ')
 }
 
