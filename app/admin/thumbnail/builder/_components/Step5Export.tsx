@@ -13,11 +13,39 @@ interface Props {
 }
 
 export function Step5Export({ state, layouts, effects, onRender, onPrev }: Props) {
-  const [rendering, setRendering] = useState(false)
+  const [rendering,         setRendering]         = useState(false)
+  const [savingTemplate,    setSavingTemplate]     = useState(false)
+  const [savedTemplateName, setSavedTemplateName] = useState('')
+  const [templateSaved,     setTemplateSaved]     = useState(false)
 
   async function handleRender() {
     setRendering(true)
     try { await onRender() } finally { setRendering(false) }
+  }
+
+  async function handleSaveAsTemplate() {
+    if (!state.layoutTokenId || !state.effectTokenId) return
+    const name = savedTemplateName.trim() || state.texts.ko.headline || '새 템플릿'
+    setSavingTemplate(true)
+    try {
+      await fetch('/api/thumbnail/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nameKo:        name,
+          source:        'builder',
+          layoutTokenId: state.layoutTokenId,
+          effectTokenId: state.effectTokenId,
+          fontFamily:    state.fontFamily,
+          accentColor:   state.accentColor,
+          panelColor:    state.panelColor,
+          texts:         state.texts,
+        }),
+      })
+      setTemplateSaved(true)
+    } finally {
+      setSavingTemplate(false)
+    }
   }
 
   const layoutName = layouts.find(l => l.id === state.layoutTokenId)?.name ?? state.layoutTokenId
@@ -86,6 +114,34 @@ export function Step5Export({ state, layouts, effects, onRender, onPrev }: Props
             <div className="text-xs text-green-600 mt-0.5">thumbnail/output/renders/ 에 저장됨</div>
           </div>
         )}
+
+        {/* 템플릿으로 저장 */}
+        <div className="border border-gray-200 rounded-xl p-4">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">템플릿으로 저장</h3>
+          {templateSaved ? (
+            <div className="flex items-center gap-2 text-xs text-emerald-600">
+              <span>✓ 템플릿 라이브러리에 저장되었습니다.</span>
+              <a href="/admin/thumbnail" className="underline font-medium">라이브러리 보기</a>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={savedTemplateName}
+                onChange={e => setSavedTemplateName(e.target.value)}
+                placeholder={state.texts.ko.headline || '템플릿 이름 입력'}
+                className="flex-1 h-8 text-xs border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-gray-300"
+              />
+              <button
+                onClick={handleSaveAsTemplate}
+                disabled={savingTemplate || !state.layoutTokenId || !state.effectTokenId}
+                className="text-xs h-8 px-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
+                {savingTemplate ? '저장 중...' : '템플릿 저장'}
+              </button>
+            </div>
+          )}
+        </div>
+
       </div>
 
       <div className="border-t border-gray-100 bg-white p-4">
