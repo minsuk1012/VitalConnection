@@ -10,9 +10,10 @@
   flex-direction: column;
   gap: 10px;
 }
-.headline    { font-size: 84px; }
-.subheadline { font-size: 30px; }
+.headline    { font-size: var(--headline-font-size, 84px); color: var(--headline-color, var(--text-color, #fff)); font-family: var(--headline-font-family, var(--headline-font, 'BlackHan')); max-width: var(--headline-max-width, 900px); line-height: var(--headline-line-height, 1.05); letter-spacing: var(--headline-letter-spacing, 0px); }
+.headline-ko { font-size: var(--headline-ko-font-size, 84px); color: var(--headline-ko-color, var(--sub-color, #6B35A0)); max-width: var(--headline-ko-max-width, 900px); }
+.subheadline { font-size: var(--subheadline-font-size, 30px); color: var(--subheadline-color, var(--sub-color, rgba(255,255,255,0.85))); }
 .price-block { margin-top: 6px; }
-.price       { font-size: 70px; }
-.price-unit  { font-size: 28px; }
+.price       { font-size: var(--price-font-size, 70px); color: var(--price-color, var(--accent-color, #FF6B9D)); }
+.price-unit  { font-size: var(--price-unit-size, 28px); color: var(--price-unit-color, rgba(255,255,255,0.8)); }
 .brand-en    { font-size: 16px; margin-top: 6px; }

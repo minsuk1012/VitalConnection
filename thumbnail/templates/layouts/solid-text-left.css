@@ -18,8 +18,8 @@
 /* tagline — "반짝반짝 빛나는 광채피부!" */
 .brand-ko {
   font-size: 22px;
-  font-family: var(--headline-font, 'Pretendard');
-  color: var(--text-color, #333333);
+  font-family: var(--brand-ko-font-family, var(--headline-font, 'Pretendard'));
+  color: var(--brand-ko-color, var(--text-color, #333333));
   font-weight: 400;
   margin-bottom: 20px;
   opacity: 0.75;
@@ -27,27 +27,31 @@
 
 /* 영문 헤드라인 — "ASCE+" */
 .headline {
-  font-size: 140px;
-  line-height: 1.0;
-  color: var(--text-color, #2B7DB8);
-  letter-spacing: -2px;
+  font-size: var(--headline-font-size, 140px);
+  line-height: var(--headline-line-height, 1.0);
+  color: var(--headline-color, var(--text-color, #2B7DB8));
+  font-family: var(--headline-font-family, var(--headline-font, 'BlackHan'));
+  letter-spacing: var(--headline-letter-spacing, -2px);
+  max-width: var(--headline-max-width, 900px);
 }
 
 /* 한글 헤드라인 — "엑소좀" */
 .headline-ko {
-  font-size: 136px;
-  line-height: 1.0;
-  color: var(--sub-color, #6B35A0);
-  letter-spacing: -2px;
+  font-size: var(--headline-ko-font-size, 136px);
+  line-height: var(--headline-ko-line-height, 1.0);
+  color: var(--headline-ko-color, var(--sub-color, #6B35A0));
+  font-family: var(--headline-ko-font-family, var(--headline-font, 'BlackHan'));
+  letter-spacing: var(--headline-ko-letter-spacing, -2px);
+  max-width: var(--headline-ko-max-width, 900px);
   margin-bottom: 28px;
 }
 
 /* 태그 박스 — "피부탄력, 수분조절, 안티에이징" */
 .subheadline {
-  font-size: 22px;
+  font-size: var(--subheadline-font-size, 22px);
   font-weight: 400;
-  color: #333333;
-  background: var(--accent-color, #B8E8D0);
+  color: var(--subheadline-color, #333333);
+  background: var(--subheadline-bg-color, var(--accent-color, #B8E8D0));
   display: inline-block;
   padding: 6px 16px;
   border-radius: 4px;
@@ -57,8 +61,8 @@
 
 /* 가격 */
 .price-block { margin-top: 0; }
-.price      { font-size: 118px; line-height: 1.0; }
-.price-unit { font-size: 52px; }
+.price      { font-size: var(--price-font-size, 118px); line-height: 1.0; color: var(--price-color, var(--accent-color, #FF6B9D)); }
+.price-unit { font-size: var(--price-unit-size, 52px); color: var(--price-unit-color, var(--sub-color, rgba(255,255,255,0.8))); }
 
 /* brand-en 숨김 (이 레이아웃에서 미사용) */
 .brand-en   { display: none; }

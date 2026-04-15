@@ -24,9 +24,10 @@
   padding: 60px 48px;
   gap: 16px;
 }
-.headline    { font-size: 68px; }
-.subheadline { font-size: 24px; }
+.headline    { font-size: var(--headline-font-size, 68px); color: var(--headline-color, var(--text-color, #fff)); font-family: var(--headline-font-family, var(--headline-font, 'BlackHan')); max-width: var(--headline-max-width, 440px); }
+.headline-ko { font-size: var(--headline-ko-font-size, 68px); color: var(--headline-ko-color, var(--sub-color, #6B35A0)); }
+.subheadline { font-size: var(--subheadline-font-size, 24px); color: var(--subheadline-color, var(--sub-color, rgba(255,255,255,0.85))); }
 .price-block { margin-top: 12px; }
-.price       { font-size: 62px; }
-.price-unit  { font-size: 24px; }
+.price       { font-size: var(--price-font-size, 62px); color: var(--price-color, var(--accent-color, #FF6B9D)); }
+.price-unit  { font-size: var(--price-unit-size, 24px); color: var(--price-unit-color, rgba(255,255,255,0.8)); }
 .brand-en    { font-size: 14px; margin-top: 10px; }
