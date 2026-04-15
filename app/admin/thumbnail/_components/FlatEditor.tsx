@@ -24,6 +24,8 @@ interface Props {
   translating:          boolean
   isLegacy?:            boolean
   onConvertLegacy?:     () => void
+  selectedTarget?:      string | null
+  onSelectTarget?:      (t: string | null) => void
 }
 
 const LANGS = ['ko', 'en', 'ja', 'zh'] as Lang[]
@@ -100,6 +102,7 @@ export function FlatEditor({
   layouts, effects, config, templateName, lang, onLangChange,
   onConfigChange, onTemplateNameChange, onSave, onTranslate,
   saving, translating, isLegacy, onConvertLegacy,
+  selectedTarget, onSelectTarget,
 }: Props) {
   if (!config) {
     return (
@@ -209,23 +212,48 @@ export function FlatEditor({
         </div>
       </Section>
 
-      {/* 요소별 컨트롤 */}
+      {/* 요소별 컨트롤 — 아코디언 */}
       {config.elements.map((el, idx) => {
         const schema = ELEMENT_TYPES[el.type]
         if (!schema) return null
+        const ELEMENT_COLORS: Record<string, string> = {
+          'brand-ko': '#6366f1', 'headline': '#2563eb',
+          'headline-ko': '#7c3aed', 'subheadline': '#059669', 'price': '#db2777',
+        }
+        const color  = ELEMENT_COLORS[el.cssTarget] ?? '#6b7280'
+        const isOpen = selectedTarget === el.cssTarget
+
         return (
-          <Section key={el.cssTarget} label={el.label}>
-            <div className="space-y-2">
-              {schema.props.map(prop => (
-                <PropControl
-                  key={prop}
-                  prop={prop}
-                  value={el.props[prop]}
-                  onChange={val => updateElementProp(idx, prop, val)}
-                />
-              ))}
-            </div>
-          </Section>
+          <div key={el.cssTarget}
+            className={`border-b border-gray-100 transition-colors ${isOpen ? 'bg-gray-50' : ''}`}>
+
+            {/* 헤더 — 클릭으로 선택/토글 */}
+            <button
+              onClick={() => onSelectTarget?.(isOpen ? null : el.cssTarget)}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-gray-50 transition-colors">
+              <span className="w-2.5 h-2.5 rounded-full shrink-0"
+                style={{ background: color }} />
+              <span className="text-xs font-medium text-gray-700 flex-1">{el.label}</span>
+              <svg className={`w-3 h-3 text-gray-400 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* 컨트롤 — 열렸을 때만 */}
+            {isOpen && (
+              <div className="px-3 pb-3 space-y-2">
+                {schema.props.map(prop => (
+                  <PropControl
+                    key={prop}
+                    prop={prop}
+                    value={el.props[prop]}
+                    onChange={val => updateElementProp(idx, prop, val)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         )
       })}
 
