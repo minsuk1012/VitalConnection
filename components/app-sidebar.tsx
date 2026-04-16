@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, LogOut, Radar, ChevronRight, Settings, ImageIcon } from 'lucide-react'
+import { LayoutDashboard, LogOut, Radar, ChevronRight, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -77,13 +77,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton render={<Link href="/admin/thumbnail" />} isActive={pathname.startsWith('/admin/thumbnail')}>
-                  <ImageIcon />
-                  <span>썸네일 생성</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
 
               <SidebarMenuItem>
                 <SidebarMenuButton render={<Link href="/admin/settings" />} isActive={pathname === '/admin/settings'}>
