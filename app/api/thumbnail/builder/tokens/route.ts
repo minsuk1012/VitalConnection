@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getLayoutTokens, getEffectTokens } from '@/lib/thumbnail-compose'
+import { getSceneTokens } from '@/lib/thumbnail-registry'
 import { checkAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +9,6 @@ export async function GET() {
   if (authError) return authError
 
   return NextResponse.json({
-    layouts: getLayoutTokens(),
-    effects: getEffectTokens(),
+    scenes: getSceneTokens(),
   })
 }

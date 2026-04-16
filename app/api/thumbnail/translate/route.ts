@@ -4,8 +4,8 @@ import { GoogleGenAI, Type } from '@google/genai'
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.GEMINI_THUMBNAIL_EDITOR_TRANSLATE_API_KEY
-  if (!apiKey) return NextResponse.json({ error: 'GEMINI_THUMBNAIL_EDITOR_TRANSLATE_API_KEY 없음' }, { status: 500 })
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'GEMINI_API_KEY 없음' }, { status: 500 })
 
   const { headline, sub, tagline } = await req.json()
 

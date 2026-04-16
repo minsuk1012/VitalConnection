@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const authError = await checkAdmin()
   if (authError) return authError
 
-  const apiKey = process.env.GEMINI_THUMBNAIL_EDITOR_TRANSLATE_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'GEMINI API 키 없음' }, { status: 500 })
 
   const { ko, targetLang } = await req.json()
