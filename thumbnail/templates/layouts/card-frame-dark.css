@@ -1,0 +1,153 @@
+/* card-frame-dark.css
+   다크 카드 프레임 + 우측 텍스트 */
+:root {
+  --text-color: #ffffff;
+  --sub-color: rgba(255, 255, 255, 0.72);
+}
+
+body {
+  background: var(--panel-color, #111111);
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 75% 15%, rgba(255, 255, 255, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 10% 90%, rgba(0, 0, 0, 0.35) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.effect-layer::before {
+  content: '';
+  position: absolute;
+  left: var(--card-left, 44px);
+  top: var(--card-top, 64px);
+  width: var(--card-width, 480px);
+  height: var(--card-height, 700px);
+  background: var(--accent-color, #C9A84C);
+  transform: rotate(-2.5deg) translate(16px, 16px);
+  transform-origin: center center;
+  opacity: 0.75;
+}
+
+.effect-layer::after {
+  content: '';
+  position: absolute;
+  left: var(--card-left, 44px);
+  top: var(--card-top, 64px);
+  width: var(--card-width, 480px);
+  height: var(--card-height, 700px);
+  background: rgba(0, 0, 0, 0.55);
+  transform: rotate(-2.5deg) translate(0, 28px);
+  transform-origin: center center;
+  filter: blur(28px);
+}
+
+.model-layer {
+  position: absolute;
+  left: var(--card-left, 44px);
+  top: var(--card-top, 64px);
+  width: var(--card-width, 480px);
+  height: var(--card-height, 700px);
+  overflow: hidden;
+  transform: rotate(-2.5deg);
+  transform-origin: center center;
+  z-index: 1;
+}
+
+.model-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: brightness(var(--model-brightness, 1));
+  opacity: var(--model-opacity, 1);
+}
+
+.text-layer {
+  position: absolute;
+  left: var(--text-left, 300px);
+  top: var(--text-top, 590px);
+  width: var(--text-width, 740px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brand-en {
+  position: absolute;
+  top: 50px;
+  right: 60px;
+  font-family: 'Bebas', 'Noto', sans-serif;
+  font-size: var(--brand-size, 36px);
+  color: var(--accent-color, #C9A84C);
+  letter-spacing: 6px;
+  line-height: 1;
+}
+
+.brand-ko {
+  position: absolute;
+  top: 94px;
+  right: 60px;
+  font-family: 'Noto', sans-serif;
+  font-size: 13px;
+  color: var(--text-color);
+  opacity: 0.38;
+  letter-spacing: 3px;
+  margin-top: 6px;
+}
+
+.subheadline {
+  font-family: 'NotoSerif', serif;
+  font-size: var(--subheadline-font-size, var(--sub-size, 22px));
+  color: var(--subheadline-color, var(--sub-color, rgba(255, 255, 255, 0.85)));
+  font-style: italic;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  white-space: pre-wrap;
+}
+
+.headline {
+  font-family: 'Bebas', 'Noto', sans-serif;
+  font-weight: 800;
+  font-size: var(--headline-font-size, var(--headline-size, 148px));
+  color: var(--headline-color, var(--text-color));
+  line-height: 0.95;
+  letter-spacing: var(--headline-letter-spacing, 1px);
+  word-break: keep-all;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), 0 8px 30px rgba(0, 0, 0, 0.6);
+  rotate: var(--headline-rotation, 0deg);
+  max-width: var(--headline-max-width, 900px);
+}
+
+.price-block {
+  position: absolute;
+  right: 60px;
+  bottom: 68px;
+  z-index: 20;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.price {
+  font-family: 'Bebas', 'Noto', sans-serif;
+  font-weight: 900;
+  font-size: var(--price-font-size, var(--price-size, 114px));
+  color: var(--accent-color, #C9A84C);
+  line-height: 1;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.price-unit {
+  font-family: 'Noto', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-color);
+  opacity: 0.6;
+  letter-spacing: 1px;
+}

@@ -1,0 +1,115 @@
+/* solid-bg-stars.css
+   별 장식 솔리드 배경 */
+:root {
+  --text-color: #ffffff;
+  --sub-color: rgba(255, 255, 255, 0.82);
+}
+
+body {
+  background: var(--panel-color, #4A33C0);
+}
+
+.effect-layer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.18) 0%, transparent 14%),
+    radial-gradient(circle at 86% 70%, rgba(255, 255, 255, 0.10) 0%, transparent 16%),
+    radial-gradient(circle at 22% 76%, rgba(255, 255, 255, 0.06) 0%, transparent 18%);
+}
+
+.effect-layer::after {
+  content: '';
+  position: absolute;
+  right: 120px;
+  top: 120px;
+  width: 180px;
+  height: 180px;
+  background: var(--star-color, rgba(255, 255, 255, 0.05));
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: 0.4;
+  transform: rotate(25deg);
+}
+
+.model-layer {
+  position: absolute;
+  right: -30px;
+  bottom: 0;
+  width: 600px;
+  height: 1000px;
+  z-index: 1;
+}
+
+.model-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: brightness(var(--model-brightness, 1));
+  opacity: var(--model-opacity, 1);
+}
+
+.text-layer {
+  position: absolute;
+  left: 40px;
+  top: 100px;
+  width: 1000px;
+  z-index: 3;
+}
+
+.subheadline {
+  font-family: 'NotoSerif', serif;
+  font-size: 50px;
+  color: var(--text-color);
+  margin-bottom: 20px;
+  font-weight: bold;
+  opacity: 0.9;
+  white-space: pre-wrap;
+}
+
+.headline {
+  font-family: 'Bebas', 'Noto', sans-serif;
+  font-size: var(--headline-font-size, var(--headline-size, 170px));
+  color: var(--text-color);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -3px;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  -webkit-text-stroke: var(--stroke-width, 4px) var(--stroke-color, var(--text-color));
+  paint-order: stroke fill;
+  word-break: keep-all;
+  max-width: var(--headline-max-width, 900px);
+}
+
+.price-block {
+  margin-top: 150px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.price {
+  font-family: 'Bebas', 'Noto', sans-serif;
+  font-size: var(--price-font-size, var(--price-size, 150px));
+  color: var(--accent-color, #FFE600);
+  line-height: 1;
+  text-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.price-unit {
+  font-family: 'Noto', sans-serif;
+  font-size: 60px;
+  color: var(--text-color);
+  font-weight: bold;
+  opacity: 0.8;
+}
+
+.brand-en {
+  display: none !important;
+}
+
+.brand-ko,
+.headline-ko {
+  display: none;
+}
