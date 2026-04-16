@@ -17,6 +17,7 @@
     "thumbnail:transform:test": "tsx scripts/thumbnail/transform-references.ts --test",
     "thumbnail:split": "tsx scripts/thumbnail/split-layers.ts",
     "thumbnail:split:test": "tsx scripts/thumbnail/split-layers.ts --test",
+    "thumbnail:split:mixed": "tsx scripts/thumbnail/split-layers.ts --mixed",
     "thumbnail:extract-vocab": "tsx scripts/thumbnail/extract-vocab.ts",
     "thumbnail:extract-vocab:test": "tsx scripts/thumbnail/extract-vocab.ts --test",
     "thumbnail:mix": "tsx scripts/thumbnail/generate-mix.ts",
