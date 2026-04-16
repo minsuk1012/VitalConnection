@@ -1,151 +1,75 @@
 {
-  "layout": "vertical-split-gold",
-  "vars": {
-    "panel-color": "#F5F0E6",
-    "frame-base-color": "#D4AF37",
-    "text-color": "#111111",
-    "accent-color": "#C29367",
-    "headline-size": "160px",
-    "price-size": "130px",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--headline-max-width, 900px)",
-    "sub-rotation": "0deg",
-    "sub-margin-top": "0px",
-    "model-opacity": "1",
-    "model-brightness": "1",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "vertical-split-gold",
+  "nameKo": "세로 패널 골드 프레임",
+  "name": "Vertical Split Gold",
+  "source": "manual",
+  "sceneTokenId": "vertical-split-gold",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "색상",
-      "items": [
-        {
-          "var": "panel-color",
-          "label": "측면 패널/가격표 배경",
-          "type": "color"
-        },
-        {
-          "var": "text-color",
-          "label": "기본 텍스트 및 테두리 색",
-          "type": "color"
-        },
-        {
-          "var": "accent-color",
-          "label": "세로 헤드라인 색상",
-          "type": "color"
-        },
-        {
-          "var": "frame-base-color",
-          "label": "프레임 색상 (메탈 코팅 자동적용)",
-          "type": "color"
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "크기",
-      "items": [
-        {
-          "var": "headline-size",
-          "label": "헤드라인 크기 (세로)",
-          "type": "range",
-          "min": 80,
-          "max": 250,
-          "unit": "px"
-        },
-        {
-          "var": "price-size",
-          "label": "가격 크기",
-          "type": "range",
-          "min": 60,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "서브헤드라인 커스텀",
-      "items": [
-        {
-          "var": "sub-rotation",
-          "label": "서브헤드 회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "sub-margin-top",
-          "label": "서브헤드 위 여백",
-          "type": "range",
-          "min": 0,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
     },
     {
-      "group": "모델",
-      "items": [
-        {
-          "var": "model-opacity",
-          "label": "모델 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        },
-        {
-          "var": "model-brightness",
-          "label": "모델 밝기",
-          "type": "range",
-          "min": 0.3,
-          "max": 2,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
-  ]
+  ],
+  "texts": {
+    "ko": {
+      "headline": "세로 패널 골드 프레임",
+      "headlineKo": "",
+      "subheadline": "좌측 세로로 긴 텍스트 패널과 우측상단 모서리를 감싸는 골드 프레임 테두리가 돋보이는 고급형 (라라필 스타일)",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Vertical Split Gold"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }

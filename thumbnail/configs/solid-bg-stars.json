@@ -1,146 +1,75 @@
 {
-  "layout": "solid-bg-stars",
-  "vars": {
-    "bg-color": "#4A33C0",
-    "star-color": "rgba(255,255,255,0.08)",
-    "text-color": "#FFFFFF",
-    "accent-color": "#FFC800",
-    "headline-size": "170px",
-    "price-size": "150px",
-    "stroke-width": "4px",
-    "stroke-color": "#FFFFFF",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--headline-max-width, 900px)",
-    "sub-rotation": "0deg",
-    "sub-margin-top": "0px",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "solid-bg-stars",
+  "nameKo": "단색 배경 매시브 별",
+  "name": "Solid BG Stars",
+  "source": "manual",
+  "sceneTokenId": "solid-bg-stars",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "외곽선",
-      "items": [
-        {
-          "var": "stroke-width",
-          "label": "외곽선 두께",
-          "type": "range",
-          "min": 0,
-          "max": 30,
-          "unit": "px"
-        },
-        {
-          "var": "stroke-color",
-          "label": "외곽선 색상",
-          "type": "color"
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "색상",
-      "items": [
-        {
-          "var": "bg-color",
-          "label": "배경 색상",
-          "type": "color"
-        },
-        {
-          "var": "star-color",
-          "label": "별 장식 색상",
-          "type": "color"
-        },
-        {
-          "var": "text-color",
-          "label": "텍스트 색상",
-          "type": "color"
-        },
-        {
-          "var": "accent-color",
-          "label": "가격 색상",
-          "type": "color"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "크기",
-      "items": [
-        {
-          "var": "headline-size",
-          "label": "헤드라인 크기",
-          "type": "range",
-          "min": 60,
-          "max": 250,
-          "unit": "px"
-        },
-        {
-          "var": "price-size",
-          "label": "가격 크기",
-          "type": "range",
-          "min": 60,
-          "max": 250,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
     },
     {
-      "group": "서브헤드라인 커스텀",
-      "items": [
-        {
-          "var": "sub-rotation",
-          "label": "서브헤드 회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "sub-margin-top",
-          "label": "서브헤드 위 여백",
-          "type": "range",
-          "min": 0,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
-  ]
+  ],
+  "texts": {
+    "ko": {
+      "headline": "단색 배경 매시브 별",
+      "headlineKo": "",
+      "subheadline": "배경으로 은은하게 깔린 기하학적 별자리 패턴과 4포인트 작은 별들, 그리고 극대화된 텍스트 크기",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Solid BG Stars"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }

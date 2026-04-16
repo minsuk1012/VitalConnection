@@ -1,293 +1,75 @@
 {
-  "vars": {
-    "model-height": "68%",
-    "banner-height": "320px",
-    "banner-color": "#FF6B9D",
-    "banner-pad": "40px",
-    "text-color": "#ffffff",
-    "accent-color": "#ffffff",
-    "sub-size": "22px",
-    "headline-size": "96px",
-    "price-size": "94px",
-    "brand-size": "22px",
-    "logo-size": "18px",
-    "frame-width": "0px",
-    "frame-color": "#ffffff",
-    "headline-font": "Noto",
-    "headline-style": "normal",
-    "headline-letter-spacing": "0px",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--headline-max-width, 900px)",
-    "sub-rotation": "0deg",
-    "sub-margin-top": "0px",
-    "model-opacity": "1",
-    "model-brightness": "1",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "bottom-banner",
+  "nameKo": "하단 배너",
+  "name": "Bottom Banner",
+  "source": "manual",
+  "sceneTokenId": "bottom-banner",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "폰트",
-      "items": [
-        {
-          "var": "headline-font",
-          "label": "헤드라인 폰트",
-          "type": "select",
-          "options": [
-            {
-              "value": "Noto",
-              "label": "Noto Sans KR"
-            },
-            {
-              "value": "Pretendard",
-              "label": "Pretendard Bold"
-            },
-            {
-              "value": "BlackHan",
-              "label": "Black Han Sans"
-            },
-            {
-              "value": "Bebas",
-              "label": "Bebas Neue"
-            },
-            {
-              "value": "Montserrat",
-              "label": "Montserrat"
-            },
-            {
-              "value": "Playfair",
-              "label": "Playfair Display"
-            },
-            {
-              "value": "PlayfairI",
-              "label": "Playfair Italic"
-            },
-            {
-              "value": "NotoSerif",
-              "label": "Noto Serif"
-            },
-            {
-              "value": "Anton",
-              "label": "Anton (영문 임팩트)"
-            },
-            {
-              "value": "Oswald",
-              "label": "Oswald (영문 압축)"
-            },
-            {
-              "value": "Cormorant",
-              "label": "Cormorant (럭셔리 세리프)"
-            },
-            {
-              "value": "NanumGothic",
-              "label": "나눔고딕"
-            },
-            {
-              "value": "GmarketSans",
-              "label": "지마켓 산스 (트렌디)"
-            },
-            {
-              "value": "NanumSquare",
-              "label": "나눔스퀘어 (모던)"
-            },
-            {
-              "value": "NanumRound",
-              "label": "나눔스퀘어라운드 (부드러운)"
-            }
-          ]
-        },
-        {
-          "var": "headline-style",
-          "label": "기울이기",
-          "type": "select",
-          "options": [
-            {
-              "value": "normal",
-              "label": "보통"
-            },
-            {
-              "value": "italic",
-              "label": "이탤릭"
-            }
-          ]
-        },
-        {
-          "var": "headline-letter-spacing",
-          "label": "자간",
-          "type": "range",
-          "min": -4,
-          "max": 20,
-          "unit": "px"
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "배너",
-      "items": [
-        {
-          "var": "model-height",
-          "label": "모델 영역 높이",
-          "type": "range",
-          "min": 0,
-          "max": 100,
-          "unit": "%"
-        },
-        {
-          "var": "banner-height",
-          "label": "배너 높이",
-          "type": "range",
-          "min": 100,
-          "max": 600,
-          "unit": "px"
-        },
-        {
-          "var": "banner-color",
-          "label": "배너 색상",
-          "type": "color"
-        },
-        {
-          "var": "banner-pad",
-          "label": "좌우 여백",
-          "type": "range",
-          "min": 10,
-          "max": 150,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "텍스트",
-      "items": [
-        {
-          "var": "headline-size",
-          "label": "헤드라인 크기",
-          "type": "range",
-          "min": 28,
-          "max": 100,
-          "unit": "px"
-        },
-        {
-          "var": "price-size",
-          "label": "가격 크기",
-          "type": "range",
-          "min": 36,
-          "max": 120,
-          "unit": "px"
-        },
-        {
-          "var": "accent-color",
-          "label": "가격 색상",
-          "type": "color"
-        },
-        {
-          "var": "text-color",
-          "label": "텍스트 색상",
-          "type": "color"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "외곽 테두리",
-      "items": [
-        {
-          "var": "frame-width",
-          "label": "두께",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": "px"
-        },
-        {
-          "var": "frame-color",
-          "label": "색상",
-          "type": "color"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
     },
     {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
-    },
-    {
-      "group": "서브헤드라인 커스텀",
-      "items": [
-        {
-          "var": "sub-rotation",
-          "label": "서브헤드 회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "sub-margin-top",
-          "label": "서브헤드 위 여백",
-          "type": "range",
-          "min": 0,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "모델",
-      "items": [
-        {
-          "var": "model-opacity",
-          "label": "모델 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        },
-        {
-          "var": "model-brightness",
-          "label": "모델 밝기",
-          "type": "range",
-          "min": 0.3,
-          "max": 2,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
   ],
-  "layout": "bottom-banner"
+  "texts": {
+    "ko": {
+      "headline": "하단 배너",
+      "headlineKo": "",
+      "subheadline": "모델 상단 + 하단 색상 배너 + 시술명/가격",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Bottom Banner"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }

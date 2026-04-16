@@ -41,5 +41,102 @@
     "description": "이미지 없는 단색 배경. 영문+한글 2색 대형 헤드라인, 태그박스, 가격 강조. ASCE+엑소좀 스타일.",
     "cssFile": "layouts/solid-text-left.css",
     "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "center-frame-circle",
+    "name": "원형 프레임",
+    "description": "중앙 원형 프레임과 상하 텍스트가 있는 에디토리얼 레이아웃.",
+    "cssFile": "layouts/center-frame-circle.css",
+    "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "card-frame-dark",
+    "name": "다크 카드 프레임",
+    "description": "기울어진 카드 프레임과 우측 텍스트 스택.",
+    "cssFile": "layouts/card-frame-dark.css",
+    "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "card-frame-white",
+    "name": "라이트 카드 프레임",
+    "description": "밝은 배경의 카드 프레임과 우측 텍스트 스택.",
+    "cssFile": "layouts/card-frame-white.css",
+    "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "gradient-dual-circle",
+    "name": "듀얼 그라디언트 서클",
+    "description": "그라디언트 배경과 원형 모델 장식이 있는 에디토리얼 레이아웃.",
+    "cssFile": "layouts/gradient-dual-circle.css",
+    "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "circle-bg-callout",
+    "name": "원형 배경 말풍선",
+    "description": "원형 배경, 우측 말풍선, 하단 텍스트를 결합한 레이아웃.",
+    "cssFile": "layouts/circle-bg-callout.css",
+    "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "arch-frame-editorial",
+    "name": "아치 프레임 에디토리얼",
+    "description": "아치형 프레임과 대형 타이포가 있는 에디토리얼 레이아웃.",
+    "cssFile": "layouts/arch-frame-editorial.css",
+    "compatibleEffects": ["solid-bg"]
+  },
+  {
+    "id": "center-frame-sparkle",
+    "name": "스파클 프레임",
+    "description": "타원 프레임과 스파클 장식이 있는 중앙 집중형 레이아웃.",
+    "cssFile": "layouts/center-frame-sparkle.css",
+    "compatibleEffects": ["solid-bg"],
+    "requiresCutout": true
+  },
+  {
+    "id": "solid-bg-stars",
+    "name": "솔리드 스타",
+    "description": "별 장식이 있는 솔리드 배경 템플릿.",
+    "cssFile": "layouts/solid-bg-stars.css",
+    "compatibleEffects": ["solid-bg"],
+    "requiresCutout": true
+  },
+  {
+    "id": "solid-bg-icons",
+    "name": "솔리드 아이콘",
+    "description": "도형 아이콘과 누끼 모델이 있는 솔리드 배경 템플릿.",
+    "cssFile": "layouts/solid-bg-icons.css",
+    "compatibleEffects": ["solid-bg"],
+    "requiresCutout": true
+  },
+  {
+    "id": "solid-bg-stamp",
+    "name": "솔리드 스탬프",
+    "description": "마퀴 배너와 스탬프 느낌의 솔리드 배경 템플릿.",
+    "cssFile": "layouts/solid-bg-stamp.css",
+    "compatibleEffects": ["solid-bg"],
+    "requiresCutout": true
+  },
+  {
+    "id": "gradient-mesh",
+    "name": "메쉬 그라디언트",
+    "description": "메쉬 블러 배경과 우측 누끼 모델을 쓰는 그라디언트 템플릿.",
+    "cssFile": "layouts/gradient-mesh.css",
+    "compatibleEffects": ["solid-bg"],
+    "requiresCutout": true
+  },
+  {
+    "id": "gradient-stroke-typography",
+    "name": "스트로크 타이포",
+    "description": "프레임 라인과 스트로크/그라디언트 타이포가 있는 템플릿.",
+    "cssFile": "layouts/gradient-stroke-typography.css",
+    "compatibleEffects": ["solid-bg"],
+    "requiresCutout": true
+  },
+  {
+    "id": "notebook-diary",
+    "name": "노트북 다이어리",
+    "description": "노트북 링과 카드형 본문을 가진 다이어리 스타일 템플릿.",
+    "cssFile": "layouts/notebook-diary.css",
+    "compatibleEffects": ["solid-bg"]
   }
 ]

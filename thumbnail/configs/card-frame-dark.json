@@ -1,323 +1,75 @@
 {
-  "vars": {
-    "bg-color": "#111111",
-    "text-color": "#ffffff",
-    "accent-color": "#C9A84C",
-    "brand-size": "36px",
-    "card-left": "44px",
-    "card-top": "64px",
-    "card-width": "480px",
-    "card-height": "700px",
-    "text-left": "300px",
-    "text-top": "590px",
-    "text-width": "740px",
-    "sub-size": "22px",
-    "headline-size": "148px",
-    "price-size": "114px",
-    "headline-font": "Noto",
-    "headline-style": "normal",
-    "headline-letter-spacing": "0px",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--headline-max-width, 900px)",
-    "sub-rotation": "0deg",
-    "sub-margin-top": "0px",
-    "tagline-rotation": "0deg",
-    "model-opacity": "1",
-    "model-brightness": "1",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "card-frame-dark",
+  "nameKo": "카드 프레임 다크",
+  "name": "Card Frame (Dark)",
+  "source": "manual",
+  "sceneTokenId": "card-frame-dark",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "폰트",
-      "items": [
-        {
-          "var": "headline-font",
-          "label": "헤드라인 폰트",
-          "type": "select",
-          "options": [
-            {
-              "value": "Noto",
-              "label": "Noto Sans KR"
-            },
-            {
-              "value": "Pretendard",
-              "label": "Pretendard Bold"
-            },
-            {
-              "value": "BlackHan",
-              "label": "Black Han Sans"
-            },
-            {
-              "value": "Bebas",
-              "label": "Bebas Neue"
-            },
-            {
-              "value": "Montserrat",
-              "label": "Montserrat"
-            },
-            {
-              "value": "Playfair",
-              "label": "Playfair Display"
-            },
-            {
-              "value": "PlayfairI",
-              "label": "Playfair Italic"
-            },
-            {
-              "value": "NotoSerif",
-              "label": "Noto Serif"
-            },
-            {
-              "value": "Anton",
-              "label": "Anton (영문 임팩트)"
-            },
-            {
-              "value": "Oswald",
-              "label": "Oswald (영문 압축)"
-            },
-            {
-              "value": "Cormorant",
-              "label": "Cormorant (럭셔리 세리프)"
-            },
-            {
-              "value": "NanumGothic",
-              "label": "나눔고딕"
-            },
-            {
-              "value": "GmarketSans",
-              "label": "지마켓 산스 (트렌디)"
-            },
-            {
-              "value": "NanumSquare",
-              "label": "나눔스퀘어 (모던)"
-            },
-            {
-              "value": "NanumRound",
-              "label": "나눔스퀘어라운드 (부드러운)"
-            }
-          ]
-        },
-        {
-          "var": "headline-style",
-          "label": "기울이기",
-          "type": "select",
-          "options": [
-            {
-              "value": "normal",
-              "label": "보통"
-            },
-            {
-              "value": "italic",
-              "label": "이탤릭"
-            }
-          ]
-        },
-        {
-          "var": "headline-letter-spacing",
-          "label": "자간",
-          "type": "range",
-          "min": -4,
-          "max": 20,
-          "unit": "px"
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "배경",
-      "items": [
-        {
-          "var": "bg-color",
-          "label": "배경 색상",
-          "type": "color"
-        },
-        {
-          "var": "accent-color",
-          "label": "브랜드 색상",
-          "type": "color"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "카드",
-      "items": [
-        {
-          "var": "card-left",
-          "label": "카드 좌측",
-          "type": "range",
-          "min": 0,
-          "max": 400,
-          "unit": "px"
-        },
-        {
-          "var": "card-top",
-          "label": "카드 상단",
-          "type": "range",
-          "min": 0,
-          "max": 400,
-          "unit": "px"
-        },
-        {
-          "var": "card-width",
-          "label": "카드 너비",
-          "type": "range",
-          "min": 100,
-          "max": 800,
-          "unit": "px"
-        },
-        {
-          "var": "card-height",
-          "label": "카드 높이",
-          "type": "range",
-          "min": 100,
-          "max": 900,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "텍스트",
-      "items": [
-        {
-          "var": "text-left",
-          "label": "텍스트 좌측",
-          "type": "range",
-          "min": 0,
-          "max": 900,
-          "unit": "px"
-        },
-        {
-          "var": "headline-size",
-          "label": "헤드라인 크기",
-          "type": "range",
-          "min": 28,
-          "max": 90,
-          "unit": "px"
-        },
-        {
-          "var": "price-size",
-          "label": "가격 크기",
-          "type": "range",
-          "min": 36,
-          "max": 140,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
     },
     {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
-    },
-    {
-      "group": "서브헤드라인 커스텀",
-      "items": [
-        {
-          "var": "sub-rotation",
-          "label": "서브헤드 회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "sub-margin-top",
-          "label": "서브헤드 위 여백",
-          "type": "range",
-          "min": 0,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "태그라인 커스텀",
-      "items": [
-        {
-          "var": "tagline-rotation",
-          "label": "태그라인 회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "tagline-bottom",
-          "label": "태그라인 하단",
-          "type": "range",
-          "min": 0,
-          "max": 900,
-          "unit": "px"
-        },
-        {
-          "var": "tagline-left",
-          "label": "태그라인 좌측",
-          "type": "range",
-          "min": 0,
-          "max": 900,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "모델",
-      "items": [
-        {
-          "var": "model-opacity",
-          "label": "모델 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        },
-        {
-          "var": "model-brightness",
-          "label": "모델 밝기",
-          "type": "range",
-          "min": 0.3,
-          "max": 2,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
   ],
-  "layout": "card-frame-dark"
+  "texts": {
+    "ko": {
+      "headline": "카드 프레임 다크",
+      "headlineKo": "",
+      "subheadline": "어두운 배경 + 흰 카드 모델 + 우측 텍스트",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Card Frame (Dark)"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }

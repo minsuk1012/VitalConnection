@@ -6,10 +6,14 @@
       "nameKo": "ASCE+ 엑소좀 (샘플)",
       "name": "ASCE+ Exosome Sample",
       "source": "manual",
+      "layout": "solid-bg",
+      "color": "#1a1a2e",
       "layoutTokenId": "solid-text-left",
       "effectTokenId": "solid-bg",
-      "accentColor": "#B8E8D0",
-      "createdAt": "2026-04-15T00:00:00.000Z"
+      "accentColor": "#1a1a2e",
+      "createdAt": "2026-04-15T00:00:00.000Z",
+      "sceneTokenId": "sample-asce-exosome",
+      "requiresCutout": false
     },
     {
       "id": "full-overlay-dark",
@@ -25,9 +29,13 @@
       ],
       "description": "어두운 그라디언트 + 하단 헤드라인 + 가격 대형 타이포",
       "color": "#1a1a2e",
-      "source": "legacy",
+      "source": "manual",
       "accentColor": "#1a1a2e",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-text-stack",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "full-overlay-dark"
     },
     {
       "id": "full-overlay-light",
@@ -43,10 +51,14 @@
         "hashtag"
       ],
       "description": "밝은 배경 + 해시태그 스타일 캡션, 미니멀",
-      "color": "#f0ede8",
-      "source": "legacy",
-      "accentColor": "#f0ede8",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-text-stack",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "full-overlay-light"
     },
     {
       "id": "full-overlay-gradient",
@@ -62,10 +74,14 @@
         "color"
       ],
       "description": "단색 그라디언트 오버레이 + 좌측 텍스트 스택 + 가격",
-      "color": "#ff6b35",
-      "source": "legacy",
-      "accentColor": "#ff6b35",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-text-stack",
+      "effectTokenId": "overlay-gradient",
+      "requiresCutout": false,
+      "sceneTokenId": "full-overlay-gradient"
     },
     {
       "id": "full-overlay-left-fade",
@@ -80,10 +96,14 @@
         "price"
       ],
       "description": "좌측 어두운 그라디언트 페이드 + 텍스트, 모델 우측 노출",
-      "color": "#2d2d2d",
-      "source": "legacy",
-      "accentColor": "#2d2d2d",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-text-stack",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "full-overlay-left-fade"
     },
     {
       "id": "left-split",
@@ -98,10 +118,14 @@
         "clean"
       ],
       "description": "좌측 밝은 패널 + 텍스트, 모델 우측",
-      "color": "#ffffff",
-      "source": "legacy",
-      "accentColor": "#ffffff",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "left-text-stack",
+      "effectTokenId": "split-light",
+      "requiresCutout": false,
+      "sceneTokenId": "left-split"
     },
     {
       "id": "full-overlay",
@@ -116,10 +140,14 @@
         "color"
       ],
       "description": "풀블리드 + 원형 가격 배지 목록",
-      "color": "#ff6b9d",
-      "source": "legacy",
-      "accentColor": "#ff6b9d",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-text-stack",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "full-overlay"
     },
     {
       "id": "minimal-editorial",
@@ -134,10 +162,14 @@
         "premium"
       ],
       "description": "세로 액센트 라인 + 하단 대형 시술명",
-      "color": "#e8c4a0",
-      "source": "legacy",
-      "accentColor": "#e8c4a0",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "top-left-editorial",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "minimal-editorial"
     },
     {
       "id": "solid-bg-cutout",
@@ -154,11 +186,14 @@
         "sparkle"
       ],
       "description": "단색/그라디언트 배경 + 누끼 모델 + 원형 배지 (쥬비덤/아띠에르 스타일)",
-      "color": "#FFBDCD",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FFBDCD",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "stacked-center-cutout",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "solid-bg-cutout"
     },
     {
       "id": "split-right-light",
@@ -174,10 +209,14 @@
         "clean"
       ],
       "description": "밝은 좌측 패널 + 텍스트+가격, 모델 우측",
-      "color": "#FDF6F0",
-      "source": "legacy",
-      "accentColor": "#FDF6F0",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "left-text-stack",
+      "effectTokenId": "split-light",
+      "requiresCutout": false,
+      "sceneTokenId": "split-right-light"
     },
     {
       "id": "split-right-dark",
@@ -194,10 +233,14 @@
         "premium"
       ],
       "description": "다크 좌측 패널 + 화이트 텍스트+가격, 모델 우측",
-      "color": "#1A1A2E",
-      "source": "legacy",
-      "accentColor": "#1A1A2E",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "left-text-stack",
+      "effectTokenId": "split-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "split-right-dark"
     },
     {
       "id": "solid-bg-stacked",
@@ -213,11 +256,14 @@
         "color"
       ],
       "description": "단색 배경 + 모델 우측 + 좌측 텍스트/가격 세로 스택 (울쎄라 스타일)",
-      "color": "#F5A623",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#F5A623",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "stacked-center-cutout",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "solid-bg-stacked"
     },
     {
       "id": "bottom-banner",
@@ -232,10 +278,14 @@
         "price"
       ],
       "description": "모델 상단 + 하단 색상 배너 + 시술명/가격",
-      "color": "#FF6B9D",
-      "source": "legacy",
-      "accentColor": "#FF6B9D",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-banner",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "bottom-banner"
     },
     {
       "id": "bottom-banner-circle",
@@ -251,10 +301,14 @@
         "price"
       ],
       "description": "원형 클립 모델 + 하단 배너 (볼뉴머 스타일)",
-      "color": "#3B82F6",
-      "source": "legacy",
-      "accentColor": "#3B82F6",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "bottom-banner",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "bottom-banner-circle"
     },
     {
       "id": "center-frame-circle",
@@ -270,10 +324,14 @@
         "soft"
       ],
       "description": "원형 프레임 안에 모델, 상하단 텍스트/가격",
-      "color": "#FF6B9D",
-      "source": "legacy",
-      "accentColor": "#FF6B9D",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "center-frame-circle",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "center-frame-circle"
     },
     {
       "id": "card-frame-white",
@@ -289,10 +347,14 @@
         "bold"
       ],
       "description": "단색 배경 + 흰 카드 (모델) + 우측 텍스트/가격 (옴므쁘띠 스타일)",
-      "color": "#C0392B",
-      "source": "legacy",
-      "accentColor": "#C0392B",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "card-frame-white",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "card-frame-white"
     },
     {
       "id": "card-frame-dark",
@@ -308,10 +370,14 @@
         "premium"
       ],
       "description": "어두운 배경 + 흰 카드 모델 + 우측 텍스트",
-      "color": "#8B1A1A",
-      "source": "legacy",
-      "accentColor": "#8B1A1A",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "card-frame-dark",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "card-frame-dark"
     },
     {
       "id": "gradient-dual-circle",
@@ -328,10 +394,14 @@
         "deco"
       ],
       "description": "그라디언트 배경 + 원형 2개(대+소 겹침) + 장식 (맥스웨이브 스타일)",
-      "color": "#FF6B9D",
-      "source": "legacy",
-      "accentColor": "#FF6B9D",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "linear-gradient(145deg, #FF6B9D 0%, #FFAB85 52%, #FFD97A 100%)",
+      "source": "manual",
+      "accentColor": "linear-gradient(145deg, #FF6B9D 0%, #FFAB85 52%, #FFD97A 100%)",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "gradient-dual-circle",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "gradient-dual-circle"
     },
     {
       "id": "circle-bg-callout",
@@ -348,11 +418,14 @@
         "price"
       ],
       "description": "파스텔 단색 배경 + 장식 원 + 말풍선 callout + 하단 시술명+가격 (슈링크 스타일)",
-      "color": "#FFCDD8",
-      "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FFCDD8",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "requiresCutout": false,
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "circle-bg-callout",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "circle-bg-callout"
     },
     {
       "id": "solid-bg-dual-tag",
@@ -369,11 +442,14 @@
         "price"
       ],
       "description": "단색 배경 + 상단 좌우 태그라인 + 세로 브랜드명 + 하단 대형 헤드라인 + 원형 가격 배지 (눈밑탱탱주사 스타일)",
-      "color": "#FFD84D",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FFD84D",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "stacked-center-cutout",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "solid-bg-dual-tag"
     },
     {
       "id": "arch-frame-editorial",
@@ -390,11 +466,14 @@
         "premium"
       ],
       "description": "단색 배경에 미세한 그리드 라인 + 장식용 별 + 중앙 아치형 액자 프레임 + 세리프체 헤드라인 교차 (보톡스 포스터 스타일)",
-      "color": "#D35A34",
-      "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#D35A34",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "requiresCutout": false,
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "arch-frame-editorial",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "arch-frame-editorial"
     },
     {
       "id": "center-frame-sparkle",
@@ -411,11 +490,14 @@
         "badge"
       ],
       "description": "반짝이는 보케 배경 + 초대형 중앙 타원 프레임 + 좌상단 구름 뱃지 + 초대형 화이트 스트로크 헤드라인 (LSSA 스타일)",
-      "color": "#FFDFBA",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FFDFBA",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "center-frame-sparkle",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "center-frame-sparkle"
     },
     {
       "id": "overlay-line-bottom",
@@ -432,10 +514,14 @@
         "minimal"
       ],
       "description": "세로 라인 + 좌하단 초대형 텍스트 (#21 엉덩이지방이식 스타일)",
-      "color": "#2d2d2d",
-      "source": "legacy",
-      "accentColor": "#2d2d2d",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "top-left-editorial",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "overlay-line-bottom"
     },
     {
       "id": "overlay-dark-center",
@@ -452,10 +538,14 @@
         "hashtag"
       ],
       "description": "어두운 전체 오버레이 + 중앙 텍스트 + 스파클 + 해시태그 (#22 피코토닝 스타일)",
-      "color": "#1a1a1a",
-      "source": "legacy",
-      "accentColor": "#1a1a1a",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "top-left-editorial",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "overlay-dark-center"
     },
     {
       "id": "overlay-line-top",
@@ -471,10 +561,14 @@
         "editorial"
       ],
       "description": "상단 그라디언트 + 세로 라인 + 좌상단 텍스트 (역방향 변형)",
-      "color": "#3d3d3d",
-      "source": "legacy",
-      "accentColor": "#3d3d3d",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "top-left-editorial",
+      "effectTokenId": "overlay-dark",
+      "requiresCutout": false,
+      "sceneTokenId": "overlay-line-top"
     },
     {
       "id": "solid-bg-stars",
@@ -489,11 +583,14 @@
         "graphic"
       ],
       "description": "배경으로 은은하게 깔린 기하학적 별자리 패턴과 4포인트 작은 별들, 그리고 극대화된 텍스트 크기",
-      "color": "#4A33C0",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#4A33C0",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "solid-bg-stars",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "solid-bg-stars"
     },
     {
       "id": "solid-bg-icons",
@@ -509,11 +606,14 @@
         "plus"
       ],
       "description": "플러스 기호(+), 원형 아웃라인, 도트 패턴 등 에너제틱한 팝아트 요소가 가득 배치된 단색 템플릿",
-      "color": "#FFE135",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FFE135",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "solid-bg-icons",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "solid-bg-icons"
     },
     {
       "id": "solid-bg-stamp",
@@ -529,11 +629,14 @@
         "marquee"
       ],
       "description": "거대한 지그재그 스탬프 태그라인과 화면을 가로지르는 Marquee 텍스트 바가 돋보이는 레트로 강조형",
-      "color": "#FF7A59",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FF7A59",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "solid-bg-stamp",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "solid-bg-stamp"
     },
     {
       "id": "vertical-split-gold",
@@ -549,11 +652,14 @@
         "badge"
       ],
       "description": "좌측 세로로 긴 텍스트 패널과 우측상단 모서리를 감싸는 골드 프레임 테두리가 돋보이는 고급형 (라라필 스타일)",
-      "color": "#D4AF37",
+      "color": "#1a1a2e",
       "requiresCutout": false,
-      "source": "legacy",
-      "accentColor": "#D4AF37",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "left-text-stack",
+      "effectTokenId": "split-dark",
+      "sceneTokenId": "vertical-split-gold"
     },
     {
       "id": "gradient-mesh",
@@ -570,11 +676,14 @@
         "cutout"
       ],
       "description": "파스텔톤 여러 색상이 겹치는 물광/오로라 느낌의 트렌디 그라디언트 배경",
-      "color": "#FFCDE1",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FFCDE1",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "gradient-mesh",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "gradient-mesh"
     },
     {
       "id": "gradient-stroke-typography",
@@ -590,11 +699,14 @@
         "clean"
       ],
       "description": "단색 배경에 그라디언트 테두리 액자틀과 텍스트 클리핑 마스크 효과 적용",
-      "color": "#FF9A9E",
+      "color": "#1a1a2e",
       "requiresCutout": true,
-      "source": "legacy",
-      "accentColor": "#FF9A9E",
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "layoutTokenId": "gradient-stroke-typography",
+      "effectTokenId": "solid-bg",
+      "sceneTokenId": "gradient-stroke-typography"
     },
     {
       "id": "notebook-diary",
@@ -603,12 +715,23 @@
       "layout": "frame",
       "tone": "soft",
       "priceStyle": "none",
-      "tags": ["notebook", "card", "soft", "blue", "centered", "diary"],
+      "tags": [
+        "notebook",
+        "card",
+        "soft",
+        "blue",
+        "centered",
+        "diary"
+      ],
       "description": "다이어리 카드가 줄에 매달린 형태 + 서비스 배지 + 사진 프레임 (Canva 라라나뷰티 스타일)",
-      "color": "#7272be",
-      "source": "legacy",
-      "accentColor": "#7272be",
-      "createdAt": "2026-04-15T00:00:00.000Z"
+      "color": "#1a1a2e",
+      "source": "manual",
+      "accentColor": "#1a1a2e",
+      "createdAt": "2026-04-15T00:00:00.000Z",
+      "layoutTokenId": "notebook-diary",
+      "effectTokenId": "solid-bg",
+      "requiresCutout": false,
+      "sceneTokenId": "notebook-diary"
     }
   ]
 }

@@ -1,220 +1,75 @@
 {
-  "layout": "full-overlay-gradient",
-  "vars": {
-    "overlay-color": "#000000",
-    "overlay-width": "45%",
-    "overlay-opacity": "0.82",
-    "text-left": "36px",
-    "brand-top": "36px",
-    "brand-size": "36px",
-    "sub-top": "200px",
-    "sub-size": "21px",
-    "headline-top": "260px",
-    "headline-size": "86px",
-    "headline-line-height": "1.1",
-    "price-top": "520px",
-    "price-size": "114px",
-    "accent-color": "#ffffff",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--headline-max-width, 900px)",
-    "sub-rotation": "0deg",
-    "sub-margin-top": "0px",
-    "model-opacity": "1",
-    "model-brightness": "1",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "full-overlay-gradient",
+  "nameKo": "그라디언트 오버레이",
+  "name": "Gradient Overlay",
+  "source": "manual",
+  "sceneTokenId": "full-overlay-gradient",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "컬러 오버레이",
-      "items": [
-        {
-          "var": "overlay-color",
-          "label": "오버레이 색상",
-          "type": "color"
-        },
-        {
-          "var": "overlay-width",
-          "label": "오버레이 너비",
-          "type": "range",
-          "min": 0,
-          "max": 100,
-          "unit": "%"
-        },
-        {
-          "var": "overlay-opacity",
-          "label": "불투명도",
-          "type": "range",
-          "min": 0.3,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "텍스트 위치",
-      "items": [
-        {
-          "var": "text-left",
-          "label": "좌측 여백",
-          "type": "range",
-          "min": 0,
-          "max": 200,
-          "unit": "px"
-        },
-        {
-          "var": "brand-top",
-          "label": "브랜드 Y",
-          "type": "range",
-          "min": 10,
-          "max": 200,
-          "unit": "px"
-        },
-        {
-          "var": "sub-top",
-          "label": "서브헤드 Y",
-          "type": "range",
-          "min": 80,
-          "max": 500,
-          "unit": "px"
-        },
-        {
-          "var": "headline-top",
-          "label": "헤드라인 Y",
-          "type": "range",
-          "min": 100,
-          "max": 600,
-          "unit": "px"
-        },
-        {
-          "var": "price-top",
-          "label": "가격 Y",
-          "type": "range",
-          "min": 200,
-          "max": 800,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "폰트",
-      "items": [
-        {
-          "var": "headline-size",
-          "label": "헤드라인 크기",
-          "type": "range",
-          "min": 32,
-          "max": 100,
-          "unit": "px"
-        },
-        {
-          "var": "headline-line-height",
-          "label": "줄 간격",
-          "type": "range",
-          "min": 0.8,
-          "max": 1.8,
-          "unit": "",
-          "step": 0.05
-        },
-        {
-          "var": "price-size",
-          "label": "가격 크기",
-          "type": "range",
-          "min": 40,
-          "max": 140,
-          "unit": "px"
-        },
-        {
-          "var": "accent-color",
-          "label": "가격 색상",
-          "type": "color"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
     },
     {
-      "group": "서브헤드라인 커스텀",
-      "items": [
-        {
-          "var": "sub-rotation",
-          "label": "서브헤드 회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "sub-margin-top",
-          "label": "서브헤드 위 여백",
-          "type": "range",
-          "min": 0,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "모델",
-      "items": [
-        {
-          "var": "model-opacity",
-          "label": "모델 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        },
-        {
-          "var": "model-brightness",
-          "label": "모델 밝기",
-          "type": "range",
-          "min": 0.3,
-          "max": 2,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
-  ]
+  ],
+  "texts": {
+    "ko": {
+      "headline": "그라디언트 오버레이",
+      "headlineKo": "",
+      "subheadline": "단색 그라디언트 오버레이 + 좌측 텍스트 스택 + 가격",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Gradient Overlay"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }

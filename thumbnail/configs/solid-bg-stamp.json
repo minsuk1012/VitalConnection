@@ -1,96 +1,75 @@
 {
-  "layout": "solid-bg-stamp",
-  "vars": {
-    "bg-color": "#FF7A59",
-    "text-color": "#FFFFFF",
-    "accent-color": "#FFEA00",
-    "headline-size": "170px",
-    "price-size": "140px",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--headline-max-width, 900px)",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "solid-bg-stamp",
+  "nameKo": "단색 배경 우표 스탬프",
+  "name": "Solid BG Stamp",
+  "source": "manual",
+  "sceneTokenId": "solid-bg-stamp",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "색상",
-      "items": [
-        {
-          "var": "bg-color",
-          "label": "배경 색상",
-          "type": "color"
-        },
-        {
-          "var": "text-color",
-          "label": "텍스트 색상",
-          "type": "color"
-        },
-        {
-          "var": "accent-color",
-          "label": "스탬프 및 가격",
-          "type": "color"
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "크기",
-      "items": [
-        {
-          "var": "headline-size",
-          "label": "헤드라인 크기",
-          "type": "range",
-          "min": 60,
-          "max": 250,
-          "unit": "px"
-        },
-        {
-          "var": "price-size",
-          "label": "가격 크기",
-          "type": "range",
-          "min": 60,
-          "max": 250,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
+    },
+    {
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
+    },
+    {
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
-  ]
+  ],
+  "texts": {
+    "ko": {
+      "headline": "단색 배경 우표 스탬프",
+      "headlineKo": "",
+      "subheadline": "거대한 지그재그 스탬프 태그라인과 화면을 가로지르는 Marquee 텍스트 바가 돋보이는 레트로 강조형",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Solid BG Stamp"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }

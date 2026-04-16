@@ -1,76 +1,75 @@
 {
-  "vars": {
-    "bg-color": "#7272be",
-    "card-color": "#b4b8e0",
-    "text-color": "#535893",
-    "badge-border-color": "rgba(83,88,147,0.5)",
-    "handle-color": "rgba(83,88,147,0.65)",
-    "card-top": "155px",
-    "card-bottom": "48px",
-    "card-margin": "108px",
-    "card-radius": "22px",
-    "card-gap": "28px",
-    "string-height": "158px",
-    "ring-top": "144px",
-    "ring-left-x": "215px",
-    "ring-right-x": "865px",
-    "brand-size": "48px",
-    "badge-size": "21px",
-    "photo-size": "456px",
-    "photo-radius": "14px",
-    "headline-size": "28px",
-    "handle-size": "20px",
-    "headline-font": "Noto"
-  },
-  "controls": [
+  "id": "notebook-diary",
+  "nameKo": "다이어리 카드",
+  "name": "Notebook Diary",
+  "source": "manual",
+  "sceneTokenId": "notebook-diary",
+  "panelColor": "#1a1a2e",
+  "elements": [
     {
-      "group": "색상",
-      "items": [
-        { "var": "bg-color",    "label": "배경 색상",  "type": "color" },
-        { "var": "card-color",  "label": "카드 색상",  "type": "color" },
-        { "var": "text-color",  "label": "텍스트 색상","type": "color" }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "폰트",
-      "items": [
-        {
-          "var": "headline-font",
-          "label": "폰트",
-          "type": "select",
-          "options": [
-            { "value": "Noto",        "label": "Noto Sans KR" },
-            { "value": "BlackHan",    "label": "Black Han Sans" },
-            { "value": "Pretendard",  "label": "Pretendard" },
-            { "value": "GmarketSans", "label": "지마켓 산스" },
-            { "value": "NanumRound",  "label": "나눔스퀘어라운드" }
-          ]
-        },
-        { "var": "brand-size",    "label": "브랜드명 크기",  "type": "range", "min": 28, "max": 72,  "unit": "px" },
-        { "var": "badge-size",    "label": "배지 텍스트 크기","type": "range", "min": 14, "max": 36,  "unit": "px" },
-        { "var": "headline-size", "label": "헤드라인 크기",   "type": "range", "min": 16, "max": 48,  "unit": "px" },
-        { "var": "handle-size",   "label": "핸들 크기",       "type": "range", "min": 12, "max": 32,  "unit": "px" }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "사진 프레임",
-      "items": [
-        { "var": "photo-size",   "label": "사진 크기",      "type": "range", "min": 260, "max": 560, "unit": "px" },
-        { "var": "photo-radius", "label": "모서리 둥글기",   "type": "range", "min": 0,   "max": 60,  "unit": "px" }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "카드 & 줄",
-      "items": [
-        { "var": "card-radius",    "label": "카드 모서리",     "type": "range", "min": 0,  "max": 60,   "unit": "px" },
-        { "var": "card-gap",       "label": "요소 간격",       "type": "range", "min": 10, "max": 60,   "unit": "px" },
-        { "var": "card-margin",    "label": "카드 좌우 여백",  "type": "range", "min": 40, "max": 200,  "unit": "px" },
-        { "var": "card-top",       "label": "카드 상단 위치",  "type": "range", "min": 80, "max": 300,  "unit": "px" },
-        { "var": "string-height",  "label": "줄 길이",         "type": "range", "min": 60, "max": 260,  "unit": "px" },
-        { "var": "ring-left-x",    "label": "링 좌측 위치",    "type": "range", "min": 100,"max": 400,  "unit": "px" },
-        { "var": "ring-right-x",   "label": "링 우측 위치",    "type": "range", "min": 600,"max": 980,  "unit": "px" }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
+    },
+    {
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
   ],
-  "layout": "notebook-diary"
+  "texts": {
+    "ko": {
+      "headline": "다이어리 카드",
+      "headlineKo": "",
+      "subheadline": "다이어리 카드가 줄에 매달린 형태 + 서비스 배지 + 사진 프레임 (Canva 라라나뷰티 스타일)",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Notebook Diary"
+    }
+  },
+  "createdAt": "2026-04-15T00:00:00.000Z"
 }

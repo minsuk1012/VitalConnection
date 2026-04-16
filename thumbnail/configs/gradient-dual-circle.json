@@ -1,399 +1,75 @@
 {
-  "layout": "gradient-dual-circle",
-  "vars": {
-    "bg-angle": "145deg",
-    "bg-start": "#FF6B9D",
-    "bg-mid": "#FFAB85",
-    "bg-end": "#FFD97A",
-    "text-color": "#ffffff",
-    "text-left": "52px",
-    "text-max-width": "460px",
-    "brand-top": "60px",
-    "brand-size": "106px",
-    "divider-top": "280px",
-    "divider-width": "48px",
-    "headline-top": "320px",
-    "headline-size": "92px",
-    "main-right": "-40px",
-    "main-top": "160px",
-    "main-size": "640px",
-    "main-crop-x": "center",
-    "main-crop-y": "top",
-    "sub-right": "20px",
-    "sub-bottom": "60px",
-    "sub-size": "350px",
-    "sub-crop-x": "center",
-    "sub-crop-y": "60%",
-    "circle-border": "4px",
-    "circle-border-color": "#1a1a1a",
-    "deco-opacity": "0.2",
-    "arc-x": "-80px",
-    "arc-y": "340px",
-    "arc-size": "320px",
-    "star-x": "40px",
-    "star-y": "60px",
-    "star-size": "180px",
-    "sparkle-x": "560px",
-    "sparkle-y": "52px",
-    "sparkle-size": "36px",
-    "headline-font": "Noto",
-    "headline-style": "normal",
-    "headline-letter-spacing": "0px",
-    "headline-rotation": "0deg",
-    "headline-max-width": "var(--text-max-width)",
-    "headline-z-index": "5",
-    "headline-opacity": "1"
-  },
-  "controls": [
+  "id": "gradient-dual-circle",
+  "nameKo": "그라디언트 듀얼 원형",
+  "name": "Gradient Dual Circle",
+  "source": "manual",
+  "sceneTokenId": "gradient-dual-circle",
+  "panelColor": "linear-gradient(145deg, #FF6B9D 0%, #FFAB85 52%, #FFD97A 100%)",
+  "elements": [
     {
-      "group": "폰트",
-      "items": [
-        {
-          "var": "headline-font",
-          "label": "헤드라인 폰트",
-          "type": "select",
-          "options": [
-            {
-              "value": "Noto",
-              "label": "Noto Sans KR"
-            },
-            {
-              "value": "Pretendard",
-              "label": "Pretendard Bold"
-            },
-            {
-              "value": "BlackHan",
-              "label": "Black Han Sans"
-            },
-            {
-              "value": "Bebas",
-              "label": "Bebas Neue"
-            },
-            {
-              "value": "Montserrat",
-              "label": "Montserrat"
-            },
-            {
-              "value": "Playfair",
-              "label": "Playfair Display"
-            },
-            {
-              "value": "PlayfairI",
-              "label": "Playfair Italic"
-            },
-            {
-              "value": "NotoSerif",
-              "label": "Noto Serif"
-            },
-            {
-              "value": "Anton",
-              "label": "Anton (영문 임팩트)"
-            },
-            {
-              "value": "Oswald",
-              "label": "Oswald (영문 압축)"
-            },
-            {
-              "value": "Cormorant",
-              "label": "Cormorant (럭셔리 세리프)"
-            },
-            {
-              "value": "NanumGothic",
-              "label": "나눔고딕"
-            },
-            {
-              "value": "GmarketSans",
-              "label": "지마켓 산스 (트렌디)"
-            },
-            {
-              "value": "NanumSquare",
-              "label": "나눔스퀘어 (모던)"
-            },
-            {
-              "value": "NanumRound",
-              "label": "나눔스퀘어라운드 (부드러운)"
-            }
-          ]
-        },
-        {
-          "var": "headline-style",
-          "label": "기울이기",
-          "type": "select",
-          "options": [
-            {
-              "value": "normal",
-              "label": "보통"
-            },
-            {
-              "value": "italic",
-              "label": "이탤릭"
-            }
-          ]
-        },
-        {
-          "var": "headline-letter-spacing",
-          "label": "자간",
-          "type": "range",
-          "min": -4,
-          "max": 20,
-          "unit": "px"
-        }
-      ]
+      "type": "image",
+      "cssTarget": "model",
+      "label": "모델",
+      "props": {
+        "brightness": 1,
+        "opacity": 1,
+        "zIndex": 1
+      }
     },
     {
-      "group": "그라디언트 배경",
-      "items": [
-        {
-          "var": "bg-angle",
-          "label": "각도",
-          "type": "range",
-          "min": 0,
-          "max": 360,
-          "unit": "deg"
-        },
-        {
-          "var": "bg-start",
-          "label": "시작 색상",
-          "type": "color"
-        },
-        {
-          "var": "bg-mid",
-          "label": "중간 색상",
-          "type": "color"
-        },
-        {
-          "var": "bg-end",
-          "label": "끝 색상",
-          "type": "color"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "brand-ko",
+      "label": "브랜드",
+      "props": {
+        "fontSize": 22,
+        "color": "rgba(255,255,255,0.7)",
+        "fontFamily": "Noto",
+        "opacity": 1
+      }
     },
     {
-      "group": "텍스트",
-      "items": [
-        {
-          "var": "text-color",
-          "label": "색상",
-          "type": "color"
-        },
-        {
-          "var": "text-left",
-          "label": "좌측 여백",
-          "type": "range",
-          "min": 0,
-          "max": 400,
-          "unit": "px"
-        },
-        {
-          "var": "brand-top",
-          "label": "브랜드 Y",
-          "type": "range",
-          "min": 0,
-          "max": 400,
-          "unit": "px"
-        },
-        {
-          "var": "brand-size",
-          "label": "브랜드 크기",
-          "type": "range",
-          "min": 36,
-          "max": 140,
-          "unit": "px"
-        },
-        {
-          "var": "headline-top",
-          "label": "시술명 Y",
-          "type": "range",
-          "min": 100,
-          "max": 700,
-          "unit": "px"
-        },
-        {
-          "var": "headline-size",
-          "label": "시술명 크기",
-          "type": "range",
-          "min": 28,
-          "max": 120,
-          "unit": "px"
-        },
-        {
-          "var": "divider-top",
-          "label": "구분선 Y",
-          "type": "range",
-          "min": 100,
-          "max": 600,
-          "unit": "px"
-        },
-        {
-          "var": "divider-width",
-          "label": "구분선 너비",
-          "type": "range",
-          "min": 10,
-          "max": 200,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "headline",
+      "label": "헤드라인",
+      "props": {
+        "fontSize": 96,
+        "color": "#ffffff",
+        "fontFamily": "Noto",
+        "maxWidth": "900px",
+        "lineHeight": 1.05,
+        "letterSpacing": 0,
+        "opacity": 1,
+        "zIndex": 5
+      }
     },
     {
-      "group": "메인 원형",
-      "items": [
-        {
-          "var": "main-size",
-          "label": "크기",
-          "type": "range",
-          "min": 200,
-          "max": 900,
-          "unit": "px"
-        },
-        {
-          "var": "main-right",
-          "label": "우측 오프셋",
-          "type": "range",
-          "min": -200,
-          "max": 400,
-          "unit": "px"
-        },
-        {
-          "var": "main-top",
-          "label": "상단 오프셋",
-          "type": "range",
-          "min": -200,
-          "max": 700,
-          "unit": "px"
-        }
-      ]
+      "type": "text",
+      "cssTarget": "subheadline",
+      "label": "서브카피",
+      "props": {
+        "fontSize": 30,
+        "color": "rgba(255,255,255,0.85)"
+      }
     },
     {
-      "group": "서브 원형",
-      "items": [
-        {
-          "var": "sub-size",
-          "label": "크기",
-          "type": "range",
-          "min": 80,
-          "max": 500,
-          "unit": "px"
-        },
-        {
-          "var": "sub-right",
-          "label": "우측 오프셋",
-          "type": "range",
-          "min": -100,
-          "max": 500,
-          "unit": "px"
-        },
-        {
-          "var": "sub-bottom",
-          "label": "하단 오프셋",
-          "type": "range",
-          "min": -100,
-          "max": 600,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "원형 테두리",
-      "items": [
-        {
-          "var": "circle-border-color",
-          "label": "테두리 색상",
-          "type": "color"
-        },
-        {
-          "var": "circle-border",
-          "label": "테두리 두께",
-          "type": "range",
-          "min": 0,
-          "max": 12,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "장식",
-      "items": [
-        {
-          "var": "deco-opacity",
-          "label": "투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1.0,
-          "unit": "",
-          "step": 0.05
-        },
-        {
-          "var": "star-size",
-          "label": "별 크기",
-          "type": "range",
-          "min": 40,
-          "max": 400,
-          "unit": "px"
-        },
-        {
-          "var": "star-x",
-          "label": "별 X",
-          "type": "range",
-          "min": -200,
-          "max": 800,
-          "unit": "px"
-        },
-        {
-          "var": "star-y",
-          "label": "별 Y",
-          "type": "range",
-          "min": -200,
-          "max": 800,
-          "unit": "px"
-        },
-        {
-          "var": "sparkle-size",
-          "label": "스파클 크기",
-          "type": "range",
-          "min": 12,
-          "max": 80,
-          "unit": "px"
-        }
-      ]
-    },
-    {
-      "group": "헤드라인 커스텀",
-      "items": [
-        {
-          "var": "headline-rotation",
-          "label": "회전",
-          "type": "range",
-          "min": -45,
-          "max": 45,
-          "unit": "deg",
-          "step": 1
-        },
-        {
-          "var": "headline-max-width",
-          "label": "최대 너비",
-          "type": "range",
-          "min": 100,
-          "max": 1080,
-          "unit": "px"
-        },
-        {
-          "var": "headline-z-index",
-          "label": "헤드라인 레이어",
-          "type": "range",
-          "min": 0,
-          "max": 20,
-          "unit": ""
-        },
-        {
-          "var": "headline-opacity",
-          "label": "헤드라인 불투명도",
-          "type": "range",
-          "min": 0,
-          "max": 1,
-          "unit": "",
-          "step": 0.05
-        }
-      ]
+      "type": "price",
+      "cssTarget": "price",
+      "label": "가격",
+      "props": {
+        "fontSize": 70,
+        "color": "#FF6B9D"
+      }
     }
-  ]
+  ],
+  "texts": {
+    "ko": {
+      "headline": "그라디언트 듀얼 원형",
+      "headlineKo": "",
+      "subheadline": "그라디언트 배경 + 원형 2개(대+소 겹침) + 장식 (맥스웨이브 스타일)",
+      "price": "25",
+      "brandKo": "",
+      "brandEn": "Gradient Dual Circle"
+    }
+  },
+  "createdAt": "2025-01-01T00:00:00.000Z"
 }
