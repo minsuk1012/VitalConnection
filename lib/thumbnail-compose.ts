@@ -7,6 +7,7 @@ import fs from 'fs'
 import path from 'path'
 import { THUMBNAIL_BASE, type TemplateInput } from './thumbnail'
 import { elementsToCssVars, type ElementInstance } from './thumbnail-element-schema'
+import { getSceneTokenById } from './thumbnail-registry'
 
 export const COMPOSE_PATHS = {
   base:         path.join(THUMBNAIL_BASE, 'templates/base.html'),
@@ -43,6 +44,10 @@ export function getEffectTokens(): EffectToken[] {
 
 export interface ComposeInput extends TemplateInput {
   elements?: ElementInstance[]
+}
+
+export interface SceneComposeInput extends ComposeInput {
+  sceneTokenId: string
 }
 
 export function composeHtml(
@@ -93,6 +98,22 @@ export function composeHtml(
     .replace(/\{\{HEADLINE_KO_DISPLAY\}\}/g, input.headlineKo ? 'block' : 'none')
     .replace(/\{\{SUB_DISPLAY\}\}/g,        input.subheadline  ? 'block' : 'none')
     .replace(/\{\{PRICE_DISPLAY\}\}/g,      hasPrice           ? 'flex'  : 'none')
+}
+
+export function composeSceneHtml(
+  sceneTokenId: string,
+  input: ComposeInput,
+): string {
+  const scene = getSceneTokenById(sceneTokenId)
+  if (!scene) {
+    throw new Error(`씬 토큰 없음: ${sceneTokenId}`)
+  }
+
+  if (!scene.layoutTokenId || !scene.effectTokenId) {
+    throw new Error(`씬 합성 정보 없음: ${sceneTokenId}`)
+  }
+
+  return composeHtml(scene.layoutTokenId, scene.effectTokenId, input)
 }
 
 function buildCssVars(input: ComposeInput): string {
