@@ -20,8 +20,8 @@ config({ path: path.resolve(__dirname, '../../.env') });
 
 import { GoogleGenAI } from '@google/genai';
 
-const GEMINI_API_KEY = process.env.GEMINI_THUMBNAIL_EDITOR_TRANSLATE_API_KEY;
-if (!GEMINI_API_KEY) throw new Error('GEMINI_THUMBNAIL_EDITOR_TRANSLATE_API_KEY가 .env.local에 없습니다');
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY가 .env.local에 없습니다');
 
 const genai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 

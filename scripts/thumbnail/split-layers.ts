@@ -223,9 +223,36 @@ async function getApprovedFiles(category: string): Promise<string[]> {
 }
 
 async function main() {
-  const isTest = process.argv.includes('--test');
-  const catFlag = process.argv.find(a => a.startsWith('--cat='))?.replace('--cat=', '') as Category | undefined;
+  const isTest   = process.argv.includes('--test');
+  const isMixed  = process.argv.includes('--mixed');
+  const catFlag  = process.argv.find(a => a.startsWith('--cat='))?.replace('--cat=', '') as Category | undefined;
   const fileFlag = process.argv.find(a => a.startsWith('--file='))?.replace('--file=', '');
+
+  // --mixed: references-transformed/mixed/approved/ 처리
+  if (isMixed) {
+    const mixedApprovedDir = path.join(APPROVED_BASE, 'mixed', 'approved');
+    if (!fs.existsSync(mixedApprovedDir)) {
+      console.log('❌ mixed/approved/ 폴더 없음. 먼저 UI에서 이미지를 승인하세요.');
+      process.exit(1);
+    }
+    const files = fs.readdirSync(mixedApprovedDir)
+      .filter(f => /\.(webp|jpg|jpeg|png)$/i.test(f) && !f.startsWith('.'))
+      .sort()
+      .map(f => path.join(mixedApprovedDir, f));
+
+    const targets = isTest ? [files[0]] : files;
+    if (!targets?.length) { console.log('처리할 파일 없음'); return; }
+
+    console.log(`\n[mixed] ${targets.length}장 처리`);
+    let processed = 0;
+    for (const filePath of targets) {
+      await processFile(filePath, 'mixed', path.basename(filePath));
+      processed++;
+    }
+    console.log(`\n✅ 완료!  처리: ${processed}장`);
+    console.log(`   thumbnail/references-layers/mixed/ 에서 확인하세요.\n`);
+    return;
+  }
 
   if (fileFlag) {
     const [category, filename] = fileFlag.split('/');

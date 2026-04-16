@@ -2,17 +2,16 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ChevronDown, Download, ImageIcon, RefreshCw } from 'lucide-react'
+import { ArrowLeft, ChevronDown, Copy, Download, ImageIcon, MoreHorizontal, RefreshCw, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import type { TemplateConfig as NewTemplateConfig } from './_types'
+import type { SceneToken, TemplateConfig as NewTemplateConfig } from './_types'
 import { FlatEditor } from './_components/FlatEditor'
 import { DragCanvas } from './_components/DragCanvas'
-import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
 
 // ── 타입 ──
 
@@ -21,6 +20,11 @@ interface TemplateEntry {
   nameKo: string
   name: string
   layout?: string
+  sceneTokenId?: string
+  layoutTokenId?: string
+  effectTokenId?: string
+  baseTemplateId?: string
+  version?: number
   tone?: string
   priceStyle?: string
   color?: string
@@ -124,6 +128,92 @@ function ControlItemRow({ item, value, onChange }: {
   )
 }
 
+function LayoutTemplateRow({
+  template,
+  selected,
+  onClick,
+}: {
+  template: TemplateEntry
+  selected: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'w-full flex items-center gap-2 px-2 py-1.5 rounded-md border text-left transition-colors',
+        selected
+          ? 'bg-blue-50 border-blue-200 text-blue-700'
+          : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50 hover:border-gray-200'
+      )}
+    >
+      <div
+        className={cn(
+          'w-2.5 h-2.5 rounded-full flex-shrink-0 border',
+          selected ? 'border-blue-200' : 'border-gray-200'
+        )}
+        style={{ background: template.color ?? template.accentColor ?? '#e5e7eb' }}
+      />
+      <div className="min-w-0 flex-1">
+        <div className="text-[11px] font-medium truncate leading-4">
+          {template.nameKo}
+        </div>
+        <div className={cn(
+          'flex items-center gap-1.5 text-[10px] truncate leading-4',
+          selected ? 'text-blue-500/80' : 'text-gray-400'
+        )}>
+          <span className="truncate">{template.sceneTokenId ?? template.baseTemplateId ?? template.layoutTokenId ?? template.layout ?? 'scene'}</span>
+          {typeof template.version === 'number' && (
+            <span className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 border border-gray-200 flex-shrink-0">
+              v{template.version}
+            </span>
+          )}
+        </div>
+      </div>
+      {template.requiresCutout && (
+        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100 flex-shrink-0">
+          누끼
+        </span>
+      )}
+    </button>
+  )
+}
+
+function LayoutGroupSection({
+  title,
+  items,
+  selectedId,
+  onSelect,
+}: {
+  title: string
+  items: TemplateEntry[]
+  selectedId: string | null
+  onSelect: (id: string) => void
+}) {
+  if (!items.length) return null
+
+  return (
+    <section className="space-y-1">
+      <div className="flex items-center justify-between px-1">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+          {title}
+        </span>
+        <span className="text-[10px] text-gray-300">{items.length}</span>
+      </div>
+      <div className="space-y-1">
+        {items.map(t => (
+          <LayoutTemplateRow
+            key={t.id}
+            template={t}
+            selected={selectedId === t.id}
+            onClick={() => onSelect(t.id)}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
 // ── 메인 페이지 ──
 
 export default function ThumbnailEditorPage() {
@@ -147,8 +237,7 @@ export default function ThumbnailEditorPage() {
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   // ── 신규: BuilderState 기반 템플릿 편집 ──
-  const [layouts,         setLayouts]        = useState<LayoutToken[]>([])
-  const [effects,         setEffects]        = useState<EffectToken[]>([])
+  const [scenes,          setScenes]         = useState<SceneToken[]>([])
   const [newConfig,       setNewConfig]      = useState<NewTemplateConfig | null>(null)
   const [flatLang,        setFlatLang]       = useState<Lang>('ko')
   const [templateName,    setTemplateName]   = useState('')
@@ -156,6 +245,8 @@ export default function ThumbnailEditorPage() {
   const [flatTranslating, setFlatTranslating] = useState(false)
   const [selectedTarget,  setSelectedTarget]  = useState<string | null>(null)
   const [panelLevel,      setPanelLevel]      = useState<'browser' | 'editing'>('browser')
+  const [saveMenuOpen,    setSaveMenuOpen]    = useState(false)
+  const saveMenuRef = useRef<HTMLDivElement>(null)
 
   // ── 번역 상태 ──
   const [lang, setLang] = useState<Lang>('ko')
@@ -177,11 +268,35 @@ export default function ThumbnailEditorPage() {
   // 현재 선택된 템플릿의 모델 모드 (누끼 vs 일반)
   const [useCutoutMode, setUseCutoutMode] = useState(false)
 
+  const selectedTemplate = useMemo(
+    () => templates.find(t => t.id === selectedId) ?? null,
+    [templates, selectedId],
+  )
+
+  useEffect(() => {
+    if (!saveMenuOpen) return
+    const handlePointerDown = (event: MouseEvent) => {
+      if (saveMenuRef.current && !saveMenuRef.current.contains(event.target as Node)) {
+        setSaveMenuOpen(false)
+      }
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSaveMenuOpen(false)
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [saveMenuOpen])
+
   useEffect(() => {
     if (!newConfig) return
-    const layout = layouts.find(l => l.id === newConfig.layoutTokenId)
-    if (layout) setUseCutoutMode(layout.requiresCutout ?? false)
-  }, [newConfig, layouts])
+    const scene = scenes.find(s => s.id === newConfig.sceneTokenId)
+    if (scene) setUseCutoutMode(scene.requiresCutout ?? false)
+  }, [newConfig, scenes])
 
   const buildLegacyPreviewUrl = useCallback((targetLang: Lang) => {
     if (!selectedId) return ''
@@ -205,8 +320,7 @@ export default function ThumbnailEditorPage() {
     if (!selectedId || !newConfig) return ''
     const texts = newConfig.texts[targetLang] ?? newConfig.texts.ko
     const params = new URLSearchParams({
-      layoutToken: newConfig.layoutTokenId,
-      effectToken: newConfig.effectTokenId,
+      sceneTokenId: newConfig.sceneTokenId,
       panelColor: newConfig.panelColor,
       elements: JSON.stringify(newConfig.elements),
       headline: texts.headline ?? '',
@@ -235,7 +349,7 @@ export default function ThumbnailEditorPage() {
       })
     fetch('/api/thumbnail/builder/tokens')
       .then(r => r.json())
-      .then(d => { setLayouts(d.layouts ?? []); setEffects(d.effects ?? []) })
+      .then(d => { setScenes(d.scenes ?? d.layouts ?? []) })
     Promise.all([
       fetch('/api/thumbnail/models?type=models').then(r => r.json()),
       fetch('/api/thumbnail/models?type=cutout').then(r => r.json()),
@@ -261,23 +375,38 @@ export default function ThumbnailEditorPage() {
     const res = await fetch(`/api/thumbnail/config/${id}`)
     if (res.ok) {
       const data = await res.json()
-      if ('layoutTokenId' in data) {
+      const selectedSceneId = (data as { sceneTokenId?: string }).sceneTokenId
+        ?? tpls.find(t => t.id === id)?.sceneTokenId
+        ?? tpls.find(t => t.id === id)?.baseTemplateId
+        ?? id
+      if ('sceneTokenId' in data) {
         // 신규 포맷
         setNewConfig(data as NewTemplateConfig)
         const tmpl = tpls.find(t => t.id === id)
         setTemplateName(tmpl?.nameKo ?? '')
         setConfig(null)
       } else {
-        // legacy 포맷 (기존 동작 유지)
-        setConfig(data)
-        setNewConfig(null)
+        // legacy 포맷 → scene 포맷으로 즉시 승격
+        setNewConfig({
+          sceneTokenId: selectedSceneId,
+          panelColor: data.panelColor ?? '#1A1A2E',
+          elements: data.elements ?? [],
+          texts: data.texts ?? {
+            ko: { headline: '', headlineKo: '', subheadline: '', price: '', brandEn: '', brandKo: '' },
+          },
+        })
+        const tmpl = tpls.find(t => t.id === id)
+        setTemplateName(tmpl?.nameKo ?? '')
+        setConfig(null)
       }
     }
   }, [templates])
 
   // iframe 전체 리로드 — 템플릿 변경 / 모델 이미지 변경 시에만
   const buildUrlRef = useRef(buildLegacyPreviewUrl)
-  useEffect(() => { buildUrlRef.current = buildLegacyPreviewUrl }, [buildLegacyPreviewUrl])
+  useEffect(() => {
+    buildUrlRef.current = newConfig ? buildNewPreviewUrl : buildLegacyPreviewUrl
+  }, [newConfig, buildNewPreviewUrl, buildLegacyPreviewUrl])
 
   // 현재 언어 기준 리로드 (template/model 변경 시)
   const reloadPreview = useCallback(() => {
@@ -406,38 +535,6 @@ export default function ThumbnailEditorPage() {
     }
   }
 
-  // ── 신규 포맷 저장 ──
-
-  const saveFlatConfig = async () => {
-    if (!newConfig) return
-    setFlatSaving(true)
-    try {
-      const tmpl = templates.find(t => t.id === selectedId)
-      const isExistingNew = tmpl && tmpl.source !== 'legacy'
-      if (isExistingNew && selectedId) {
-        await fetch(`/api/thumbnail/templates/${selectedId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...newConfig, nameKo: templateName }),
-        })
-      } else {
-        const res = await fetch('/api/thumbnail/templates', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...newConfig, nameKo: templateName || '새 템플릿', source: 'manual' }),
-        })
-        const { id } = await res.json()
-        setSelectedId(id)
-      }
-      const reg = await fetch('/api/thumbnail/registry').then(r => r.json())
-      setTemplates(reg.templates ?? [])
-      setSaveStatus('저장됨')
-      setTimeout(() => setSaveStatus(''), 2000)
-    } finally {
-      setFlatSaving(false)
-    }
-  }
-
   // ── 신규 포맷 번역 ──
 
   const translateFlatContent = async () => {
@@ -458,12 +555,146 @@ export default function ThumbnailEditorPage() {
     }
   }
 
+  const refreshRegistry = async () => {
+    const reg = await fetch('/api/thumbnail/registry').then(r => r.json())
+    setTemplates(reg.templates ?? [])
+    return reg.templates ?? []
+  }
+
+  const buildLegacySavePayload = () => {
+    if (!config) return null
+    return { ...config, vars: { ...config.vars, ...varOverrides } }
+  }
+
+  const buildNewSavePayload = () => {
+    if (!newConfig) return null
+    const fallbackName = selectedTemplate?.nameKo ?? selectedTemplate?.name ?? selectedId ?? '새 템플릿'
+    const nextName = templateName.trim() || fallbackName
+    return { ...newConfig, nameKo: nextName, name: nextName }
+  }
+
+  const saveCurrentTemplate = async () => {
+    if (!selectedId) return
+    setFlatSaving(true)
+    setSaveMenuOpen(false)
+    try {
+      if (newConfig) {
+        const payload = buildNewSavePayload()
+        if (!payload) return
+        const res = await fetch(`/api/thumbnail/templates/${selectedId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) throw new Error(await res.text())
+      } else {
+        const payload = buildLegacySavePayload()
+        if (!payload) return
+        const res = await fetch(`/api/thumbnail/config/${selectedId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) throw new Error(await res.text())
+        setConfig(payload)
+        setVarOverrides({})
+      }
+
+      await refreshRegistry()
+      setSaveStatus('저장됨')
+      setTimeout(() => setSaveStatus(''), 2000)
+    } catch (e) {
+      alert('저장 실패: ' + e)
+    } finally {
+      setFlatSaving(false)
+    }
+  }
+
+  const saveAsNewVersion = async () => {
+    if (!selectedId) return
+    setFlatSaving(true)
+    setSaveMenuOpen(false)
+    try {
+      if (newConfig) {
+        const payload = buildNewSavePayload()
+        if (!payload) return
+        const res = await fetch(`/api/thumbnail/templates/${selectedId}/versions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'new', config: payload, nameKo: payload.nameKo, name: payload.name }),
+        })
+        if (!res.ok) throw new Error(await res.text())
+        const { id: nextId } = await res.json()
+        const nextTemplates = await refreshRegistry()
+        await selectTemplate(nextId, nextTemplates)
+      } else {
+        const payload = buildLegacySavePayload()
+        if (!payload) return
+        const res = await fetch(`/api/thumbnail/templates/${selectedId}/versions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'legacy',
+            config: payload,
+            nameKo: selectedTemplate?.nameKo ?? selectedId,
+            name: selectedTemplate?.name ?? selectedId,
+          }),
+        })
+        if (!res.ok) throw new Error(await res.text())
+        const { id: nextId } = await res.json()
+        const nextTemplates = await refreshRegistry()
+        await selectTemplate(nextId, nextTemplates)
+      }
+
+      setSaveStatus('새 버전 저장됨')
+      setTimeout(() => setSaveStatus(''), 2000)
+    } catch (e) {
+      alert('새 버전 저장 실패: ' + e)
+    } finally {
+      setFlatSaving(false)
+    }
+  }
+
+  const deleteCurrentVersion = async () => {
+    if (!selectedId) return
+    setSaveMenuOpen(false)
+    const ok = window.confirm('현재 템플릿 버전을 삭제할까요?')
+    if (!ok) return
+
+    setFlatSaving(true)
+    try {
+      const res = await fetch(`/api/thumbnail/templates/${selectedId}`, {
+        method: 'DELETE',
+      })
+      if (!res.ok) throw new Error(await res.text())
+
+      const nextTemplates = await refreshRegistry()
+      if (nextTemplates.length > 0) {
+        await selectTemplate(nextTemplates[0].id, nextTemplates)
+      } else {
+        setSelectedId(null)
+        setConfig(null)
+        setNewConfig(null)
+        setTemplateName('')
+        setSelectedTarget(null)
+        setIframeSrc('')
+        if (frameRef.current) frameRef.current.src = 'about:blank'
+      }
+      setPanelLevel('browser')
+      setSaveStatus('삭제됨')
+      setTimeout(() => setSaveStatus(''), 2000)
+    } catch (e) {
+      alert('삭제 실패: ' + e)
+    } finally {
+      setFlatSaving(false)
+    }
+  }
+
   // ── Legacy 변환 ──
 
   const convertLegacy = () => {
     setNewConfig({
-      layoutTokenId: layouts[0]?.id ?? 'bottom-text-stack',
-      effectTokenId: effects[0]?.id ?? 'overlay-dark',
+      sceneTokenId: scenes[0]?.id ?? 'bottom-text-stack',
       panelColor:    '#1A1A2E',
       elements: [
         { type: 'text',  cssTarget: 'headline',    label: '헤드라인',    props: { fontSize: 84,  color: '#ffffff', fontFamily: 'BlackHan' } },
@@ -477,21 +708,6 @@ export default function ThumbnailEditorPage() {
     setTemplateName(tmpl?.nameKo ?? '변환된 템플릿')
   }
 
-  // ── Config 저장 ──
-
-  const saveConfig = async () => {
-    if (!selectedId || !config) return
-    const updated = { ...config, vars: { ...config.vars, ...varOverrides } }
-    await fetch(`/api/thumbnail/config/${selectedId}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated),
-    })
-    setConfig(updated)
-    setVarOverrides({})
-    setSaveStatus('저장됨')
-    setTimeout(() => setSaveStatus(''), 2000)
-  }
-
   // ── 렌더 (WebP 다운로드) ──
 
   const renderThumbnail = async () => {
@@ -501,8 +717,7 @@ export default function ThumbnailEditorPage() {
       const renderLang = newConfig ? flatLang : lang
       const body = newConfig
         ? {
-            layoutTokenId: newConfig.layoutTokenId,
-            effectTokenId: newConfig.effectTokenId,
+            sceneTokenId: newConfig.sceneTokenId,
             panelColor: newConfig.panelColor,
             elements: newConfig.elements,
             headline: newConfig.texts[renderLang]?.headline ?? newConfig.texts.ko.headline ?? '',
@@ -556,6 +771,17 @@ export default function ThumbnailEditorPage() {
     const matchSearch = !q || t.nameKo.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
     return matchLayout && matchSearch
   })
+  const groupedTemplates = LAYOUT_FILTERS
+    .filter(f => f.key !== 'all')
+    .map(f => ({
+      key: f.key,
+      label: f.label,
+      items: filtered.filter(t => t.layout === f.key),
+    }))
+    .filter(group => group.items.length > 0)
+  const uncategorizedTemplates = filtered.filter(t =>
+    !t.layout || !LAYOUT_FILTERS.some(f => f.key === t.layout)
+  )
 
   // ── 모델 그룹핑 ──
 
@@ -608,10 +834,36 @@ export default function ThumbnailEditorPage() {
 
         <div className="ml-auto flex items-center gap-2">
           {saveStatus && <span className="text-xs text-emerald-600 font-medium">{saveStatus}</span>}
-          <Button variant="outline" size="sm" onClick={saveConfig}
-            className="text-xs h-7">
-            Config 저장
-          </Button>
+          <div className="relative flex items-center gap-1" ref={saveMenuRef}>
+            <Button variant="outline" size="sm" onClick={saveCurrentTemplate}
+              disabled={flatSaving || !selectedId || (!config && !newConfig)}
+              className="text-xs h-7">
+              {flatSaving ? '저장 중...' : '저장'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setSaveMenuOpen(o => !o)}
+              disabled={flatSaving || !selectedId}
+              className="h-7 w-7 p-0 text-gray-500">
+              <MoreHorizontal className="w-3.5 h-3.5" />
+            </Button>
+            {saveMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-44 rounded-md border border-gray-200 bg-white shadow-lg p-1 z-20">
+                <button
+                  onClick={saveAsNewVersion}
+                  disabled={flatSaving || !selectedId || (!config && !newConfig)}
+                  className="w-full flex items-center gap-2 px-2 py-2 text-xs text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <Copy className="w-3.5 h-3.5" />
+                  새 버전으로 저장
+                </button>
+                <button
+                  onClick={deleteCurrentVersion}
+                  disabled={flatSaving || !selectedId}
+                  className="w-full flex items-center gap-2 px-2 py-2 text-xs text-red-600 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <Trash2 className="w-3.5 h-3.5" />
+                  현재 버전 삭제
+                </button>
+              </div>
+            )}
+          </div>
           <Button variant="outline" size="sm" nativeButton={false}
             render={<Link href="/admin/thumbnail/gallery" />}
             className="text-xs h-7 gap-1.5">
@@ -629,7 +881,7 @@ export default function ThumbnailEditorPage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── 왼쪽: 단일 슬라이딩 패널 (L1 브라우저 + L2 편집) ── */}
-        <aside className="w-72 flex-shrink-0 border-r border-gray-200 bg-white overflow-hidden relative">
+        <aside className="w-80 flex-shrink-0 border-r border-gray-200 bg-white overflow-hidden relative">
 
           {/* ── L1: 템플릿 브라우저 ── */}
           <div className="absolute inset-0 flex flex-col transition-transform duration-150 ease-in-out"
@@ -657,24 +909,24 @@ export default function ThumbnailEditorPage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
-              {filtered.map(t => (
-                <button key={t.id}
-                  onClick={() => { selectTemplate(t.id); setPanelLevel('editing') }}
-                  className={cn(
-                    'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md border text-left transition-colors',
-                    selectedId === t.id
-                      ? 'bg-blue-50 border-blue-300 text-blue-700'
-                      : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50 hover:border-gray-200'
-                  )}>
-                  <div className="w-6 h-6 rounded flex-shrink-0 border border-gray-200 shadow-sm"
-                    style={{ background: t.color ?? t.accentColor ?? '#e5e7eb' }} />
-                  <div className="min-w-0">
-                    <div className="text-xs font-medium truncate">{t.nameKo}</div>
-                    <div className="text-[10px] text-gray-400 truncate">{t.layout}</div>
-                  </div>
-                </button>
+            <div className="flex-1 overflow-y-auto p-2 space-y-3">
+              {groupedTemplates.map(group => (
+                <LayoutGroupSection
+                  key={group.key}
+                  title={group.label}
+                  items={group.items}
+                  selectedId={selectedId}
+                  onSelect={id => { selectTemplate(id); setPanelLevel('editing') }}
+                />
               ))}
+              {uncategorizedTemplates.length > 0 && (
+                <LayoutGroupSection
+                  title="기타"
+                  items={uncategorizedTemplates}
+                  selectedId={selectedId}
+                  onSelect={id => { selectTemplate(id); setPanelLevel('editing') }}
+                />
+              )}
             </div>
           </div>
 
@@ -683,17 +935,14 @@ export default function ThumbnailEditorPage() {
             style={{ transform: panelLevel === 'editing' ? 'translateX(0)' : 'translateX(100%)' }}>
             {newConfig !== null ? (
               <FlatEditor
-                layouts={layouts}
-                effects={effects}
+                scenes={scenes}
                 config={newConfig}
                 templateName={templateName}
                 lang={flatLang}
                 onLangChange={setFlatLang}
                 onConfigChange={patch => setNewConfig(prev => prev ? { ...prev, ...patch } : null)}
                 onTemplateNameChange={setTemplateName}
-                onSave={saveFlatConfig}
                 onTranslate={translateFlatContent}
-                saving={flatSaving}
                 translating={flatTranslating}
                 selectedTarget={selectedTarget}
                 onSelectTarget={setSelectedTarget}
@@ -983,7 +1232,7 @@ export default function ThumbnailEditorPage() {
       </div>
 
       {/* Legacy 변환 배너 — newConfig=null이고 legacy 템플릿 선택된 경우 */}
-      {newConfig === null && selectedId && templates.find(t => t.id === selectedId)?.source === 'legacy' && layouts.length > 0 && (
+      {newConfig === null && selectedId && templates.find(t => t.id === selectedId)?.source === 'legacy' && scenes.length > 0 && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 shadow-lg flex items-center gap-3">
           <span className="text-xs text-amber-700">⚠️ 구형 포맷 템플릿입니다.</span>
           <button onClick={convertLegacy}

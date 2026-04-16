@@ -3,26 +3,20 @@
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import type { LayoutToken, EffectToken } from '@/lib/thumbnail-compose'
-import type { TemplateConfig, TextContent, Lang } from '../_types'
+import type { SceneToken, TemplateConfig, TextContent, Lang } from '../_types'
 import { LANG_LABELS } from '../_types'
 import { ElementControls } from './ElementControls'
 
 interface Props {
-  layouts:              LayoutToken[]
-  effects:              EffectToken[]
+  scenes:               SceneToken[]
   config:               TemplateConfig | null
   templateName:         string
   lang:                 Lang
   onLangChange:         (lang: Lang) => void
   onConfigChange:       (patch: Partial<TemplateConfig>) => void
   onTemplateNameChange: (name: string) => void
-  onSave:               () => void
   onTranslate:          () => void
-  saving:               boolean
   translating:          boolean
-  isLegacy?:            boolean
-  onConvertLegacy?:     () => void
   selectedTarget?:      string | null
   onSelectTarget?:      (t: string | null) => void
   onBack:               () => void
@@ -49,9 +43,9 @@ function Section({ label, children }: { label: string; children: React.ReactNode
 }
 
 export function FlatEditor({
-  layouts, effects, config, templateName, lang, onLangChange,
-  onConfigChange, onTemplateNameChange, onSave, onTranslate,
-  saving, translating, isLegacy, onConvertLegacy,
+  scenes, config, templateName, lang, onLangChange,
+  onConfigChange, onTemplateNameChange, onTranslate,
+  translating,
   selectedTarget, onSelectTarget,
   onBack,
 }: Props) {
@@ -63,10 +57,7 @@ export function FlatEditor({
     )
   }
 
-  const currentLayout = layouts.find(l => l.id === config.layoutTokenId)
-  const compatibleEffects = currentLayout?.compatibleEffects
-    ? effects.filter(e => currentLayout.compatibleEffects.includes(e.id))
-    : effects
+  const currentScene = scenes.find(scene => scene.id === config.sceneTokenId)
 
   const currentTexts = config.texts[lang] ?? config.texts.ko
 
@@ -101,16 +92,6 @@ export function FlatEditor({
         style={{ transform: selectedTarget ? 'translateX(-100%)' : 'translateX(0)' }}>
 
         {/* Legacy 배너 */}
-        {isLegacy && (
-          <div className="bg-amber-50 border-b border-amber-200 px-3 py-2 flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-amber-700">⚠️ 구형 포맷 템플릿입니다.</span>
-            <button onClick={onConvertLegacy}
-              className="text-xs text-amber-800 underline font-medium ml-auto">
-              새 포맷으로 변환
-            </button>
-          </div>
-        )}
-
         {/* 뒤로가기 헤더 */}
         <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100 shrink-0">
           <button onClick={onBack}
@@ -146,35 +127,23 @@ export function FlatEditor({
             )}
           </div>
 
-          {/* 레이아웃 */}
-          <Section label="레이아웃">
+          {/* 씬 */}
+          <Section label="장면">
+            {currentScene && (
+              <p className="text-[10px] text-gray-400 mb-2 px-0.5">
+                {currentScene.description}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-1.5">
-              {layouts.map(l => (
-                <button key={l.id} onClick={() => onConfigChange({ layoutTokenId: l.id })}
+              {scenes.map(scene => (
+                <button key={scene.id} onClick={() => onConfigChange({ sceneTokenId: scene.id })}
                   className={`text-left p-2 rounded border text-xs transition-colors ${
-                    config.layoutTokenId === l.id
+                    config.sceneTokenId === scene.id
                       ? 'border-gray-900 bg-gray-900 text-white'
                       : 'border-gray-200 hover:border-gray-400'
                   }`}>
-                  <div className="font-medium mb-0.5">{l.name}</div>
-                  <div className="opacity-60 text-[10px] line-clamp-2">{l.description}</div>
-                </button>
-              ))}
-            </div>
-          </Section>
-
-          {/* 이펙트 */}
-          <Section label="이펙트">
-            <div className="grid grid-cols-2 gap-1.5">
-              {compatibleEffects.map(e => (
-                <button key={e.id} onClick={() => onConfigChange({ effectTokenId: e.id })}
-                  className={`text-left p-2 rounded border text-xs transition-colors ${
-                    config.effectTokenId === e.id
-                      ? 'border-gray-900 bg-gray-900 text-white'
-                      : 'border-gray-200 hover:border-gray-400'
-                  }`}>
-                  <div className="font-medium mb-0.5">{e.name}</div>
-                  <div className="opacity-60 text-[10px]">{e.description}</div>
+                  <div className="font-medium mb-0.5">{scene.nameKo}</div>
+                  <div className="opacity-60 text-[10px] line-clamp-2">{scene.description}</div>
                 </button>
               ))}
             </div>
@@ -236,18 +205,17 @@ export function FlatEditor({
             </div>
           </Section>
 
-          {/* 저장 */}
-          <div className="p-3 border-t border-gray-100 flex items-center gap-2 flex-shrink-0">
+          {/* 이름 */}
+          <div className="p-3 border-t border-gray-100 flex flex-col gap-1.5 flex-shrink-0">
             <Input
               value={templateName}
               onChange={e => onTemplateNameChange(e.target.value)}
               placeholder="템플릿 이름"
-              className="h-7 text-xs flex-1"
+              className="h-7 text-xs"
             />
-            <Button size="sm" onClick={onSave} disabled={saving}
-              className="text-xs h-7 shrink-0">
-              {saving ? '저장 중...' : '저장'}
-            </Button>
+            <p className="text-[10px] text-gray-400">
+              저장은 상단 툴바에서 진행됩니다.
+            </p>
           </div>
         </div>
       </div>

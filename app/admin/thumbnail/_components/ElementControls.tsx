@@ -1,7 +1,8 @@
 // app/admin/thumbnail/_components/ElementControls.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { ELEMENT_TYPES, PROP_META, FONT_OPTIONS } from '@/lib/thumbnail-element-schema'
 import type { ElementInstance } from '@/lib/thumbnail-element-schema'
 
@@ -11,17 +12,25 @@ interface Props {
   onPropChange: (prop: string, value: string | number) => void
 }
 
-// 팔레트 (템플릿에서 자주 쓰이는 색상)
-const PALETTE = ['#ffffff', '#000000', '#1a1a2e', '#ff6b9d', '#ffd700', '#00d4aa', '#6366f1', '#f43f5e']
-
 const ELEMENT_COLORS: Record<string, string> = {
   'brand-ko': '#6366f1', 'headline': '#2563eb',
   'headline-ko': '#7c3aed', 'subheadline': '#059669', 'price': '#db2777',
 }
 
-// prop → 섹션 분류
 const TYPOGRAPHY_PROPS = new Set(['fontSize', 'fontFamily', 'lineHeight', 'letterSpacing'])
 const COLOR_PROPS      = new Set(['color', 'bgColor', 'unitColor'])
+
+// ── 색상 헬퍼 ──
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const m = hex.match(/^#([0-9a-fA-F]{6})$/)
+  if (!m) return null
+  const n = parseInt(m[1], 16)
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+}
 
 // ── StepInput ──
 function StepInput({ prop, value, onChange }: {
@@ -56,28 +65,113 @@ function StepInput({ prop, value, onChange }: {
   )
 }
 
-// ── ColorRow ──
+// ── ColorRow — Swatch 클릭 → Popover (Hex + RGB 슬라이더) ──
+const CH_COLORS = { r: '#ef4444', g: '#22c55e', b: '#3b82f6' } as const
+
 function ColorRow({ prop, value, onChange }: {
   prop: string; value: string; onChange: (v: string) => void
 }) {
   const label = PROP_META[prop]?.label ?? prop
+  const [open, setOpen]   = useState(false)
+  const [hex,  setHex]    = useState(value.startsWith('#') ? value : '#ffffff')
+  const triggerRef        = useRef<HTMLButtonElement>(null)
+  const popoverRef        = useRef<HTMLDivElement>(null)
+  const [pos, setPos]     = useState({ top: 0, right: 0 })
+
+  // 외부 값 변경 동기화
+  useEffect(() => {
+    if (value.startsWith('#')) setHex(value)
+  }, [value])
+
+  // 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!open) return
+    const handle = (e: MouseEvent) => {
+      if (
+        !triggerRef.current?.contains(e.target as Node) &&
+        !popoverRef.current?.contains(e.target as Node)
+      ) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  const handleOpen = () => {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    }
+    setOpen(o => !o)
+  }
+
+  const handleHexInput = (v: string) => {
+    setHex(v)
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) onChange(v)
+  }
+
+  const rgb = hexToRgb(hex) ?? { r: 255, g: 255, b: 255 }
+
+  const handleRgb = (ch: 'r' | 'g' | 'b', v: number) => {
+    const next = { ...rgb, [ch]: v }
+    const h = rgbToHex(next.r, next.g, next.b)
+    setHex(h)
+    onChange(h)
+  }
+
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center gap-2">
-        <span className="text-[10px] text-gray-400 flex-1">{label}</span>
-        <input type="color"
-          value={value.startsWith('#') ? value : '#ffffff'}
-          onChange={e => onChange(e.target.value)}
-          className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0.5" />
-        <span className="text-[10px] text-gray-400 font-mono w-14 truncate">{value}</span>
-      </div>
-      <div className="flex gap-1 flex-wrap">
-        {PALETTE.map(c => (
-          <button key={c} onClick={() => onChange(c)}
-            className={`w-5 h-5 rounded border-2 transition-all ${value === c ? 'border-blue-400 scale-110' : 'border-transparent hover:scale-105'}`}
-            style={{ background: c, boxShadow: '0 0 0 1px rgba(0,0,0,0.1)' }} />
-        ))}
-      </div>
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] text-gray-400 flex-1 truncate">{label}</span>
+      <button ref={triggerRef} onClick={handleOpen}
+        className="flex items-center gap-1.5 px-2 py-1 border border-gray-200 rounded hover:border-gray-400 transition-colors shrink-0">
+        <span className="w-3.5 h-3.5 rounded-sm border border-black/10 shrink-0"
+          style={{ background: hex }} />
+        <span className="text-[10px] font-mono text-gray-600">{hex}</span>
+        <svg className={`w-2.5 h-2.5 text-gray-300 transition-transform ${open ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {open && typeof document !== 'undefined' && createPortal(
+        <div ref={popoverRef}
+          style={{ position: 'fixed', top: pos.top, right: pos.right, zIndex: 9999 }}
+          className="w-52 bg-white border border-gray-200 rounded-lg shadow-xl p-3 space-y-3">
+
+          {/* 프리뷰 + Hex 인풋 */}
+          <div className="flex items-center gap-2">
+            <span className="w-7 h-7 rounded-md border border-gray-200 shrink-0 shadow-sm"
+              style={{ background: hex }} />
+            <input
+              value={hex}
+              onChange={e => handleHexInput(e.target.value)}
+              className="flex-1 text-[11px] font-mono border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400 uppercase tracking-wider"
+              placeholder="#ffffff"
+              maxLength={7}
+              spellCheck={false}
+            />
+          </div>
+
+          {/* RGB 슬라이더 */}
+          {(['r', 'g', 'b'] as const).map(ch => (
+            <div key={ch} className="flex items-center gap-2">
+              <span className="text-[10px] font-bold w-3 shrink-0 tabular-nums"
+                style={{ color: CH_COLORS[ch] }}>
+                {ch.toUpperCase()}
+              </span>
+              <input type="range" min={0} max={255} step={1}
+                value={rgb[ch]}
+                onChange={e => handleRgb(ch, parseInt(e.target.value))}
+                className="flex-1 h-1 cursor-pointer rounded-full appearance-none"
+                style={{ accentColor: CH_COLORS[ch] }}
+              />
+              <span className="text-[10px] font-mono text-gray-500 w-7 text-right tabular-nums shrink-0">
+                {rgb[ch]}
+              </span>
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
@@ -191,7 +285,7 @@ export function ElementControls({ element, onBack, onPropChange }: Props) {
         {colorPs.length > 0 && (
           <div>
             <SectionLabel>색상</SectionLabel>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {colorPs.map(prop =>
                 <ColorRow key={prop} prop={prop}
                   value={String(val(prop) || '#ffffff')}
